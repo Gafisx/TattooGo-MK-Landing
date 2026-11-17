@@ -6,6 +6,7 @@ import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 export default function HeroSection() {
   return (
     <section
+      id="top"
       className="gpu-accelerate relative isolate flex min-h-[100svh] overflow-hidden bg-[#121212]"
       aria-labelledby="hero-title"
     >

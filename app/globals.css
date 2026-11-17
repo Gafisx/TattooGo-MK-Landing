@@ -87,6 +87,20 @@ html.lenis body {
   transform: translate3d(30%, 0, 0);
 }
 
+.footer-store-button,
+.footer-nav-link {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.footer-nav-link {
+  transition: color 200ms ease;
+}
+
+.footer-nav-link:hover {
+  color: #ff9900;
+}
+
 @keyframes needle-drift {
   from {
     transform: translate3d(0, -0.6%, 0) rotate(-0.8deg) scale(1);
@@ -102,7 +116,9 @@ html.lenis body {
   }
 
   .hero-store-button,
-  .hero-store-button::before {
+  .hero-store-button::before,
+  .footer-store-button,
+  .footer-nav-link {
     transition: none;
   }
 }
