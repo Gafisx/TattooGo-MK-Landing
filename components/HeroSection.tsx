@@ -84,7 +84,7 @@ export default function HeroSection() {
         fill
         priority
         sizes="100vw"
-        className="gpu-accelerate object-cover object-[58%_center]"
+        className="gpu-accelerate object-cover object-[58%_center] opacity-75"
       />
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.34)_72%,rgba(18,18,18,0.72)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.18),rgba(18,18,18,0.82)_100%)]" />
@@ -205,11 +205,6 @@ export default function HeroSection() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF6600]/50 to-[#00FF66]/35" />
-      <div
-        data-master-wipe
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
-      />
     </section>
   );
 }

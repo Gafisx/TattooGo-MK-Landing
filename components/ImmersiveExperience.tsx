@@ -124,7 +124,7 @@ export default function ImmersiveExperience() {
         fill
         priority
         sizes="100vw"
-        className="gpu-accelerate object-cover"
+        className="gpu-accelerate object-cover opacity-55"
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.96)_0%,rgba(18,18,18,0.58)_42%,rgba(18,18,18,0.1)_100%)]" />
       <div
@@ -171,11 +171,6 @@ export default function ImmersiveExperience() {
           </p>
         </div>
       </div>
-      <div
-        data-master-wipe
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
-      />
     </section>
   );
 }
