@@ -35,7 +35,6 @@ type SceneReveal = {
 };
 
 const MAX_PARTICLES = 96;
-const MAX_CANVAS_PIXELS = 8_000_000;
 
 export default function MasterTattooEngine({
   children,
@@ -68,7 +67,9 @@ export default function MasterTattooEngine({
       return;
     }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
@@ -110,8 +111,13 @@ export default function MasterTattooEngine({
     let needleAngle = 0;
     let scrollVelocity = 0;
     let frameId = 0;
+    let progressFrameId = 0;
     let lastFrameTime = 0;
     let lastParticleTime = 0;
+    let lastScrollY = window.scrollY;
+    let lastScrollTime = performance.now();
+    let lastInkPoint: { x: number; y: number } | null = null;
+    let pendingTrigger: ScrollTrigger | null = null;
     let globalTrigger: ScrollTrigger | null = null;
     const setNeedleX = gsap.quickSetter(needle, "x", "px");
     const setNeedleY = gsap.quickSetter(needle, "y", "px");
@@ -123,6 +129,17 @@ export default function MasterTattooEngine({
       frameId = window.requestAnimationFrame(renderFrame);
     };
 
+    const queueGlobalProgress = (trigger?: ScrollTrigger) => {
+      if (trigger) pendingTrigger = trigger;
+      if (progressFrameId) return;
+      progressFrameId = window.requestAnimationFrame(() => {
+        progressFrameId = 0;
+        const activeTrigger = pendingTrigger ?? globalTrigger ?? undefined;
+        pendingTrigger = null;
+        updateGlobalProgress(activeTrigger);
+      });
+    };
+
     const updateSceneGeometry = () => {
       const engineTop = engine.getBoundingClientRect().top + window.scrollY;
       scenes.forEach((item) => {
@@ -132,12 +149,13 @@ export default function MasterTattooEngine({
     };
 
     const updateSceneReveals = (needleDocumentY: number) => {
-      scenes.forEach(({ top, height, setScale }) => {
+      scenes.forEach(({ scene, top, height, setScale }) => {
         const progress =
           height > 0
             ? Math.max(0, Math.min(1, (needleDocumentY - top) / height))
             : 0;
         setScale(1 - progress);
+        gsap.set(scene, { opacity: 0.72 + progress * 0.28 });
       });
     };
 
@@ -159,26 +177,43 @@ export default function MasterTattooEngine({
 
     const updateNeedleTransform = (time = performance.now()) => {
       if (!needlePoint) return;
-      const vibration =
-        Math.min(1, Math.abs(scrollVelocity) / 1800) *
-        Math.sin(time * 0.09) *
-        2.4;
+      const vibration = reducedMotion
+        ? 0
+        : 0.28 + Math.min(0.72, Math.abs(scrollVelocity) / 2500);
+      const vibrationX = vibration * Math.sin(time * 0.31) * 1.4;
+      const vibrationY = vibration * Math.sin(time * 0.43) * 1.1;
+      const motorRotation = reducedMotion ? 0 : Math.sin(time * 0.19) * 0.7;
 
-      setNeedleX(needlePoint.x - needleWidth * 0.68);
+      setNeedleX(needlePoint.x - needleWidth * 0.68 + vibrationX);
       setNeedleY(
-        needlePoint.y - window.scrollY - needleHeight * 0.56,
+        needlePoint.y - window.scrollY - needleHeight * 0.56 + vibrationY,
       );
-      setNeedleRotation(needleAngle + vibration);
+      setNeedleRotation(needleAngle + motorRotation);
     };
 
     const updateGlobalProgress = (trigger?: ScrollTrigger) => {
       if (!pathLength || !documentHeight) return;
 
-      if (trigger) scrollVelocity = trigger.getVelocity();
+      const now = performance.now();
       const scrollY = window.scrollY;
+      const elapsed = Math.max(1, now - lastScrollTime);
+      const measuredVelocity = ((scrollY - lastScrollY) / elapsed) * 1000;
+      const triggerVelocity = trigger?.getVelocity() ?? 0;
+      scrollVelocity =
+        Math.abs(triggerVelocity) > Math.abs(measuredVelocity)
+          ? triggerVelocity
+          : measuredVelocity;
+      lastScrollY = scrollY;
+      lastScrollTime = now;
+      const maxScroll = Math.max(1, ScrollTrigger.maxScroll(window));
+      const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
+      const verticalInset = viewportHeight * 0.12;
       const needleDocumentY = Math.max(
-        0,
-        Math.min(documentHeight, scrollY + viewportHeight * 0.52),
+        verticalInset,
+        Math.min(
+          documentHeight - verticalInset,
+          verticalInset + progress * (documentHeight - verticalInset * 2),
+        ),
       );
       needlePathLength = getPathLengthAtY(needleDocumentY);
       needlePoint = inkPath.getPointAtLength(needlePathLength);
@@ -201,9 +236,8 @@ export default function MasterTattooEngine({
       updateSceneReveals(needleDocumentY);
       updateNeedleTransform();
 
-      const now = performance.now();
       const speed = Math.abs(scrollVelocity);
-      if (speed > 180 && now - lastParticleTime > 24) {
+      if (!reducedMotion && speed > 180 && now - lastParticleTime > 24) {
         lastParticleTime = now;
         emitParticles(
           needlePoint.x,
@@ -211,6 +245,7 @@ export default function MasterTattooEngine({
           speed,
         );
       }
+      drawInkTrail(needlePoint.x, needlePoint.y - scrollY);
       scheduleFrame();
     };
 
@@ -255,23 +290,13 @@ export default function MasterTattooEngine({
     };
 
     const resizeCanvas = () => {
-      const pixelBudgetRatio = Math.sqrt(
-        MAX_CANVAS_PIXELS / Math.max(1, viewportWidth * documentHeight),
-      );
-      const maxWidthRatio = 32767 / Math.max(1, viewportWidth);
-      const maxHeightRatio = 32767 / Math.max(1, documentHeight);
-      pixelRatio = Math.min(
-        window.devicePixelRatio || 1,
-        1.25,
-        pixelBudgetRatio,
-        maxWidthRatio,
-        maxHeightRatio,
-      );
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = Math.round(viewportWidth * pixelRatio);
-      canvas.height = Math.round(documentHeight * pixelRatio);
-      canvas.style.height = `${documentHeight}px`;
+      canvas.height = Math.round(viewportHeight * pixelRatio);
+      canvas.style.height = `${viewportHeight}px`;
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      context.clearRect(0, 0, viewportWidth, documentHeight);
+      context.clearRect(0, 0, viewportWidth, viewportHeight);
+      lastInkPoint = null;
     };
 
     const resize = () => {
@@ -297,6 +322,8 @@ export default function MasterTattooEngine({
       ScrollTrigger.refresh();
     };
 
+    const handleScroll = () => queueGlobalProgress(globalTrigger ?? undefined);
+
     const emitParticles = (x: number, y: number, speed: number) => {
       const count = Math.min(5, Math.max(1, Math.floor(speed / 900) + 1));
       for (let index = 0; index < count; index += 1) {
@@ -317,12 +344,59 @@ export default function MasterTattooEngine({
       scheduleFrame();
     };
 
+    const drawInkTrail = (x: number, y: number) => {
+      context.save();
+      context.globalCompositeOperation = "destination-out";
+      context.globalAlpha = 0.018;
+      context.fillRect(0, 0, viewportWidth, viewportHeight);
+      context.globalCompositeOperation = "source-over";
+      context.globalAlpha = 0.9;
+
+      if (lastInkPoint) {
+        const gradient = context.createLinearGradient(
+          lastInkPoint.x,
+          lastInkPoint.y,
+          x,
+          y,
+        );
+        gradient.addColorStop(0, "#FF6600");
+        gradient.addColorStop(0.52, "#FF9900");
+        gradient.addColorStop(1, "#00FF66");
+
+        context.beginPath();
+        context.moveTo(lastInkPoint.x, lastInkPoint.y);
+        context.lineTo(x, y);
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.strokeStyle = gradient;
+        context.lineWidth = 2.8;
+        context.shadowColor = "#FF6600";
+        context.shadowBlur = 12;
+        context.stroke();
+      } else {
+        context.beginPath();
+        context.arc(x, y, 2, 0, Math.PI * 2);
+        context.fillStyle = "#FF9900";
+        context.shadowColor = "#FF6600";
+        context.shadowBlur = 12;
+        context.fill();
+      }
+
+      context.restore();
+      lastInkPoint = { x, y };
+    };
+
     function renderFrame(time: number) {
       frameId = 0;
       const frameContext = context;
       if (!frameContext) return;
       const delta = Math.min((time - lastFrameTime) / 16.67, 2);
       lastFrameTime = time;
+      frameContext.save();
+      frameContext.globalCompositeOperation = "destination-out";
+      frameContext.globalAlpha = 0.008;
+      frameContext.fillRect(0, 0, viewportWidth, viewportHeight);
+      frameContext.restore();
 
       for (let index = particles.length - 1; index >= 0; index -= 1) {
         const particle = particles[index];
@@ -354,8 +428,12 @@ export default function MasterTattooEngine({
       }
 
       frameContext.globalAlpha = 1;
-      if (particles.length || Math.abs(scrollVelocity) > 40) {
-        scrollVelocity *= Math.pow(0.84, delta);
+      if (!reducedMotion || particles.length || Math.abs(scrollVelocity) > 40) {
+        if (Math.abs(scrollVelocity) > 40) {
+          scrollVelocity *= Math.pow(0.84, delta);
+        } else {
+          scrollVelocity = 0;
+        }
         updateNeedleTransform(time);
         scheduleFrame();
       } else {
@@ -367,12 +445,17 @@ export default function MasterTattooEngine({
       if (document.hidden) {
         window.cancelAnimationFrame(frameId);
         frameId = 0;
-      } else if (particles.length || Math.abs(scrollVelocity) > 40) {
+      } else if (
+        !reducedMotion ||
+        particles.length ||
+        Math.abs(scrollVelocity) > 40
+      ) {
         scheduleFrame();
       }
     }
 
     window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     document.addEventListener("visibilitychange", handleVisibilityChange);
     ScrollTrigger.addEventListener("refresh", handleRefresh);
 
@@ -395,7 +478,7 @@ export default function MasterTattooEngine({
         start: "top top",
         end: () => `+=${Math.max(1, ScrollTrigger.maxScroll(window))}`,
         invalidateOnRefresh: true,
-        onUpdate: updateGlobalProgress,
+        onUpdate: queueGlobalProgress,
         onRefresh: updateGlobalProgress,
       });
       ScrollTrigger.refresh();
@@ -403,7 +486,9 @@ export default function MasterTattooEngine({
 
     return () => {
       window.cancelAnimationFrame(frameId);
+      window.cancelAnimationFrame(progressFrameId);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       ScrollTrigger.removeEventListener("refresh", handleRefresh);
       particles.length = 0;
@@ -420,20 +505,19 @@ export default function MasterTattooEngine({
         </div>
       ))}
 
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 z-[59] w-full"
-      />
-
       <div
         ref={overlayRef}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[60] overflow-hidden opacity-0 motion-reduce:hidden"
+        className="pointer-events-none fixed inset-0 z-40 overflow-hidden opacity-0"
       >
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-40 h-full w-full"
+        />
         <svg
           ref={svgRef}
-          className="absolute inset-0 h-full w-full"
+          className="pointer-events-none fixed inset-0 z-40 h-full w-full"
           preserveAspectRatio="none"
         >
           <path
@@ -468,7 +552,7 @@ export default function MasterTattooEngine({
         </svg>
         <div
           ref={needleRef}
-          className="gpu-accelerate absolute left-0 top-0 h-40 w-40 sm:h-52 sm:w-52 lg:h-64 lg:w-64"
+          className="gpu-accelerate pointer-events-none fixed left-0 top-0 z-50 h-40 w-40 sm:h-52 sm:w-52 lg:h-64 lg:w-64"
         >
           <Image
             src="/assets/images/tattoo-needle-scroll-hero.png"
