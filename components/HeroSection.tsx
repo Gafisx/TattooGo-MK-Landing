@@ -4,7 +4,6 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
-import TattooInkEngine from "@/components/TattooInkEngine";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,16 +13,10 @@ export default function HeroSection() {
   const copyRef = useRef<HTMLParagraphElement>(null);
   const storesRef = useRef<HTMLDivElement>(null);
   const inkStrokeRef = useRef<HTMLDivElement>(null);
-  const needleParallaxRef = useRef<HTMLDivElement>(null);
-  const needleMotorRef = useRef<HTMLDivElement>(null);
-  const needleFloatRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    const needleParallax = needleParallaxRef.current;
-    const needleMotor = needleMotorRef.current;
-    const needleFloat = needleFloatRef.current;
-    if (!section || !needleParallax || !needleMotor || !needleFloat) return;
+    if (!section) return;
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -52,18 +45,6 @@ export default function HeroSection() {
         force3D: true,
         willChange: "transform",
       });
-      gsap.set(needleParallax, {
-        force3D: true,
-        willChange: "transform",
-      });
-      gsap.set(needleMotor, {
-        force3D: true,
-        willChange: "transform",
-      });
-      gsap.set(needleFloat, {
-        force3D: true,
-        willChange: "transform",
-      });
 
       gsap
         .timeline({ defaults: { ease: "power3.out" } })
@@ -85,108 +66,9 @@ export default function HeroSection() {
         )
         .to(copyRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, "-=0.38")
         .to(storesRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, "-=0.35");
-
-      gsap.to(needleFloat, {
-        xPercent: 0.7,
-        yPercent: -1.1,
-        rotate: 0.25,
-        scale: 1.005,
-        duration: 5,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        force3D: true,
-      });
     }, section);
 
-    if (reduceMotion) {
-      return () => context.revert();
-    }
-
-    const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    let frameId = 0;
-    let lastFrameTime = 0;
-    let lastScrollY = window.scrollY;
-    let scrollVelocity = 0;
-    const setNeedleX = gsap.quickSetter(needleParallax, "x", "px");
-    const setNeedleY = gsap.quickSetter(needleParallax, "y", "px");
-    const setMotorRotation = gsap.quickSetter(needleMotor, "rotation", "deg");
-
-    const scheduleFrame = () => {
-      if (frameId) return;
-      lastFrameTime = performance.now();
-      frameId = window.requestAnimationFrame(renderFrame);
-    };
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const bounds = section.getBoundingClientRect();
-      const x = event.clientX - bounds.left;
-      const y = event.clientY - bounds.top;
-      pointer.targetX = (x / bounds.width - 0.5) * 2;
-      pointer.targetY = (y / bounds.height - 0.5) * 2;
-      scheduleFrame();
-    };
-
-    const handlePointerLeave = () => {
-      pointer.targetX = 0;
-      pointer.targetY = 0;
-      scheduleFrame();
-    };
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      scrollVelocity = Math.max(
-        -90,
-        Math.min(90, currentScrollY - lastScrollY),
-      );
-      lastScrollY = currentScrollY;
-      scheduleFrame();
-    };
-
-    const renderFrame = (time: number) => {
-      frameId = 0;
-      const delta = Math.min((time - lastFrameTime) / 16.67, 2);
-      lastFrameTime = time;
-      pointer.x += (pointer.targetX - pointer.x) * Math.min(1, 0.1 * delta);
-      pointer.y += (pointer.targetY - pointer.y) * Math.min(1, 0.1 * delta);
-      setNeedleX(pointer.x * 32);
-      setNeedleY(pointer.y * 24);
-      scrollVelocity *= Math.pow(0.86, delta);
-      const motorShake =
-        Math.sin(time * 0.47) * scrollVelocity * 0.004 +
-        Math.sin(time * 0.11) * 0.025;
-      setMotorRotation(motorShake);
-
-      const pointerIsSettled =
-        Math.abs(pointer.targetX - pointer.x) < 0.001 &&
-        Math.abs(pointer.targetY - pointer.y) < 0.001;
-      if (!pointerIsSettled || Math.abs(scrollVelocity) > 0.05) {
-        scheduleFrame();
-      }
-    };
-
-    const supportsHover = window.matchMedia(
-      "(hover: hover) and (pointer: fine)",
-    ).matches;
-    if (supportsHover) {
-      section.addEventListener("pointermove", handlePointerMove, {
-        passive: true,
-      });
-      section.addEventListener("pointerleave", handlePointerLeave, {
-        passive: true,
-      });
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      if (supportsHover) {
-        section.removeEventListener("pointermove", handlePointerMove);
-        section.removeEventListener("pointerleave", handlePointerLeave);
-      }
-      window.removeEventListener("scroll", handleScroll);
-      context.revert();
-    };
+    return () => context.revert();
   }, []);
 
   return (
@@ -206,7 +88,6 @@ export default function HeroSection() {
       />
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.34)_72%,rgba(18,18,18,0.72)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.18),rgba(18,18,18,0.82)_100%)]" />
-      <TattooInkEngine containerRef={sectionRef} />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">
         <div className="gpu-accelerate relative z-20 max-w-[720px] pt-10 lg:pt-0">
@@ -307,27 +188,10 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="gpu-accelerate relative h-[36vh] min-h-[260px] w-full sm:h-[42vh] lg:h-[72vh] lg:min-h-[540px]">
-          <div
-            ref={needleParallaxRef}
-            className="gpu-accelerate absolute inset-[-8%] -left-[18%] sm:left-[-8%] lg:-left-[4%]"
-          >
-            <div ref={needleMotorRef} className="gpu-accelerate absolute inset-0">
-              <div
-                ref={needleFloatRef}
-                className="gpu-accelerate absolute inset-0"
-              >
-                <Image
-                  src="/assets/images/tattoo-needle-scroll-hero.png"
-                  alt="Agulha profissional TattooGo MK criando um traço de tinta"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 58vw"
-                  className="gpu-accelerate needle-art object-contain"
-                />
-              </div>
-            </div>
-          </div>
+        <div
+          aria-hidden="true"
+          className="gpu-accelerate relative h-[36vh] min-h-[260px] w-full sm:h-[42vh] lg:h-[72vh] lg:min-h-[540px]"
+        >
           <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>
       </div>
