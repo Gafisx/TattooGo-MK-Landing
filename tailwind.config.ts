@@ -14,9 +14,14 @@ export default {
         },
         neon: {
           orange: "#FF6600",
+          green: "#00FF66",
         },
         amber: {
           glow: "#FF9900",
+        },
+        cyber: {
+          blue: "#4977FF",
+          purple: "#8D43FF",
         },
       },
       perspective: {

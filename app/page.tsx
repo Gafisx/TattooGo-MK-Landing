@@ -1,13 +1,13 @@
 import HeroSection from "@/components/HeroSection";
 import DualSidedSection from "@/components/DualSidedSection";
 import SecurityAndFooter from "@/components/SecurityAndFooter";
-import TattooScrollSection from "@/components/TattooScrollSection";
+import ImmersiveExperience from "@/components/ImmersiveExperience";
 
 export default function Home() {
   return (
     <main>
       <HeroSection />
-      <TattooScrollSection />
+      <ImmersiveExperience />
       <DualSidedSection />
       <SecurityAndFooter />
     </main>

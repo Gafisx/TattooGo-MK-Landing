@@ -7,12 +7,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function TattooScrollSection() {
+export default function ImmersiveExperience() {
   const sectionRef = useRef<HTMLElement>(null);
   const needleRef = useRef<HTMLDivElement>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
+  const orangeGlowRef = useRef<HTMLDivElement>(null);
+  const greenGlowRef = useRef<HTMLDivElement>(null);
+  const electricGlowRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -29,15 +31,14 @@ export default function TattooScrollSection() {
         opacity: 0,
         y: 48,
         transformPerspective: 1200,
+        force3D: true,
+        willChange: "transform, opacity",
       });
       gsap.set(detailRef.current, {
         opacity: 0,
         y: 24,
-      });
-      gsap.set(revealRef.current, {
-        clipPath: "inset(0 100% 0 0)",
-        transform: "translateZ(0)",
-        willChange: "clip-path, opacity",
+        force3D: true,
+        willChange: "transform, opacity",
       });
       gsap.set(needleRef.current, {
         xPercent: 12,
@@ -46,8 +47,20 @@ export default function TattooScrollSection() {
         scale: 1.08,
         transformPerspective: 1200,
         transformOrigin: "68% 56%",
+        force3D: true,
         willChange: "transform",
       });
+      gsap.set(
+        [
+          orangeGlowRef.current,
+          greenGlowRef.current,
+          electricGlowRef.current,
+        ],
+        {
+          force3D: true,
+          willChange: "transform",
+        },
+      );
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -68,15 +81,6 @@ export default function TattooScrollSection() {
           0.03,
         )
         .to(
-          revealRef.current,
-          {
-            clipPath: "inset(0 0% 0 0)",
-            duration: 0.72,
-            ease: "power2.inOut",
-          },
-          0.08,
-        )
-        .to(
           needleRef.current,
           {
             xPercent: -8,
@@ -84,6 +88,39 @@ export default function TattooScrollSection() {
             rotate: 3,
             scale: 0.94,
             duration: 0.78,
+            ease: "none",
+          },
+          0.08,
+        )
+        .to(
+          orangeGlowRef.current,
+          {
+            xPercent: 18,
+            yPercent: -12,
+            scale: 1.12,
+            duration: 0.82,
+            ease: "none",
+          },
+          0.08,
+        )
+        .to(
+          greenGlowRef.current,
+          {
+            xPercent: -16,
+            yPercent: 12,
+            scale: 1.18,
+            duration: 0.82,
+            ease: "none",
+          },
+          0.08,
+        )
+        .to(
+          electricGlowRef.current,
+          {
+            xPercent: 10,
+            yPercent: 14,
+            scale: 1.1,
+            duration: 0.82,
             ease: "none",
           },
           0.08,
@@ -102,7 +139,7 @@ export default function TattooScrollSection() {
     <section
       ref={sectionRef}
       className="gpu-accelerate relative h-[100svh] min-h-[640px] overflow-hidden bg-[#121212]"
-      aria-labelledby="tattoo-scroll-title"
+      aria-labelledby="immersive-experience-title"
     >
       <Image
         src="/assets/images/hero-texture-background.png"
@@ -112,7 +149,22 @@ export default function TattooScrollSection() {
         sizes="100vw"
         className="gpu-accelerate object-cover"
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,rgba(255,153,0,0.13),transparent_26%),linear-gradient(90deg,rgba(18,18,18,0.96)_0%,rgba(18,18,18,0.58)_42%,rgba(18,18,18,0.1)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.96)_0%,rgba(18,18,18,0.58)_42%,rgba(18,18,18,0.1)_100%)]" />
+      <div
+        ref={orangeGlowRef}
+        aria-hidden="true"
+        className="gpu-accelerate pointer-events-none absolute -right-[12%] top-[5%] h-[55vw] max-h-[700px] w-[55vw] max-w-[700px] rounded-full bg-[#FF6600]/20 blur-[100px]"
+      />
+      <div
+        ref={greenGlowRef}
+        aria-hidden="true"
+        className="gpu-accelerate pointer-events-none absolute -bottom-[28%] left-[12%] h-[48vw] max-h-[620px] w-[48vw] max-w-[620px] rounded-full bg-[#00FF66]/10 blur-[110px]"
+      />
+      <div
+        ref={electricGlowRef}
+        aria-hidden="true"
+        className="gpu-accelerate pointer-events-none absolute right-[22%] top-[20%] h-[34vw] max-h-[440px] w-[34vw] max-w-[440px] rounded-full bg-[radial-gradient(circle,rgba(73,119,255,0.16),rgba(141,67,255,0.1)_42%,transparent_72%)] blur-[65px]"
+      />
 
       <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 sm:px-10 lg:px-16">
         <div
@@ -124,7 +176,7 @@ export default function TattooScrollSection() {
             Arte em movimento
           </p>
           <h1
-            id="tattoo-scroll-title"
+            id="immersive-experience-title"
             className="text-[clamp(3.25rem,8vw,7.5rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-white"
           >
             Cada traço
@@ -133,22 +185,17 @@ export default function TattooScrollSection() {
         </div>
 
         <div
-          ref={revealRef}
-          className="gpu-accelerate absolute inset-0 overflow-hidden"
+          ref={needleRef}
+          className="gpu-accelerate pointer-events-none absolute inset-[-5%] z-[1] sm:inset-[-3%]"
         >
-          <div
-            ref={needleRef}
-            className="gpu-accelerate absolute inset-[-5%] sm:inset-[-3%]"
-          >
-            <Image
-              src="/assets/images/tattoo-needle-scroll-hero.png"
-              alt="Agulha de tatuagem desenhando um traço de tinta"
-              fill
-              priority
-              sizes="(max-width: 768px) 110vw, 100vw"
-              className="gpu-accelerate object-cover object-center"
-            />
-          </div>
+          <Image
+            src="/assets/images/tattoo-needle-scroll-hero.png"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 768px) 110vw, 100vw"
+            className="gpu-accelerate object-cover object-center"
+          />
         </div>
 
         <div
