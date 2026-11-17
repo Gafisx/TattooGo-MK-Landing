@@ -6,9 +6,10 @@ import {
   ArrowUpRight,
   Apple,
   Check,
-  LockKeyhole,
+  Fingerprint,
   Play,
   ShieldCheck,
+  WalletCards,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,22 +18,32 @@ gsap.registerPlugin(ScrollTrigger);
 
 const securityPoints = [
   {
-    icon: LockKeyhole,
-    title: "Transações criptografadas",
+    icon: Fingerprint,
+    title: "Criptografia ponta a ponta",
     description:
-      "Seus dados e pagamentos protegidos por uma camada segura em cada etapa.",
+      "Proteção criptográfica acompanha a troca de informações sensíveis em cada etapa.",
+    status: "E2E PROTECTED",
+  },
+  {
+    icon: WalletCards,
+    title: "Custódia acompanhada",
+    description:
+      "As condições e o status de cada reserva orientam as etapas até a liberação do saldo.",
+    status: "RESERVATION-BASED",
   },
   {
     icon: ShieldCheck,
     title: "Split payments automatizados",
     description:
-      "A liberação do saldo segue as condições da reserva, com mais previsibilidade para cliente e tatuador.",
+      "A divisão segue as condições apresentadas na reserva, com mais clareza para cliente e tatuador.",
+    status: "AUTO SPLIT",
   },
   {
     icon: Check,
     title: "Perfis verificados",
     description:
       "Uma comunidade com mais confiança para encontrar, contratar e criar.",
+    status: "TRUSTED PROFILES",
   },
 ];
 
@@ -41,6 +52,7 @@ export default function SecurityAndFooter() {
   const shieldRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const cleanupShieldTilt = useRef<(() => void) | null>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -51,8 +63,25 @@ export default function SecurityAndFooter() {
       return;
     }
 
+    const shieldCard = shieldRef.current?.querySelector<HTMLElement>(
+      "[data-shield-card]",
+    );
+    const shieldAura = shieldRef.current?.querySelector<HTMLElement>(
+      "[data-shield-aura]",
+    );
+    const shieldReveal = shieldRef.current?.querySelector<HTMLElement>(
+      "[data-shield-reveal]",
+    );
+
     const context = gsap.context(() => {
-      [shieldRef.current, copyRef.current, ctaRef.current].forEach((element) => {
+      [
+        shieldRef.current,
+        shieldCard,
+        shieldAura,
+        shieldReveal,
+        copyRef.current,
+        ctaRef.current,
+      ].forEach((element) => {
         if (element) {
           gsap.set(element, {
             force3D: true,
@@ -60,6 +89,82 @@ export default function SecurityAndFooter() {
           });
         }
       });
+
+      if (shieldAura) {
+        gsap.fromTo(
+          shieldAura,
+          { scale: 0.78, autoAlpha: 0.2, y: 18 },
+          {
+            scale: 1.08,
+            autoAlpha: 0.9,
+            y: -8,
+            ease: "none",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 82%",
+              end: "top 28%",
+              scrub: 0.85,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      }
+
+      if (shieldReveal) {
+        gsap.set(shieldReveal, {
+          scaleY: 1,
+          transformOrigin: "bottom center",
+        });
+        gsap.to(shieldReveal, {
+          scaleY: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 78%",
+            end: "top 34%",
+            scrub: 0.85,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
+
+      if (
+        shieldCard &&
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      ) {
+        const rotateX = gsap.quickTo(shieldCard, "rotationX", {
+          duration: 0.55,
+          ease: "power3.out",
+          force3D: true,
+        });
+        const rotateY = gsap.quickTo(shieldCard, "rotationY", {
+          duration: 0.55,
+          ease: "power3.out",
+          force3D: true,
+        });
+        const handlePointerMove = (event: PointerEvent) => {
+          const bounds = shieldCard.getBoundingClientRect();
+          const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+          const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+          rotateX(y * -5);
+          rotateY(x * 7);
+        };
+        const resetTilt = () => {
+          rotateX(0);
+          rotateY(0);
+        };
+
+        shieldCard.addEventListener("pointermove", handlePointerMove, {
+          passive: true,
+        });
+        shieldCard.addEventListener("pointerleave", resetTilt, {
+          passive: true,
+        });
+        cleanupShieldTilt.current = () => {
+          shieldCard.removeEventListener("pointermove", handlePointerMove);
+          shieldCard.removeEventListener("pointerleave", resetTilt);
+        };
+      }
 
       const securityItems =
         copyRef.current?.querySelectorAll<HTMLElement>("[data-security-point]");
@@ -140,7 +245,11 @@ export default function SecurityAndFooter() {
       );
     }, section);
 
-    return () => context.revert();
+    return () => {
+      cleanupShieldTilt.current?.();
+      cleanupShieldTilt.current = null;
+      context.revert();
+    };
   }, []);
 
   return (
@@ -157,7 +266,15 @@ export default function SecurityAndFooter() {
           ref={shieldRef}
           className="gpu-accelerate relative mx-auto aspect-square w-full max-w-[620px] [perspective:1200px]"
         >
-          <div className="gpu-accelerate-child absolute inset-[8%] isolate overflow-hidden rounded-[2.5rem] border border-white/15 bg-[#1A1A1A]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl [transform-style:preserve-3d]">
+          <div
+            data-shield-aura
+            aria-hidden="true"
+            className="gpu-accelerate pointer-events-none absolute inset-[5%] rounded-[2.5rem] bg-gradient-to-br from-[#FF6600]/30 via-[#FF9900]/10 to-[#00FF66]/30 opacity-60 blur-[75px]"
+          />
+          <div
+            data-shield-card
+            className="gpu-accelerate-child absolute inset-[8%] isolate overflow-hidden rounded-[2.5rem] border border-white/20 bg-[#1A1A1A]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl [transform-style:preserve-3d]"
+          >
             <div className="pointer-events-none absolute -left-[12%] top-[8%] h-[55%] w-[65%] rounded-full bg-[#FF6600]/15 blur-[80px]" />
             <div className="pointer-events-none absolute -bottom-[14%] right-[-8%] h-[58%] w-[62%] rounded-full bg-[#00FF66]/10 blur-[90px]" />
             <div className="pointer-events-none absolute right-[8%] top-[12%] h-[36%] w-[42%] rounded-full bg-[#4977FF]/[0.09] blur-[70px]" />
@@ -168,15 +285,21 @@ export default function SecurityAndFooter() {
               alt="Escudo TattooGo MK simbolizando a proteção dos pagamentos entre cliente e tatuador"
               fill
               sizes="(max-width: 1024px) 90vw, 48vw"
-              className="gpu-accelerate object-contain p-[5%]"
+              className="gpu-accelerate object-contain p-[5%] [transform:translate3d(0,0,24px)]"
             />
 
-            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/10 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,32px)]">
+            <div
+              data-shield-reveal
+              aria-hidden="true"
+              className="gpu-accelerate-child pointer-events-none absolute inset-3 z-[1] rounded-[2rem] bg-[linear-gradient(160deg,rgba(18,18,18,0.92)_0%,rgba(255,102,0,0.2)_42%,rgba(0,255,102,0.22)_100%)] motion-reduce:scale-y-0"
+            />
+
+            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/10 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#00FF66]">
-                Secure payments
+                Secure enclave
               </p>
               <p className="mt-1 text-[11px] text-white/65">
-                Split protegido
+                Reserva protegida
               </p>
             </div>
           </div>
@@ -203,7 +326,8 @@ export default function SecurityAndFooter() {
           </p>
 
           <ul className="mt-8 space-y-5 sm:mt-10">
-            {securityPoints.map(({ icon: Icon, title, description }) => (
+            {securityPoints.map(
+              ({ icon: Icon, title, description, status }) => (
               <li
                 key={title}
                 data-security-point
@@ -212,16 +336,23 @@ export default function SecurityAndFooter() {
                 <span className="gpu-accelerate-child flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#00FF66]/20 bg-[#00FF66]/[0.06] text-[#FF9900]">
                   <Icon aria-hidden="true" className="h-[18px] w-[18px]" />
                 </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-white sm:text-base">
-                    {title}
-                  </h3>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h3 className="text-sm font-semibold text-white sm:text-base">
+                      {title}
+                    </h3>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.14em] text-[#00FF66]/75">
+                      <span className="h-1 w-1 rounded-full bg-[#00FF66] shadow-[0_0_7px_#00FF66]" />
+                      {status}
+                    </span>
+                  </div>
                   <p className="mt-1 max-w-lg text-sm leading-6 text-white/55">
                     {description}
                   </p>
                 </div>
               </li>
-            ))}
+              ),
+            )}
           </ul>
         </div>
       </div>
@@ -251,7 +382,7 @@ export default function SecurityAndFooter() {
               href="https://www.apple.com/app-store/"
               target="_blank"
               rel="noopener noreferrer"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-[#FF6600]/70 motion-reduce:transition-none"
+              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 hover:shadow-[0_0_30px_rgba(255,102,0,0.18)] motion-reduce:transition-none"
             >
               <Apple
                 aria-hidden="true"
@@ -275,7 +406,7 @@ export default function SecurityAndFooter() {
               href="https://play.google.com/store/apps"
               target="_blank"
               rel="noopener noreferrer"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-[#00FF66]/60 motion-reduce:transition-none"
+              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 hover:shadow-[0_0_30px_rgba(0,255,102,0.16)] motion-reduce:transition-none"
             >
               <Play
                 aria-hidden="true"
@@ -348,6 +479,10 @@ export default function SecurityAndFooter() {
           </p>
         </div>
       </footer>
+      <div
+        aria-hidden="true"
+        className="h-px bg-gradient-to-r from-transparent via-[#FF6600] to-[#00FF66] shadow-[0_0_18px_rgba(0,255,102,0.35)]"
+      />
     </section>
   );
 }
