@@ -5,8 +5,20 @@ import Image from "next/image";
 import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 
+type InkParticle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  radius: number;
+  color: string;
+};
+
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
@@ -14,19 +26,30 @@ export default function HeroSection() {
   const storesRef = useRef<HTMLDivElement>(null);
   const inkStrokeRef = useRef<HTMLDivElement>(null);
   const needleParallaxRef = useRef<HTMLDivElement>(null);
-  const needleArtRef = useRef<HTMLImageElement>(null);
+  const needleMotorRef = useRef<HTMLDivElement>(null);
+  const needleFloatRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
+    const canvas = canvasRef.current;
+    const canvasContext = canvas?.getContext("2d");
     const needleParallax = needleParallaxRef.current;
-    const needleArt = needleArtRef.current;
-    if (!section || !needleParallax || !needleArt) return;
+    const needleMotor = needleMotorRef.current;
+    const needleFloat = needleFloatRef.current;
+    if (
+      !section ||
+      !canvas ||
+      !canvasContext ||
+      !needleParallax ||
+      !needleMotor ||
+      !needleFloat
+    ) {
+      return;
+    }
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    let handlePointerMove: ((event: PointerEvent) => void) | undefined;
-    let resetParallax: (() => void) | undefined;
 
     const context = gsap.context(() => {
       if (reduceMotion) return;
@@ -55,7 +78,11 @@ export default function HeroSection() {
         force3D: true,
         willChange: "transform",
       });
-      gsap.set(needleArt, {
+      gsap.set(needleMotor, {
+        force3D: true,
+        willChange: "transform",
+      });
+      gsap.set(needleFloat, {
         force3D: true,
         willChange: "transform",
       });
@@ -81,10 +108,10 @@ export default function HeroSection() {
         .to(copyRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, "-=0.38")
         .to(storesRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, "-=0.35");
 
-      gsap.to(needleArt, {
+      gsap.to(needleFloat, {
         xPercent: 0.7,
         yPercent: -1.1,
-        rotate: 0.35,
+        rotate: 0.25,
         scale: 1.005,
         duration: 5,
         ease: "sine.inOut",
@@ -92,42 +119,172 @@ export default function HeroSection() {
         yoyo: true,
         force3D: true,
       });
-
-      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        const moveX = gsap.quickTo(needleParallax, "x", {
-          duration: 0.65,
-          ease: "power3.out",
-          force3D: true,
-        });
-        const moveY = gsap.quickTo(needleParallax, "y", {
-          duration: 0.65,
-          ease: "power3.out",
-          force3D: true,
-        });
-        handlePointerMove = (event: PointerEvent) => {
-          const bounds = section.getBoundingClientRect();
-          const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-          const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-          moveX(x * 28);
-          moveY(y * 20);
-        };
-        resetParallax = () => {
-          moveX(0);
-          moveY(0);
-        };
-
-        section.addEventListener("pointermove", handlePointerMove);
-        section.addEventListener("pointerleave", resetParallax);
-      }
     }, section);
 
+    if (reduceMotion) {
+      return () => context.revert();
+    }
+
+    const particles: InkParticle[] = [];
+    const colors = ["#FF6600", "#00FF66", "#FF9900", "#4977FF", "#8D43FF"];
+    const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+    let hasPointer = false;
+    let frameId = 0;
+    let lastFrameTime = 0;
+    let lastScrollY = window.scrollY;
+    let scrollVelocity = 0;
+    let particleColorIndex = 0;
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    const setNeedleX = gsap.quickSetter(needleParallax, "x", "px");
+    const setNeedleY = gsap.quickSetter(needleParallax, "y", "px");
+    const setMotorRotation = gsap.quickSetter(needleMotor, "rotation", "deg");
+
+    const scheduleFrame = () => {
+      if (frameId) return;
+      lastFrameTime = performance.now();
+      frameId = window.requestAnimationFrame(renderFrame);
+    };
+
+    const resizeCanvas = () => {
+      const bounds = section.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvasWidth = bounds.width;
+      canvasHeight = bounds.height;
+      canvas.width = Math.round(canvasWidth * pixelRatio);
+      canvas.height = Math.round(canvasHeight * pixelRatio);
+      canvasContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      scheduleFrame();
+    };
+
+    const emitParticles = (x: number, y: number, distance: number) => {
+      const count = Math.min(5, Math.max(1, Math.floor(distance / 12)));
+      for (let index = 0; index < count && particles.length < 140; index += 1) {
+        const progress = (index + 1) / count;
+        const color = colors[particleColorIndex % colors.length];
+        particleColorIndex += 1;
+        particles.push({
+          x: lastPointerX + (x - lastPointerX) * progress,
+          y: lastPointerY + (y - lastPointerY) * progress,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: (Math.random() - 0.5) * 0.7 - 0.25,
+          life: 0.55 + Math.random() * 0.5,
+          maxLife: 1.05,
+          radius: 0.8 + Math.random() * 1.8,
+          color,
+        });
+      }
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const bounds = section.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      pointer.targetX = ((x / bounds.width) - 0.5) * 2;
+      pointer.targetY = ((y / bounds.height) - 0.5) * 2;
+
+      if (hasPointer) {
+        const deltaX = x - lastPointerX;
+        const deltaY = y - lastPointerY;
+        const distance = Math.hypot(deltaX, deltaY);
+        if (distance > 3) emitParticles(x, y, distance);
+      } else {
+        hasPointer = true;
+      }
+
+      lastPointerX = x;
+      lastPointerY = y;
+      scheduleFrame();
+    };
+
+    const handlePointerLeave = () => {
+      pointer.targetX = 0;
+      pointer.targetY = 0;
+      hasPointer = false;
+      scheduleFrame();
+    };
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      scrollVelocity = Math.max(
+        -90,
+        Math.min(90, currentScrollY - lastScrollY),
+      );
+      lastScrollY = currentScrollY;
+      scheduleFrame();
+    };
+
+    const renderFrame = (time: number) => {
+      frameId = 0;
+      const delta = Math.min((time - lastFrameTime) / 16.67, 2);
+      lastFrameTime = time;
+      pointer.x += (pointer.targetX - pointer.x) * Math.min(1, 0.1 * delta);
+      pointer.y += (pointer.targetY - pointer.y) * Math.min(1, 0.1 * delta);
+      setNeedleX(pointer.x * 32);
+      setNeedleY(pointer.y * 24);
+      scrollVelocity *= Math.pow(0.86, delta);
+      const motorShake = Math.sin(time * 0.47) * scrollVelocity * 0.004;
+      setMotorRotation(motorShake);
+
+      canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      for (let index = particles.length - 1; index >= 0; index -= 1) {
+        const particle = particles[index];
+        particle.life -= delta / 60;
+        if (particle.life <= 0) {
+          particles.splice(index, 1);
+          continue;
+        }
+
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.vx *= 0.99;
+        particle.vy -= 0.008 * delta;
+        canvasContext.globalAlpha = Math.min(1, particle.life / particle.maxLife) * 0.72;
+        canvasContext.fillStyle = particle.color;
+        canvasContext.beginPath();
+        canvasContext.arc(
+          particle.x,
+          particle.y,
+          particle.radius,
+          0,
+          Math.PI * 2,
+        );
+        canvasContext.fill();
+      }
+      canvasContext.globalAlpha = 1;
+
+      const pointerIsSettled =
+        Math.abs(pointer.targetX - pointer.x) < 0.001 &&
+        Math.abs(pointer.targetY - pointer.y) < 0.001;
+      if (
+        particles.length > 0 ||
+        !pointerIsSettled ||
+        Math.abs(scrollVelocity) > 0.05
+      ) {
+        scheduleFrame();
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    resizeObserver.observe(section);
+    resizeCanvas();
+    section.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    section.addEventListener("pointerleave", handlePointerLeave, {
+      passive: true,
+    });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => {
-      if (handlePointerMove) {
-        section.removeEventListener("pointermove", handlePointerMove);
-      }
-      if (resetParallax) {
-        section.removeEventListener("pointerleave", resetParallax);
-      }
+      window.cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
+      section.removeEventListener("pointermove", handlePointerMove);
+      section.removeEventListener("pointerleave", handlePointerLeave);
+      window.removeEventListener("scroll", handleScroll);
+      particles.length = 0;
       context.revert();
     };
   }, []);
@@ -149,6 +306,11 @@ export default function HeroSection() {
       />
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.34)_72%,rgba(18,18,18,0.72)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.18),rgba(18,18,18,0.82)_100%)]" />
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[5] h-full w-full"
+      />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">
         <div className="gpu-accelerate relative z-20 max-w-[720px] pt-10 lg:pt-0">
@@ -203,11 +365,14 @@ export default function HeroSection() {
               href="https://www.apple.com/app-store/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hero-store-button group gpu-accelerate flex min-h-16 items-center gap-3 rounded-2xl border border-white/12 bg-white px-5 text-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.28)] transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 sm:min-w-[218px]"
+              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/60 px-5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 sm:min-w-[218px]"
             >
-              <Apple aria-hidden="true" className="h-7 w-7 shrink-0" />
+              <Apple
+                aria-hidden="true"
+                className="h-7 w-7 shrink-0 text-[#FF9900]"
+              />
               <span className="flex min-w-0 flex-1 flex-col text-left">
-                <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-black/55">
+                <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-white/55">
                   Baixar na
                 </span>
                 <span className="text-[1.05rem] font-semibold leading-tight">
@@ -224,7 +389,7 @@ export default function HeroSection() {
               href="https://play.google.com/store/apps"
               target="_blank"
               rel="noopener noreferrer"
-              className="hero-store-button group gpu-accelerate flex min-h-16 items-center gap-3 rounded-2xl border border-white/14 bg-[#1A1A1A]/90 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600] sm:min-w-[218px]"
+              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/14 bg-[#1A1A1A]/70 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 sm:min-w-[218px]"
             >
               <Play
                 aria-hidden="true"
@@ -251,18 +416,32 @@ export default function HeroSection() {
             ref={needleParallaxRef}
             className="gpu-accelerate absolute inset-[-8%] -left-[18%] sm:left-[-8%] lg:-left-[4%]"
           >
-            <Image
-              ref={needleArtRef}
-              src="/assets/images/tattoo-needle-scroll-hero.png"
-              alt="Agulha profissional TattooGo MK criando um traço de tinta"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 58vw"
-              className="gpu-accelerate needle-art object-contain"
-            />
+            <div ref={needleMotorRef} className="gpu-accelerate absolute inset-0">
+              <div
+                ref={needleFloatRef}
+                className="gpu-accelerate absolute inset-0"
+              >
+                <Image
+                  src="/assets/images/tattoo-needle-scroll-hero.png"
+                  alt="Agulha profissional TattooGo MK criando um traço de tinta"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="gpu-accelerate needle-art object-contain"
+                />
+              </div>
+            </div>
           </div>
           <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>
+      </div>
+
+      <div className="pointer-events-none absolute right-5 top-6 z-20 flex flex-col items-end gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-white/55 sm:right-10 sm:top-10 sm:text-[10px]">
+        <span className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#00FF66] shadow-[0_0_10px_#00FF66]" />
+          SYSTEM: 120Hz ACTIVE
+        </span>
+        <span className="text-[#FF9900]/75">SECURE ENCLAVE</span>
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF6600]/50 to-[#00FF66]/35" />
