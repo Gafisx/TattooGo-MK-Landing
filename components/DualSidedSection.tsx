@@ -50,12 +50,25 @@ const artistBenefits = [
   },
 ];
 
-function BenefitList({ items }: { items: typeof clientBenefits }) {
+function BenefitList({
+  items,
+  tone = "orange",
+}: {
+  items: typeof clientBenefits;
+  tone?: "orange" | "green";
+}) {
+  const iconTone =
+    tone === "green"
+      ? "border-[#00FF66]/25 bg-[#00FF66]/[0.08] text-[#00FF66]"
+      : "border-[#FF6600]/25 bg-[#FF6600]/[0.08] text-[#FF9900]";
+
   return (
     <ul className="mt-8 grid gap-5 sm:grid-cols-3 lg:grid-cols-1">
       {items.map(({ icon: Icon, title, description }) => (
         <li key={title} className="flex items-start gap-3">
-          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#FF6600]/25 bg-[#FF6600]/[0.08] text-[#FF9900]">
+          <span
+            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${iconTone}`}
+          >
             <Icon aria-hidden="true" className="h-[18px] w-[18px]" />
           </span>
           <div>
@@ -70,6 +83,77 @@ function BenefitList({ items }: { items: typeof clientBenefits }) {
   );
 }
 
+function MarketplaceMockup({
+  src,
+  alt,
+  sizes,
+  label,
+  descriptor,
+  tone,
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  label: string;
+  descriptor: string;
+  tone: "orange" | "green";
+}) {
+  const accent =
+    tone === "green"
+      ? {
+          border: "border-[#00FF66]/30 hover:border-[#00FF66]/65",
+          glow: "bg-[#00FF66]/[0.08]",
+          label: "text-[#00FF66]",
+        }
+      : {
+          border: "border-[#FF6600]/30 hover:border-[#FF6600]/65",
+          glow: "bg-[#FF6600]/[0.1]",
+          label: "text-[#FF9900]",
+        };
+
+  return (
+    <div
+      data-mockup
+      className={`gpu-accelerate relative order-2 mx-auto flex h-[min(76vh,760px)] min-h-[480px] w-full max-w-[560px] items-center justify-center [perspective:1200px] ${tone === "orange" ? "lg:order-1" : "lg:order-2"}`}
+    >
+      <div
+        data-tilt
+        className={`gpu-accelerate-child group relative isolate h-full w-full overflow-hidden rounded-[2rem] border bg-[#171717]/50 p-4 backdrop-blur-xl [transform-style:preserve-3d] transition-[border-color] duration-500 motion-reduce:transition-none ${accent.border}`}
+      >
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute -inset-[12%] rounded-full blur-[90px] ${accent.glow}`}
+        />
+        <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.015] to-transparent" />
+
+        <div className="gpu-accelerate-child absolute inset-5 [transform:translate3d(0,0,26px)]">
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes={sizes}
+            className="object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.45)]"
+          />
+        </div>
+
+        <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/10 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
+          <p
+            className={`text-[9px] font-semibold uppercase tracking-[0.2em] ${accent.label}`}
+          >
+            {label}
+          </p>
+          <p className="mt-1 text-[11px] text-white/75">{descriptor}</p>
+        </div>
+
+        <div className="gpu-accelerate-child absolute bottom-7 right-7 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-[#121212]/65 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/65 backdrop-blur-lg [transform:translate3d(0,0,42px)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#00FF66] shadow-[0_0_8px_#00FF66]" />
+          Verified
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DualSidedSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const clientRowRef = useRef<HTMLDivElement>(null);
@@ -81,18 +165,62 @@ export default function DualSidedSection() {
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const cleanupTilt: Array<() => void> = [];
     const context = gsap.context(() => {
       [clientRowRef.current, artistRowRef.current].forEach((row, index) => {
         if (!row) return;
 
         const visual = row.querySelector<HTMLElement>("[data-mockup]");
+        const tiltCard = row.querySelector<HTMLElement>("[data-tilt]");
         const copy = row.querySelector<HTMLElement>("[data-copy]");
-        if (!visual || !copy) return;
+        if (!visual || !tiltCard || !copy) return;
 
         gsap.set([visual, copy], {
           force3D: true,
           willChange: "transform, opacity",
         });
+        gsap.set(tiltCard, {
+          transformPerspective: 1200,
+          transformStyle: "preserve-3d",
+          force3D: true,
+          willChange: "transform",
+        });
+
+        if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+          const rotateX = gsap.quickTo(tiltCard, "rotationX", {
+            duration: 0.55,
+            ease: "power3.out",
+            force3D: true,
+          });
+          const rotateY = gsap.quickTo(tiltCard, "rotationY", {
+            duration: 0.55,
+            ease: "power3.out",
+            force3D: true,
+          });
+          const handlePointerMove = (event: PointerEvent) => {
+            const bounds = tiltCard.getBoundingClientRect();
+            const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+            const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+            rotateX(y * -7);
+            rotateY(x * 9);
+          };
+          const resetTilt = () => {
+            rotateX(0);
+            rotateY(0);
+          };
+
+          tiltCard.addEventListener("pointermove", handlePointerMove, {
+            passive: true,
+          });
+          tiltCard.addEventListener("pointerleave", resetTilt, {
+            passive: true,
+          });
+          cleanupTilt.push(() => {
+            tiltCard.removeEventListener("pointermove", handlePointerMove);
+            tiltCard.removeEventListener("pointerleave", resetTilt);
+            gsap.killTweensOf(tiltCard);
+          });
+        }
 
         gsap.fromTo(
           visual,
@@ -136,7 +264,10 @@ export default function DualSidedSection() {
       });
     }, section);
 
-    return () => context.revert();
+    return () => {
+      cleanupTilt.forEach((cleanup) => cleanup());
+      context.revert();
+    };
   }, []);
 
   return (
@@ -145,7 +276,7 @@ export default function DualSidedSection() {
       className="relative isolate overflow-hidden bg-[#121212] py-24 sm:py-32 lg:py-40"
       aria-labelledby="ecosystem-title"
     >
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_14%_22%,rgba(255,102,0,0.12),transparent_32%),radial-gradient(ellipse_at_88%_76%,rgba(255,153,0,0.1),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_14%_22%,rgba(255,102,0,0.12),transparent_32%),radial-gradient(ellipse_at_88%_76%,rgba(255,153,0,0.1),transparent_34%),radial-gradient(ellipse_at_52%_50%,rgba(0,255,102,0.045),transparent_38%),radial-gradient(ellipse_at_92%_18%,rgba(73,119,255,0.06),transparent_26%)]" />
 
       <div className="mx-auto max-w-[1440px] px-5 sm:px-10 lg:px-16">
         <header className="mx-auto mb-16 max-w-3xl text-center sm:mb-24 lg:mb-32">
@@ -171,19 +302,14 @@ export default function DualSidedSection() {
             className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16"
             aria-labelledby="clients-title"
           >
-            <div
-              data-mockup
-              className="gpu-accelerate relative order-2 mx-auto flex h-[min(76vh,760px)] min-h-[480px] w-full max-w-[560px] items-center justify-center lg:order-1"
-            >
-              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FF6600]/15 blur-[90px]" />
-              <Image
-                src="/assets/images/cliente.png"
-                alt="Aplicativo TattooGo para clientes com mapa e portfólios de tatuadores verificados"
-                fill
-                sizes="(max-width: 1024px) 90vw, 45vw"
-                className="gpu-accelerate object-contain"
-              />
-            </div>
+            <MarketplaceMockup
+              src="/assets/images/cliente.png"
+              alt="Aplicativo TattooGo para clientes com mapa e portfólios de tatuadores verificados"
+              sizes="(max-width: 1024px) 90vw, 45vw"
+              label="Descoberta local"
+              descriptor="Artistas perto de você"
+              tone="orange"
+            />
 
             <div data-copy className="gpu-accelerate order-1 lg:order-2">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-[#FF9900]">
@@ -211,7 +337,7 @@ export default function DualSidedSection() {
             aria-labelledby="artists-title"
           >
             <div data-copy className="gpu-accelerate order-1">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-[#FF9900]">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-[#00FF66]">
                 Para tatuadores
               </p>
               <h3
@@ -225,22 +351,17 @@ export default function DualSidedSection() {
                 portfólio e desempenho em um painel intuitivo, enquanto os
                 pagamentos acompanham cada reserva com mais transparência.
               </p>
-              <BenefitList items={artistBenefits} />
+              <BenefitList items={artistBenefits} tone="green" />
             </div>
 
-            <div
-              data-mockup
-              className="gpu-accelerate relative order-2 mx-auto flex h-[min(76vh,760px)] min-h-[480px] w-full max-w-[560px] items-center justify-center"
-            >
-              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FF9900]/15 blur-[90px]" />
-              <Image
-                src="/assets/images/tatuador.png"
-                alt="Painel TattooGo para tatuadores com portfólio, ganhos, agenda e split payments"
-                fill
-                sizes="(max-width: 1024px) 90vw, 45vw"
-                className="gpu-accelerate object-contain"
-              />
-            </div>
+            <MarketplaceMockup
+              src="/assets/images/tatuador.png"
+              alt="Painel TattooGo para tatuadores com portfólio, ganhos, agenda e split payments"
+              sizes="(max-width: 1024px) 90vw, 45vw"
+              label="Painel do artista"
+              descriptor="Ganhos e split payments"
+              tone="green"
+            />
           </article>
         </div>
       </div>
