@@ -4,21 +4,10 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
-
-type InkParticle = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number;
-  maxLife: number;
-  radius: number;
-  color: string;
-};
+import TattooInkEngine from "@/components/TattooInkEngine";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
@@ -31,21 +20,10 @@ export default function HeroSection() {
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    const canvas = canvasRef.current;
-    const canvasContext = canvas?.getContext("2d");
     const needleParallax = needleParallaxRef.current;
     const needleMotor = needleMotorRef.current;
     const needleFloat = needleFloatRef.current;
-    if (
-      !section ||
-      !canvas ||
-      !canvasContext ||
-      !needleParallax ||
-      !needleMotor ||
-      !needleFloat
-    ) {
-      return;
-    }
+    if (!section || !needleParallax || !needleMotor || !needleFloat) return;
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -125,19 +103,11 @@ export default function HeroSection() {
       return () => context.revert();
     }
 
-    const particles: InkParticle[] = [];
-    const colors = ["#FF6600", "#00FF66", "#FF9900", "#4977FF", "#8D43FF"];
     const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    let lastPointerX = 0;
-    let lastPointerY = 0;
-    let hasPointer = false;
     let frameId = 0;
     let lastFrameTime = 0;
     let lastScrollY = window.scrollY;
     let scrollVelocity = 0;
-    let particleColorIndex = 0;
-    let canvasWidth = 0;
-    let canvasHeight = 0;
     const setNeedleX = gsap.quickSetter(needleParallax, "x", "px");
     const setNeedleY = gsap.quickSetter(needleParallax, "y", "px");
     const setMotorRotation = gsap.quickSetter(needleMotor, "rotation", "deg");
@@ -148,61 +118,18 @@ export default function HeroSection() {
       frameId = window.requestAnimationFrame(renderFrame);
     };
 
-    const resizeCanvas = () => {
-      const bounds = section.getBoundingClientRect();
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-      canvasWidth = bounds.width;
-      canvasHeight = bounds.height;
-      canvas.width = Math.round(canvasWidth * pixelRatio);
-      canvas.height = Math.round(canvasHeight * pixelRatio);
-      canvasContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      scheduleFrame();
-    };
-
-    const emitParticles = (x: number, y: number, distance: number) => {
-      const count = Math.min(5, Math.max(1, Math.floor(distance / 12)));
-      for (let index = 0; index < count && particles.length < 140; index += 1) {
-        const progress = (index + 1) / count;
-        const color = colors[particleColorIndex % colors.length];
-        particleColorIndex += 1;
-        particles.push({
-          x: lastPointerX + (x - lastPointerX) * progress,
-          y: lastPointerY + (y - lastPointerY) * progress,
-          vx: (Math.random() - 0.5) * 0.7,
-          vy: (Math.random() - 0.5) * 0.7 - 0.25,
-          life: 0.55 + Math.random() * 0.5,
-          maxLife: 1.05,
-          radius: 0.8 + Math.random() * 1.8,
-          color,
-        });
-      }
-    };
-
     const handlePointerMove = (event: PointerEvent) => {
       const bounds = section.getBoundingClientRect();
       const x = event.clientX - bounds.left;
       const y = event.clientY - bounds.top;
-      pointer.targetX = ((x / bounds.width) - 0.5) * 2;
-      pointer.targetY = ((y / bounds.height) - 0.5) * 2;
-
-      if (hasPointer) {
-        const deltaX = x - lastPointerX;
-        const deltaY = y - lastPointerY;
-        const distance = Math.hypot(deltaX, deltaY);
-        if (distance > 3) emitParticles(x, y, distance);
-      } else {
-        hasPointer = true;
-      }
-
-      lastPointerX = x;
-      lastPointerY = y;
+      pointer.targetX = (x / bounds.width - 0.5) * 2;
+      pointer.targetY = (y / bounds.height - 0.5) * 2;
       scheduleFrame();
     };
 
     const handlePointerLeave = () => {
       pointer.targetX = 0;
       pointer.targetY = 0;
-      hasPointer = false;
       scheduleFrame();
     };
 
@@ -225,66 +152,39 @@ export default function HeroSection() {
       setNeedleX(pointer.x * 32);
       setNeedleY(pointer.y * 24);
       scrollVelocity *= Math.pow(0.86, delta);
-      const motorShake = Math.sin(time * 0.47) * scrollVelocity * 0.004;
+      const motorShake =
+        Math.sin(time * 0.47) * scrollVelocity * 0.004 +
+        Math.sin(time * 0.11) * 0.025;
       setMotorRotation(motorShake);
-
-      canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
-      for (let index = particles.length - 1; index >= 0; index -= 1) {
-        const particle = particles[index];
-        particle.life -= delta / 60;
-        if (particle.life <= 0) {
-          particles.splice(index, 1);
-          continue;
-        }
-
-        particle.x += particle.vx * delta;
-        particle.y += particle.vy * delta;
-        particle.vx *= 0.99;
-        particle.vy -= 0.008 * delta;
-        canvasContext.globalAlpha = Math.min(1, particle.life / particle.maxLife) * 0.72;
-        canvasContext.fillStyle = particle.color;
-        canvasContext.beginPath();
-        canvasContext.arc(
-          particle.x,
-          particle.y,
-          particle.radius,
-          0,
-          Math.PI * 2,
-        );
-        canvasContext.fill();
-      }
-      canvasContext.globalAlpha = 1;
 
       const pointerIsSettled =
         Math.abs(pointer.targetX - pointer.x) < 0.001 &&
         Math.abs(pointer.targetY - pointer.y) < 0.001;
-      if (
-        particles.length > 0 ||
-        !pointerIsSettled ||
-        Math.abs(scrollVelocity) > 0.05
-      ) {
+      if (!pointerIsSettled || Math.abs(scrollVelocity) > 0.05) {
         scheduleFrame();
       }
     };
 
-    const resizeObserver = new ResizeObserver(resizeCanvas);
-    resizeObserver.observe(section);
-    resizeCanvas();
-    section.addEventListener("pointermove", handlePointerMove, {
-      passive: true,
-    });
-    section.addEventListener("pointerleave", handlePointerLeave, {
-      passive: true,
-    });
+    const supportsHover = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    ).matches;
+    if (supportsHover) {
+      section.addEventListener("pointermove", handlePointerMove, {
+        passive: true,
+      });
+      section.addEventListener("pointerleave", handlePointerLeave, {
+        passive: true,
+      });
+    }
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      resizeObserver.disconnect();
-      section.removeEventListener("pointermove", handlePointerMove);
-      section.removeEventListener("pointerleave", handlePointerLeave);
+      if (supportsHover) {
+        section.removeEventListener("pointermove", handlePointerMove);
+        section.removeEventListener("pointerleave", handlePointerLeave);
+      }
       window.removeEventListener("scroll", handleScroll);
-      particles.length = 0;
       context.revert();
     };
   }, []);
@@ -306,11 +206,7 @@ export default function HeroSection() {
       />
 
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.34)_72%,rgba(18,18,18,0.72)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.18),rgba(18,18,18,0.82)_100%)]" />
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[5] h-full w-full"
-      />
+      <TattooInkEngine containerRef={sectionRef} />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">
         <div className="gpu-accelerate relative z-20 max-w-[720px] pt-10 lg:pt-0">
