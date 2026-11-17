@@ -69,7 +69,6 @@ html.lenis body {
   filter:
     drop-shadow(0 32px 42px rgba(0, 0, 0, 0.48))
     drop-shadow(0 0 26px rgba(255, 102, 0, 0.12));
-  animation: needle-drift 7s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
   transform-origin: 68% 54%;
 }
 
@@ -109,20 +108,7 @@ html.lenis body {
   color: #ff9900;
 }
 
-@keyframes needle-drift {
-  from {
-    transform: translate3d(0, -0.6%, 0) rotate(-0.8deg) scale(1);
-  }
-  to {
-    transform: translate3d(0.8%, 0.8%, 0) rotate(0.7deg) scale(1.012);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .needle-art {
-    animation: none;
-  }
-
   .hero-store-button,
   .hero-store-button::before,
   .footer-store-button,
