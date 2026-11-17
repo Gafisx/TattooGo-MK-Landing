@@ -56,3 +56,53 @@ html.lenis body {
   backface-visibility: hidden;
   will-change: transform;
 }
+
+.needle-art {
+  filter:
+    drop-shadow(0 32px 42px rgba(0, 0, 0, 0.48))
+    drop-shadow(0 0 26px rgba(255, 102, 0, 0.12));
+  animation: needle-drift 7s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+  transform-origin: 68% 54%;
+}
+
+.hero-store-button::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 153, 0, 0.45),
+    transparent 70%
+  );
+  opacity: 0;
+  transform: translate3d(-30%, 0, 0);
+  transition: opacity 300ms ease, transform 700ms ease;
+}
+
+.hero-store-button:hover::before {
+  opacity: 1;
+  transform: translate3d(30%, 0, 0);
+}
+
+@keyframes needle-drift {
+  from {
+    transform: translate3d(0, -0.6%, 0) rotate(-0.8deg) scale(1);
+  }
+  to {
+    transform: translate3d(0.8%, 0.8%, 0) rotate(0.7deg) scale(1.012);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .needle-art {
+    animation: none;
+  }
+
+  .hero-store-button,
+  .hero-store-button::before {
+    transition: none;
+  }
+}
