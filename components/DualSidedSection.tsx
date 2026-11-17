@@ -103,11 +103,17 @@ function MarketplaceMockup({
       ? {
           border: "border-[#00FF66]/30 hover:border-[#00FF66]/65",
           glow: "bg-[#00FF66]/[0.08]",
+          aura: "bg-[#00FF66]/25",
+          reveal:
+            "bg-[linear-gradient(115deg,rgba(18,18,18,0.96)_0%,rgba(0,255,102,0.34)_52%,rgba(73,119,255,0.18)_100%)]",
           label: "text-[#00FF66]",
         }
       : {
           border: "border-[#FF6600]/30 hover:border-[#FF6600]/65",
           glow: "bg-[#FF6600]/[0.1]",
+          aura: "bg-[#FF6600]/25",
+          reveal:
+            "bg-[linear-gradient(115deg,rgba(18,18,18,0.96)_0%,rgba(255,102,0,0.36)_52%,rgba(255,153,0,0.18)_100%)]",
           label: "text-[#FF9900]",
         };
 
@@ -116,6 +122,11 @@ function MarketplaceMockup({
       data-mockup
       className={`gpu-accelerate relative order-2 mx-auto flex h-[min(76vh,760px)] min-h-[480px] w-full max-w-[560px] items-center justify-center [perspective:1200px] ${tone === "orange" ? "lg:order-1" : "lg:order-2"}`}
     >
+      <div
+        data-aura
+        aria-hidden="true"
+        className={`gpu-accelerate pointer-events-none absolute inset-[4%] rounded-[2.5rem] opacity-60 blur-[75px] ${accent.aura}`}
+      />
       <div
         data-tilt
         className={`gpu-accelerate-child group relative isolate h-full w-full overflow-hidden rounded-[2rem] border bg-[#171717]/50 p-4 backdrop-blur-xl [transform-style:preserve-3d] transition-[border-color] duration-500 motion-reduce:transition-none ${accent.border}`}
@@ -135,6 +146,12 @@ function MarketplaceMockup({
             className="object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.45)]"
           />
         </div>
+
+        <div
+          data-ink-reveal
+          aria-hidden="true"
+          className={`gpu-accelerate-child pointer-events-none absolute inset-5 z-[1] origin-right rounded-[1.4rem] motion-reduce:scale-x-0 ${accent.reveal}`}
+        />
 
         <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/10 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
           <p
@@ -171,13 +188,19 @@ export default function DualSidedSection() {
         if (!row) return;
 
         const visual = row.querySelector<HTMLElement>("[data-mockup]");
+        const aura = row.querySelector<HTMLElement>("[data-aura]");
+        const inkReveal = row.querySelector<HTMLElement>("[data-ink-reveal]");
         const tiltCard = row.querySelector<HTMLElement>("[data-tilt]");
         const copy = row.querySelector<HTMLElement>("[data-copy]");
-        if (!visual || !tiltCard || !copy) return;
+        if (!visual || !aura || !inkReveal || !tiltCard || !copy) return;
 
-        gsap.set([visual, copy], {
+        gsap.set([visual, aura, inkReveal, copy], {
           force3D: true,
           willChange: "transform, opacity",
+        });
+        gsap.set(inkReveal, {
+          scaleX: 1,
+          transformOrigin: "right center",
         });
         gsap.set(tiltCard, {
           transformPerspective: 1200,
@@ -243,6 +266,36 @@ export default function DualSidedSection() {
             },
           },
         );
+
+        gsap.fromTo(
+          aura,
+          { scale: 0.78, autoAlpha: 0.2, y: 18 },
+          {
+            scale: 1.08,
+            autoAlpha: 0.9,
+            y: -8,
+            ease: "none",
+            scrollTrigger: {
+              trigger: row,
+              start: "top 82%",
+              end: "top 28%",
+              scrub: 0.85,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+
+        gsap.to(inkReveal, {
+          scaleX: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: row,
+            start: "top 76%",
+            end: "top 32%",
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        });
 
         gsap.fromTo(
           copy,
