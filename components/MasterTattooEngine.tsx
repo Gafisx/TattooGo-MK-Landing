@@ -26,6 +26,14 @@ type InkParticle = {
   color: string;
 };
 
+type SceneReveal = {
+  scene: HTMLElement;
+  reveal: HTMLElement;
+  top: number;
+  height: number;
+  setScale: (value: number) => void;
+};
+
 const MAX_PARTICLES = 96;
 
 export default function MasterTattooEngine({
@@ -65,17 +73,45 @@ export default function MasterTattooEngine({
     if (!context) return;
 
     const particles: InkParticle[] = [];
+    const scenes: SceneReveal[] = Array.from(
+      engine.querySelectorAll<HTMLElement>("[data-master-scene]"),
+    ).flatMap((scene) => {
+      const reveal = scene.querySelector<HTMLElement>("[data-master-wipe]");
+      if (!reveal) return [];
+
+      gsap.set(reveal, {
+        scaleY: 1,
+        transformOrigin: "bottom center",
+        force3D: true,
+        willChange: "transform",
+      });
+
+      return [
+        {
+          scene,
+          reveal,
+          top: 0,
+          height: 0,
+          setScale: (value: number) => gsap.set(reveal, { scaleY: value }),
+        },
+      ];
+    });
+
     let pathLength = 0;
+    let documentHeight = 0;
     let viewportWidth = 0;
     let viewportHeight = 0;
     let pixelRatio = 1;
     let needleWidth = 0;
     let needleHeight = 0;
-    let progress = 0;
+    let needlePathLength = 0;
+    let needlePoint: DOMPoint | null = null;
+    let needleAngle = 0;
     let scrollVelocity = 0;
     let frameId = 0;
     let lastFrameTime = 0;
     let lastParticleTime = 0;
+    let globalTrigger: ScrollTrigger | null = null;
     const setNeedleX = gsap.quickSetter(needle, "x", "px");
     const setNeedleY = gsap.quickSetter(needle, "y", "px");
     const setNeedleRotation = gsap.quickSetter(needle, "rotation", "deg");
@@ -86,56 +122,156 @@ export default function MasterTattooEngine({
       frameId = window.requestAnimationFrame(renderFrame);
     };
 
-    const positionNeedle = (time = performance.now()) => {
-      if (!pathLength) return;
-      const currentLength = Math.max(0, Math.min(pathLength, pathLength * progress));
-      const point = inkPath.getPointAtLength(currentLength);
-      const before = inkPath.getPointAtLength(Math.max(0, currentLength - 2));
-      const after = inkPath.getPointAtLength(
-        Math.min(pathLength, currentLength + 2),
-      );
-      const angle =
-        (Math.atan2(after.y - before.y, after.x - before.x) * 180) / Math.PI;
+    const updateSceneGeometry = () => {
+      const engineTop = engine.getBoundingClientRect().top + window.scrollY;
+      scenes.forEach((item) => {
+        item.top = engineTop + item.scene.offsetTop;
+        item.height = item.scene.offsetHeight;
+      });
+    };
+
+    const updateSceneReveals = (needleDocumentY: number) => {
+      scenes.forEach(({ top, height, setScale }) => {
+        const progress =
+          height > 0
+            ? Math.max(0, Math.min(1, (needleDocumentY - top) / height))
+            : 0;
+        setScale(1 - progress);
+      });
+    };
+
+    const getPathLengthAtY = (targetY: number) => {
+      let low = 0;
+      let high = pathLength;
+
+      for (let iteration = 0; iteration < 18; iteration += 1) {
+        const middle = (low + high) / 2;
+        if (inkPath.getPointAtLength(middle).y < targetY) {
+          low = middle;
+        } else {
+          high = middle;
+        }
+      }
+
+      return (low + high) / 2;
+    };
+
+    const updateNeedleTransform = (time = performance.now()) => {
+      if (!needlePoint) return;
       const vibration =
         Math.min(1, Math.abs(scrollVelocity) / 1800) *
         Math.sin(time * 0.09) *
         2.4;
 
-      setNeedleX(point.x - needleWidth * 0.68);
-      setNeedleY(point.y - needleHeight * 0.56);
-      setNeedleRotation(angle + vibration);
+      setNeedleX(needlePoint.x - needleWidth * 0.68);
+      setNeedleY(
+        needlePoint.y - window.scrollY - needleHeight * 0.56,
+      );
+      setNeedleRotation(needleAngle + vibration);
     };
 
-    const resize = () => {
-      viewportWidth = window.innerWidth;
-      viewportHeight = window.innerHeight;
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width = Math.round(viewportWidth * pixelRatio);
-      canvas.height = Math.round(viewportHeight * pixelRatio);
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      svg.setAttribute("viewBox", `0 0 ${viewportWidth} ${viewportHeight}`);
-      needleWidth = needle.offsetWidth;
-      needleHeight = needle.offsetHeight;
+    const updateGlobalProgress = (trigger?: ScrollTrigger) => {
+      if (!pathLength || !documentHeight) return;
 
-      const path = [
-        `M ${viewportWidth * 0.76} ${viewportHeight * 0.05}`,
-        `C ${viewportWidth * 0.25} ${viewportHeight * 0.14},`,
-        `${viewportWidth * 0.86} ${viewportHeight * 0.28},`,
-        `${viewportWidth * 0.5} ${viewportHeight * 0.42}`,
-        `S ${viewportWidth * 0.12} ${viewportHeight * 0.7},`,
-        `${viewportWidth * 0.52} ${viewportHeight * 0.82}`,
-        `S ${viewportWidth * 0.9} ${viewportHeight * 0.94},`,
-        `${viewportWidth * 0.68} ${viewportHeight * 0.98}`,
-      ].join(" ");
+      if (trigger) scrollVelocity = trigger.getVelocity();
+      const scrollY = window.scrollY;
+      const needleDocumentY = Math.max(
+        0,
+        Math.min(documentHeight, scrollY + viewportHeight * 0.52),
+      );
+      needlePathLength = getPathLengthAtY(needleDocumentY);
+      needlePoint = inkPath.getPointAtLength(needlePathLength);
+      const before = inkPath.getPointAtLength(
+        Math.max(0, needlePathLength - 2),
+      );
+      const after = inkPath.getPointAtLength(
+        Math.min(pathLength, needlePathLength + 2),
+      );
+      needleAngle =
+        (Math.atan2(after.y - before.y, after.x - before.x) * 180) / Math.PI;
+
+      svg.setAttribute(
+        "viewBox",
+        `0 ${scrollY} ${viewportWidth} ${viewportHeight}`,
+      );
+      const dashOffset = pathLength - needlePathLength;
+      glowPath.style.strokeDashoffset = `${dashOffset}`;
+      inkPath.style.strokeDashoffset = `${dashOffset}`;
+      updateSceneReveals(needleDocumentY);
+      updateNeedleTransform();
+
+      const now = performance.now();
+      const speed = Math.abs(scrollVelocity);
+      if (speed > 180 && now - lastParticleTime > 24) {
+        lastParticleTime = now;
+        emitParticles(
+          needlePoint.x,
+          needlePoint.y - scrollY,
+          speed,
+        );
+      }
+      scheduleFrame();
+    };
+
+    const buildGlobalPath = () => {
+      documentHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+        engine.scrollHeight,
+        viewportHeight,
+      );
+
+      const amplitude = Math.min(viewportWidth * 0.29, 240);
+      const cycles = Math.max(
+        2,
+        Math.ceil(documentHeight / Math.max(1, viewportHeight * 1.75)),
+      );
+      const xAt = (y: number) =>
+        viewportWidth / 2 +
+        amplitude *
+          Math.sin((y / documentHeight) * Math.PI * 2 * cycles + Math.PI / 2);
+      const step = Math.max(180, viewportHeight * 0.72);
+      let path = `M ${xAt(0)} 0`;
+
+      for (let startY = 0; startY < documentHeight; ) {
+        const endY = Math.min(documentHeight, startY + step);
+        const firstControlY = startY + (endY - startY) / 3;
+        const secondControlY = startY + ((endY - startY) * 2) / 3;
+        path +=
+          ` C ${xAt(firstControlY)} ${firstControlY},` +
+          ` ${xAt(secondControlY)} ${secondControlY},` +
+          ` ${xAt(endY)} ${endY}`;
+        startY = endY;
+      }
 
       glowPath.setAttribute("d", path);
       inkPath.setAttribute("d", path);
       pathLength = inkPath.getTotalLength();
       [glowPath, inkPath].forEach((pathElement) => {
         pathElement.style.strokeDasharray = `${pathLength}`;
-        pathElement.style.strokeDashoffset = `${pathLength * (1 - progress)}`;
+        pathElement.style.strokeDashoffset = `${pathLength}`;
       });
-      positionNeedle();
+    };
+
+    const resize = () => {
+      viewportWidth = window.innerWidth;
+      viewportHeight = window.innerHeight;
+      // Keep rasterized particles viewport-sized; the SVG path uses document coordinates.
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
+      canvas.width = Math.round(viewportWidth * pixelRatio);
+      canvas.height = Math.round(viewportHeight * pixelRatio);
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      needleWidth = needle.offsetWidth;
+      needleHeight = needle.offsetHeight;
+      updateSceneGeometry();
+      buildGlobalPath();
+      updateGlobalProgress();
+    };
+
+    const handleRefresh = () => {
+      updateSceneGeometry();
+      buildGlobalPath();
+      updateGlobalProgress(globalTrigger ?? undefined);
     };
 
     const handleResize = () => {
@@ -159,24 +295,6 @@ export default function MasterTattooEngine({
           radius: 0.7 + Math.random() * 1.5,
           color,
         });
-      }
-      scheduleFrame();
-    };
-
-    const updateScrollProgress = (trigger: ScrollTrigger) => {
-      progress = trigger.progress;
-      scrollVelocity = trigger.getVelocity();
-      const dashOffset = pathLength * (1 - progress);
-      glowPath.style.strokeDashoffset = `${dashOffset}`;
-      inkPath.style.strokeDashoffset = `${dashOffset}`;
-      positionNeedle();
-
-      const now = performance.now();
-      const speed = Math.abs(scrollVelocity);
-      if (speed > 180 && now - lastParticleTime > 24) {
-        lastParticleTime = now;
-        const point = inkPath.getPointAtLength(pathLength * progress);
-        emitParticles(point.x, point.y, speed);
       }
       scheduleFrame();
     };
@@ -211,15 +329,12 @@ export default function MasterTattooEngine({
       frameContext.globalAlpha = 1;
       if (particles.length || Math.abs(scrollVelocity) > 40) {
         scrollVelocity *= Math.pow(0.84, delta);
-        positionNeedle(time);
+        updateNeedleTransform(time);
         scheduleFrame();
       } else {
         scrollVelocity = 0;
       }
     }
-
-    window.addEventListener("resize", handleResize);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     function handleVisibilityChange() {
       if (document.hidden) {
@@ -230,32 +345,13 @@ export default function MasterTattooEngine({
       }
     }
 
+    window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    ScrollTrigger.addEventListener("refresh", handleRefresh);
+
     resize();
 
     const gsapContext = gsap.context(() => {
-      const scenes = engine.querySelectorAll<HTMLElement>("[data-master-scene]");
-      scenes.forEach((scene) => {
-        const reveal = scene.querySelector<HTMLElement>("[data-master-wipe]");
-        if (!reveal) return;
-        gsap.set(reveal, {
-          scaleY: 1,
-          transformOrigin: "top center",
-          force3D: true,
-          willChange: "transform",
-        });
-        gsap.to(reveal, {
-          scaleY: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: scene,
-            start: "top bottom",
-            end: "top 30%",
-            scrub: 0.65,
-            invalidateOnRefresh: true,
-          },
-        });
-      });
-
       gsap.set(needle, {
         autoAlpha: 1,
         force3D: true,
@@ -267,20 +363,24 @@ export default function MasterTattooEngine({
         willChange: "opacity",
       });
 
-      ScrollTrigger.create({
+      globalTrigger = ScrollTrigger.create({
         trigger: engine,
         start: "top top",
-        end: "bottom bottom",
+        end: () => `+=${Math.max(1, ScrollTrigger.maxScroll(window))}`,
         invalidateOnRefresh: true,
-        onUpdate: updateScrollProgress,
+        onUpdate: updateGlobalProgress,
+        onRefresh: updateGlobalProgress,
       });
+      ScrollTrigger.refresh();
     }, engine);
 
     return () => {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      ScrollTrigger.removeEventListener("refresh", handleRefresh);
       particles.length = 0;
+      globalTrigger = null;
       gsapContext.revert();
     };
   }, []);
@@ -290,11 +390,6 @@ export default function MasterTattooEngine({
       {Children.map(children, (child) => (
         <div data-master-scene className="relative">
           {child}
-          <div
-            data-master-wipe
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
-          />
         </div>
       ))}
 

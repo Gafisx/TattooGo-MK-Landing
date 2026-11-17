@@ -9,7 +9,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function ImmersiveExperience() {
   const sectionRef = useRef<HTMLElement>(null);
-  const needleRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const orangeGlowRef = useRef<HTMLDivElement>(null);
@@ -40,16 +39,6 @@ export default function ImmersiveExperience() {
         force3D: true,
         willChange: "transform, opacity",
       });
-      gsap.set(needleRef.current, {
-        xPercent: 12,
-        yPercent: -4,
-        rotate: -2,
-        scale: 1.08,
-        transformPerspective: 1200,
-        transformOrigin: "68% 56%",
-        force3D: true,
-        willChange: "transform",
-      });
       gsap.set(
         [
           orangeGlowRef.current,
@@ -79,18 +68,6 @@ export default function ImmersiveExperience() {
           headlineRef.current,
           { opacity: 1, y: 0, duration: 0.28, ease: "power3.out" },
           0.03,
-        )
-        .to(
-          needleRef.current,
-          {
-            xPercent: -8,
-            yPercent: 7,
-            rotate: 3,
-            scale: 0.94,
-            duration: 0.78,
-            ease: "none",
-          },
-          0.08,
         )
         .to(
           orangeGlowRef.current,
@@ -185,20 +162,6 @@ export default function ImmersiveExperience() {
         </div>
 
         <div
-          ref={needleRef}
-          className="gpu-accelerate pointer-events-none absolute inset-[-5%] z-[1] sm:inset-[-3%]"
-        >
-          <Image
-            src="/assets/images/tattoo-needle-scroll-hero.png"
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 768px) 110vw, 100vw"
-            className="gpu-accelerate object-cover object-center"
-          />
-        </div>
-
-        <div
           ref={detailRef}
           className="gpu-accelerate absolute bottom-8 right-6 z-20 max-w-[280px] rounded-2xl border border-white/10 bg-[#1A1A1A]/85 p-5 backdrop-blur-md sm:bottom-12 sm:right-10 lg:right-16"
         >
@@ -208,6 +171,11 @@ export default function ImmersiveExperience() {
           </p>
         </div>
       </div>
+      <div
+        data-master-wipe
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
+      />
     </section>
   );
 }

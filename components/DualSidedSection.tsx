@@ -418,6 +418,11 @@ export default function DualSidedSection() {
           </article>
         </div>
       </div>
+      <div
+        data-master-wipe
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
+      />
     </section>
   );
 }

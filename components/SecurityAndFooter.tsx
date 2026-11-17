@@ -483,6 +483,11 @@ export default function SecurityAndFooter() {
         aria-hidden="true"
         className="h-px bg-gradient-to-r from-transparent via-[#FF6600] to-[#00FF66] shadow-[0_0_18px_rgba(0,255,102,0.35)]"
       />
+      <div
+        data-master-wipe
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 origin-top bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.9)_72%,rgba(255,102,0,0.16)_94%,rgba(0,255,102,0.42)_100%)] motion-reduce:scale-y-0"
+      />
     </section>
   );
 }
