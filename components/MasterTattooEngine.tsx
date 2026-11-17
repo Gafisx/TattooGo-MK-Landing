@@ -35,6 +35,7 @@ type SceneReveal = {
 };
 
 const MAX_PARTICLES = 96;
+const MAX_CANVAS_PIXELS = 8_000_000;
 
 export default function MasterTattooEngine({
   children,
@@ -253,24 +254,41 @@ export default function MasterTattooEngine({
       });
     };
 
+    const resizeCanvas = () => {
+      const pixelBudgetRatio = Math.sqrt(
+        MAX_CANVAS_PIXELS / Math.max(1, viewportWidth * documentHeight),
+      );
+      const maxWidthRatio = 32767 / Math.max(1, viewportWidth);
+      const maxHeightRatio = 32767 / Math.max(1, documentHeight);
+      pixelRatio = Math.min(
+        window.devicePixelRatio || 1,
+        1.25,
+        pixelBudgetRatio,
+        maxWidthRatio,
+        maxHeightRatio,
+      );
+      canvas.width = Math.round(viewportWidth * pixelRatio);
+      canvas.height = Math.round(documentHeight * pixelRatio);
+      canvas.style.height = `${documentHeight}px`;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      context.clearRect(0, 0, viewportWidth, documentHeight);
+    };
+
     const resize = () => {
       viewportWidth = window.innerWidth;
       viewportHeight = window.innerHeight;
-      // Keep rasterized particles viewport-sized; the SVG path uses document coordinates.
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
-      canvas.width = Math.round(viewportWidth * pixelRatio);
-      canvas.height = Math.round(viewportHeight * pixelRatio);
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       needleWidth = needle.offsetWidth;
       needleHeight = needle.offsetHeight;
       updateSceneGeometry();
       buildGlobalPath();
+      resizeCanvas();
       updateGlobalProgress();
     };
 
     const handleRefresh = () => {
       updateSceneGeometry();
       buildGlobalPath();
+      resizeCanvas();
       updateGlobalProgress(globalTrigger ?? undefined);
     };
 
@@ -305,7 +323,16 @@ export default function MasterTattooEngine({
       if (!frameContext) return;
       const delta = Math.min((time - lastFrameTime) / 16.67, 2);
       lastFrameTime = time;
-      frameContext.clearRect(0, 0, viewportWidth, viewportHeight);
+
+      for (let index = particles.length - 1; index >= 0; index -= 1) {
+        const particle = particles[index];
+        frameContext.clearRect(
+          particle.x - particle.radius - 2,
+          particle.y - particle.radius - 2,
+          (particle.radius + 2) * 2,
+          (particle.radius + 2) * 2,
+        );
+      }
 
       for (let index = particles.length - 1; index >= 0; index -= 1) {
         const particle = particles[index];
@@ -393,15 +420,17 @@ export default function MasterTattooEngine({
         </div>
       ))}
 
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 z-[59] w-full"
+      />
+
       <div
         ref={overlayRef}
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-[60] overflow-hidden opacity-0 motion-reduce:hidden"
       >
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 h-full w-full"
-        />
         <svg
           ref={svgRef}
           className="absolute inset-0 h-full w-full"
