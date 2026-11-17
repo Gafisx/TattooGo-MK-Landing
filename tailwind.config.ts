@@ -24,21 +24,4 @@ export default {
       },
     },
   },
-  plugins: [
-    function gpuAcceleration({ addUtilities }: any) {
-      addUtilities({
-        ".gpu-accelerate": {
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-          perspective: "1200px",
-          willChange: "transform, opacity",
-        },
-        ".gpu-accelerate-child": {
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-          willChange: "transform",
-        },
-      });
-    },
-  ],
 } satisfies Config;
