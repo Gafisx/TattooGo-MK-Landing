@@ -6,7 +6,6 @@ import { useGLTF } from "@react-three/drei";
 import {
   Box3,
   Group,
-  MathUtils,
   Mesh,
   Quaternion,
   Vector3,
@@ -89,10 +88,10 @@ function RealTattooMachineModel({
       point: new Vector3(),
       normal: new Vector3(),
       needleDirection: new Vector3(),
-      needleOffset: new Vector3(),
       targetPosition: new Vector3(),
       targetRotation: new Quaternion(),
       needleDown: new Vector3(0, -1, 0),
+      needleTipWorld: new Vector3(),
     }),
     [],
   );
@@ -143,7 +142,7 @@ function RealTattooMachineModel({
     }
   }, [fittedModel.scene]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     const machine = machineRef.current;
     const path = pathRef.current;
     if (!machine || !path) return;
@@ -163,48 +162,22 @@ function RealTattooMachineModel({
       motion.needleDown,
       motion.needleDirection,
     );
-    motion.needleOffset
-      .set(0, NEEDLE_TIP_Y * fittedModel.scale, 0)
-      .applyQuaternion(motion.targetRotation);
-    motion.targetPosition.copy(motion.point).sub(motion.needleOffset);
+    machine.position.copy(motion.point);
+    machine.quaternion.copy(motion.targetRotation);
+    machine.updateMatrixWorld(true);
+    motion.needleTipWorld.set(0, NEEDLE_TIP_Y, 0);
+    machine.localToWorld(motion.needleTipWorld);
+    motion.targetPosition.copy(motion.point).sub(motion.needleTipWorld);
+    machine.position.add(motion.targetPosition);
 
     if (reducedMotion) {
-      machine.position.copy(motion.targetPosition);
-      machine.quaternion.copy(motion.targetRotation);
       if (needleRef.current) {
         needleRef.current.position.y = NEEDLE_BASE_Y;
       }
       return;
     }
 
-    machine.position.x = MathUtils.damp(
-      machine.position.x,
-      motion.targetPosition.x,
-      6,
-      delta,
-    );
-    machine.position.y = MathUtils.damp(
-      machine.position.y,
-      motion.targetPosition.y,
-      6,
-      delta,
-    );
-    machine.position.z = MathUtils.damp(
-      machine.position.z,
-      motion.targetPosition.z,
-      6,
-      delta,
-    );
-    machine.quaternion.slerp(
-      motion.targetRotation,
-      1 - Math.exp(-6 * delta),
-    );
-
-    const hasMotion =
-      machine.position.distanceToSquared(motion.targetPosition) > 0.000001 ||
-      machine.quaternion.angleTo(motion.targetRotation) > 0.001;
-    const isVibrating =
-      hasMotion || performance.now() < vibrationUntilRef.current;
+    const isVibrating = performance.now() < vibrationUntilRef.current;
 
     if (needleRef.current) {
       const vibration = isVibrating

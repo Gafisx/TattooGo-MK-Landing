@@ -19,16 +19,9 @@ export default function ScrollProgressBridge({
   const invalidate = useThree((state) => state.invalidate);
 
   useEffect(() => {
-    const unsubscribe = useScrollStore.subscribe((state, previousState) => {
-      if (state.progress !== previousState.progress) {
-        invalidate();
-      }
-    });
-
     if (reducedMotion) {
-      useScrollStore.getState().setProgress(1);
       invalidate();
-      return unsubscribe;
+      return;
     }
 
     const timeline = gsap.timeline({
@@ -43,12 +36,6 @@ export default function ScrollProgressBridge({
           useScrollStore.getState().setProgress(progress);
           invalidate();
         },
-        onRefresh: (trigger) => {
-          useScrollStore
-            .getState()
-            .setProgress(Math.min(1, Math.max(0, trigger.progress)));
-          invalidate();
-        },
       },
     });
 
@@ -58,7 +45,6 @@ export default function ScrollProgressBridge({
     timeline.scrollTrigger?.refresh();
 
     return () => {
-      unsubscribe();
       timeline.scrollTrigger?.kill();
       timeline.kill();
     };
