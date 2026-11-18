@@ -50,8 +50,9 @@ export default function InkStrokePlane({
 
   useFrame(() => {
     if (reducedMotion || !materialRef.current) return;
+    const state = useScrollStore.getState();
     materialRef.current.uniforms.uProgress.value =
-      useScrollStore.getState().progress;
+      Math.max(state.progress, state.drawProgress);
   });
 
   return (
@@ -63,7 +64,8 @@ export default function InkStrokePlane({
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
           uniforms={{ uProgress: { value: reducedMotion ? 1 : 0 } }}
-          transparent={false}
+          transparent
+          alphaTest={0.055}
           depthWrite={false}
         />
       </mesh>

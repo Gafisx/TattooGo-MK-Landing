@@ -326,7 +326,7 @@ export default function DualSidedSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative isolate overflow-hidden bg-[#121212]/82 py-24 sm:py-32 lg:py-40"
+      className="relative isolate overflow-hidden bg-[#121212]/68 py-24 sm:py-32 lg:py-40"
       aria-labelledby="ecosystem-title"
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_14%_22%,rgba(255,102,0,0.12),transparent_32%),radial-gradient(ellipse_at_88%_76%,rgba(255,153,0,0.1),transparent_34%),radial-gradient(ellipse_at_52%_50%,rgba(0,255,102,0.045),transparent_38%),radial-gradient(ellipse_at_92%_18%,rgba(73,119,255,0.06),transparent_26%)]" />

@@ -1,24 +1,22 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import {
+  Box3,
   Group,
   MathUtils,
   Mesh,
-  MeshStandardMaterial,
-  type BufferGeometry,
-  type Material,
   type Object3D,
+  Vector3,
 } from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
 
 const MODEL_PATH = "/assets/models/tattoomachine.glb";
-const DRACO_DECODER_PATH = "/draco/";
 
-useGLTF.preload(MODEL_PATH, DRACO_DECODER_PATH);
+useGLTF.preload(MODEL_PATH);
 
 export function MinimalMachineFallback() {
   return (
@@ -60,14 +58,30 @@ function RealTattooMachineModel({
   reducedMotion,
 }: TattooMachineModelProps) {
   const machineRef = useRef<Group>(null);
-  const { scene } = useGLTF(MODEL_PATH, DRACO_DECODER_PATH);
-  const { viewport } = useThree();
+  const { scene } = useGLTF(MODEL_PATH);
+  const { invalidate, viewport } = useThree();
+  const fittedModel = useMemo(() => {
+    const instance = scene.clone(true);
+    instance.updateMatrixWorld(true);
+
+    const bounds = new Box3().setFromObject(instance);
+    const size = bounds.getSize(new Vector3());
+    const center = bounds.getCenter(new Vector3());
+    const largestDimension = Math.max(size.x, size.y, size.z, 0.001);
+
+    instance.position.sub(center);
+
+    return {
+      scene: instance,
+      scale: 3.2 / largestDimension,
+    };
+  }, [scene]);
 
   useEffect(() => {
     let triangleCount = 0;
     let drawCallCount = 0;
 
-    scene.traverse((object: Object3D) => {
+    fittedModel.scene.traverse((object: Object3D) => {
       if (!(object instanceof Mesh)) return;
 
       drawCallCount += 1;
@@ -97,40 +111,21 @@ function RealTattooMachineModel({
       );
     }
 
-    return () => {
-      scene.traverse((object: Object3D) => {
-        if (!(object instanceof Mesh)) return;
-        const geometry = object.geometry as BufferGeometry;
-        geometry.dispose();
+    // The GLTF cache owns shared geometries/materials; dispose={null} preserves them for remounts.
+  }, [fittedModel.scene]);
 
-        const materials = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-        materials.forEach((material: Material) => {
-          if (material instanceof MeshStandardMaterial) {
-            material.map?.dispose();
-            material.normalMap?.dispose();
-            material.roughnessMap?.dispose();
-            material.metalnessMap?.dispose();
-            material.emissiveMap?.dispose();
-          }
-          material.dispose();
-        });
-      });
-      useGLTF.clear(MODEL_PATH);
-    };
-  }, [scene]);
-
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     const machine = machineRef.current;
-    if (!machine || reducedMotion) return;
+    const { progress, pointer, isDrawing } = useScrollStore.getState();
+    if (!machine || (reducedMotion && !isDrawing)) return;
 
-    const progress = useScrollStore.getState().progress;
-    const horizontalAmplitude = Math.min(viewport.width * 0.16, 2.2);
-    const targetX =
-      Math.sin(progress * Math.PI * 4 + Math.PI / 2) * horizontalAmplitude;
-    const targetY =
-      Math.cos(progress * Math.PI * 2) * Math.min(viewport.height * 0.08, 0.75);
+    const baseX = Math.min(viewport.width * 0.24, 2.6);
+    const targetX = isDrawing
+      ? (pointer.x - 0.5) * viewport.width
+      : baseX + Math.sin(progress * Math.PI * 4) * Math.min(viewport.width * 0.035, 0.4);
+    const targetY = isDrawing
+      ? (0.5 - pointer.y) * viewport.height
+      : Math.sin(progress * Math.PI * 2) * 0.35;
     machine.position.x = MathUtils.damp(
       machine.position.x,
       targetX,
@@ -156,19 +151,24 @@ function RealTattooMachineModel({
       delta,
     );
 
-    void state;
+    if (
+      Math.abs(machine.position.x - targetX) > 0.001 ||
+      Math.abs(machine.position.y - targetY) > 0.001 ||
+      Math.abs(machine.rotation.y - progress * Math.PI * 1.2) > 0.001 ||
+      Math.abs(machine.rotation.z - (-0.22 + progress * 0.12)) > 0.001
+    ) {
+      invalidate();
+    }
   });
-
-  const scale = Math.min(1.05, Math.max(0.52, viewport.width * 0.075));
 
   return (
     <group
       ref={machineRef}
-      scale={scale}
-      position={[0, reducedMotion ? 0.15 : 0, 0]}
+      scale={fittedModel.scale}
+      position={[Math.min(viewport.width * 0.24, 2.6), 0, 0]}
       rotation={[0.08, 0, -0.22]}
     >
-      <primitive object={scene} dispose={null} />
+      <primitive object={fittedModel.scene} dispose={null} />
     </group>
   );
 }

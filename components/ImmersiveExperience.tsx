@@ -115,7 +115,7 @@ export default function ImmersiveExperience() {
   return (
     <section
       ref={sectionRef}
-      className="gpu-accelerate relative h-[100svh] min-h-[640px] overflow-hidden bg-[#121212]"
+      className="gpu-accelerate relative h-[100svh] min-h-[640px] overflow-hidden bg-[#121212]/55"
       aria-labelledby="immersive-experience-title"
     >
       <Image
@@ -124,9 +124,9 @@ export default function ImmersiveExperience() {
         fill
         priority
         sizes="100vw"
-        className="gpu-accelerate object-cover opacity-55"
+        className="gpu-accelerate object-cover opacity-22"
       />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.96)_0%,rgba(18,18,18,0.58)_42%,rgba(18,18,18,0.1)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.92)_0%,rgba(18,18,18,0.48)_42%,rgba(18,18,18,0.12)_100%)]" />
       <div
         ref={orangeGlowRef}
         aria-hidden="true"

@@ -107,10 +107,6 @@ export default function Master3DCanvas() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  if (reducedMotion) {
-    return <ReducedMotionFallback />;
-  }
-
   if (!webGLAvailable) {
     return <ReducedMotionFallback />;
   }

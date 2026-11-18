@@ -39,15 +39,25 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## 3D model production pipeline
 
 Place the final tattoo machine at `public/assets/models/tattoomachine.glb`.
-Before deployment:
+The checked-in model currently uses `KHR_mesh_quantization`; it does not contain
+Draco-compressed geometry or KTX2 textures, so it loads without external decoder
+assets. Keep the model under 50,000 triangles and the complete scene under 100
+draw calls.
+
+If Draco compression is introduced, include the matching decoder files under
+`public/draco/` and pass `"/draco/"` to both `useGLTF.preload` and `useGLTF`.
+Do not enable Draco for this asset unless those decoder files are deployed.
+
+Before deployment, optimize the source model:
 
 ```bash
 npm install --global gltf-pipeline
 gltf-pipeline -i source.glb -o public/assets/models/tattoomachine.glb -d
 ```
 
-Convert embedded PNG/JPG textures to KTX2 before packaging, and use a tool such as
-`toktx` or `gltf-transform` to reduce VRAM and download size. The GLB should contain
-fewer than 50,000 triangles and under 100 scene draw calls. Keep the Draco decoder
-binary set under `public/draco/`; the canvas is configured to load decoders from
-`/draco/`.
+Convert PNG/JPG source textures to KTX2 before packaging with `toktx` or
+`gltf-transform`, then configure a KTX2 loader before using such textures in the
+GLB. The hero scene stays demand-rendered: scroll advances the ink, while a
+press-and-drag gesture lets the user guide the needle. The interaction also
+supports keyboard input and respects reduced-motion preferences for automatic
+animation.

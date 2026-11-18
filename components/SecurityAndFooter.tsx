@@ -256,7 +256,7 @@ export default function SecurityAndFooter() {
     <section
       ref={sectionRef}
       id="security"
-      className="relative isolate overflow-hidden bg-[#121212]/82 pt-24 sm:pt-32 lg:pt-40"
+      className="relative isolate overflow-hidden bg-[#121212]/68 pt-24 sm:pt-32 lg:pt-40"
       aria-labelledby="security-title"
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_78%_24%,rgba(255,102,0,0.14),transparent_30%),radial-gradient(ellipse_at_14%_66%,rgba(255,153,0,0.08),transparent_30%),radial-gradient(ellipse_at_50%_70%,rgba(0,255,102,0.05),transparent_36%),radial-gradient(ellipse_at_92%_55%,rgba(73,119,255,0.06),transparent_30%)]" />

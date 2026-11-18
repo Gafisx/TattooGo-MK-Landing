@@ -19,10 +19,20 @@ export default function ScrollProgressBridge({
   const invalidate = useThree((state) => state.invalidate);
 
   useEffect(() => {
+    const unsubscribe = useScrollStore.subscribe((state, previousState) => {
+      if (
+        state.pointer !== previousState.pointer ||
+        state.isDrawing !== previousState.isDrawing ||
+        state.drawProgress !== previousState.drawProgress
+      ) {
+        invalidate();
+      }
+    });
+
     if (reducedMotion) {
       useScrollStore.getState().setProgress(1);
       invalidate();
-      return;
+      return unsubscribe;
     }
 
     const timeline = gsap.timeline({
@@ -50,9 +60,9 @@ export default function ScrollProgressBridge({
     timeline.scrollTrigger?.refresh();
 
     return () => {
+      unsubscribe();
       timeline.scrollTrigger?.kill();
       timeline.kill();
-      useScrollStore.getState().setProgress(0);
     };
   }, [invalidate, reducedMotion]);
 
