@@ -46,6 +46,11 @@ so keep `blob:` allowed in both `img-src` and `connect-src` in the Content
 Security Policy. Keep the model under 50,000 triangles and the complete scene
 under 100 draw calls.
 
+The interactive scene currently uses a low-poly procedural forearm and an
+alpha-masked PBR ink decal revealed by the drawing gesture. No arm GLB or
+alpha-channel WebM is checked in, so this is the decal-only fallback; the
+ScrollTrigger-to-Zustand bridge remains the source of scroll progress.
+
 If Draco compression is introduced, include the matching decoder files under
 `public/draco/` and pass `"/draco/"` to both `useGLTF.preload` and `useGLTF`.
 Do not enable Draco for this asset unless those decoder files are deployed.

@@ -4,6 +4,7 @@ import {
   Component,
   Suspense,
   useEffect,
+  useCallback,
   useRef,
   useState,
   type ErrorInfo,
@@ -12,13 +13,14 @@ import {
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 
-import InkStrokePlane from "@/components/InkStrokePlane";
+import InteractiveTattooArm from "@/components/InteractiveTattooArm";
 import TattooMachineModel, {
   MinimalMachineFallback,
 } from "@/components/TattooMachineModel";
 import StudioLighting from "@/components/StudioLighting";
 import ScrollProgressBridge from "@/components/ScrollProgressBridge";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
+import { useScrollStore } from "@/components/scrollProgressStore";
 
 type WebGLErrorBoundaryProps = {
   children: ReactNode;
@@ -61,24 +63,65 @@ function supportsWebGL(): boolean {
   }
 }
 
-function SceneBudgetProbe() {
-  const warnedRef = useRef(false);
+function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
+  const warnedDrawCallsRef = useRef(false);
+  const warnedFrameTimeRef = useRef(false);
+  const frameTimeTotalRef = useRef(0);
+  const frameCountRef = useRef(0);
 
-  useFrame(({ gl }) => {
-    if (process.env.NODE_ENV !== "development" || warnedRef.current) return;
+  useFrame(({ gl }, delta) => {
+    if (process.env.NODE_ENV !== "development") return;
 
     const drawCallCount = gl.info.render.calls;
-    if (drawCallCount > 100) {
-      warnedRef.current = true;
+    if (drawCallCount > 100 && !warnedDrawCallsRef.current) {
+      warnedDrawCallsRef.current = true;
       console.warn(
         `[TattooGo] Scene rendered ${drawCallCount} draw calls; reduce scene complexity to stay within the 100-call budget.`,
       );
     }
+
+    if (warnedFrameTimeRef.current) return;
+
+    if (!useScrollStore.getState().isDrawing) {
+      frameTimeTotalRef.current = 0;
+      frameCountRef.current = 0;
+      return;
+    }
+
+    if (!Number.isFinite(delta) || delta > 0.1) {
+      frameTimeTotalRef.current = 0;
+      frameCountRef.current = 0;
+      return;
+    }
+
+    frameTimeTotalRef.current += delta;
+    frameCountRef.current += 1;
+    if (frameCountRef.current < 60) return;
+
+    const averageFrameTime =
+      (frameTimeTotalRef.current / frameCountRef.current) * 1000;
+    if (averageFrameTime > 16.6) {
+      warnedFrameTimeRef.current = true;
+      console.warn(
+        `[TattooGo] Active frame interval averaged ${averageFrameTime.toFixed(
+          1,
+        )}ms; reducing the Canvas DPR cap to 1.5.`,
+      );
+      onSlowFrame();
+    }
+
+    frameTimeTotalRef.current = 0;
+    frameCountRef.current = 0;
   });
   return null;
 }
 
 export default function Master3DCanvas() {
+  const [dpr, setDpr] = useState<[number, number]>([1, 2]);
+  const lowerDprForPerformance = useCallback(
+    () => setDpr([1, 1.5]),
+    [],
+  );
   const [reducedMotion, setReducedMotion] = useState(
     typeof window !== "undefined"
       ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -102,6 +145,8 @@ export default function Master3DCanvas() {
     return <ReducedMotionFallback />;
   }
 
+  // No WebM or arm.glb is checked in, so use the requested Strategy B fallback:
+  // a low-poly forearm and a PBR decal, ready to coexist with a future video plane.
   return (
     <div
       aria-hidden="true"
@@ -111,7 +156,7 @@ export default function Master3DCanvas() {
         <Canvas
           frameloop="demand"
           camera={{ position: [0, 0, 9], fov: 40, near: 0.1, far: 40 }}
-          dpr={[1, 2]}
+          dpr={dpr}
           gl={{
             alpha: true,
             antialias: true,
@@ -132,11 +177,11 @@ export default function Master3DCanvas() {
           >
             <StudioLighting />
             <ScrollProgressBridge reducedMotion={reducedMotion} />
+            <InteractiveTattooArm reducedMotion={reducedMotion} />
             <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
               <TattooMachineModel reducedMotion={reducedMotion} />
             </WebGLErrorBoundary>
-            <InkStrokePlane reducedMotion={reducedMotion} />
-            <SceneBudgetProbe />
+            <FrameBudgetProbe onSlowFrame={lowerDprForPerformance} />
           </Suspense>
         </Canvas>
       </WebGLErrorBoundary>

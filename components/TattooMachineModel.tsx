@@ -54,6 +54,39 @@ type TattooMachineModelProps = {
   reducedMotion: boolean;
 };
 
+function NeedleVibration({ reducedMotion }: { reducedMotion: boolean }) {
+  const needleRef = useRef<Group>(null);
+  const isDrawing = useScrollStore((state) => state.isDrawing);
+  const { invalidate } = useThree();
+  const baseY = -0.94;
+
+  // The GLB has generic Object_* meshes, not a separately named needle; keep
+  // this lightweight contact pin independent of the cached model geometry.
+  useFrame(({ clock }) => {
+    const needle = needleRef.current;
+    if (!needle) return;
+
+    needle.position.y = baseY;
+    if (reducedMotion || !isDrawing) return;
+
+    needle.position.y += Math.sin(clock.elapsedTime * 120) * 0.002;
+    invalidate();
+  });
+
+  return (
+    <group ref={needleRef} position={[0, baseY, 0.08]}>
+      <mesh castShadow>
+        <cylinderGeometry args={[0.004, 0.014, 0.14, 8]} />
+        <meshPhysicalMaterial
+          color="#d5d3cf"
+          metalness={0.92}
+          roughness={0.18}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function RealTattooMachineModel({
   reducedMotion,
 }: TattooMachineModelProps) {
@@ -184,6 +217,7 @@ function RealTattooMachineModel({
       rotation={[0.08, 0, -0.22]}
     >
       <primitive object={fittedModel.scene} dispose={null} />
+      <NeedleVibration reducedMotion={reducedMotion} />
     </group>
   );
 }
