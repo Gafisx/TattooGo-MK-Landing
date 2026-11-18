@@ -4,10 +4,12 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useProceduralAudio } from "@/components/useProceduralAudio";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SplitJourneySection() {
+  const { playHoverClick } = useProceduralAudio();
   const sectionRef = useRef<HTMLElement>(null);
   const clientPanelRef = useRef<HTMLElement>(null);
   const artistPanelRef = useRef<HTMLElement>(null);
@@ -135,7 +137,9 @@ export default function SplitJourneySection() {
               </p>
               <a
                 href="#clients-title"
-                className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full border border-[#FF9900]/55 bg-[#FF6600] px-6 text-sm font-semibold text-[#121212] shadow-[0_8px_32px_rgba(255,102,0,0.22)] transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] active:scale-[0.98] motion-reduce:transition-none"
+                onMouseEnter={playHoverClick}
+                onFocus={playHoverClick}
+                className="mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#FF9900]/55 bg-[#FF6600] px-6 text-sm font-semibold text-[#121212] shadow-[0_8px_32px_rgba(255,102,0,0.22)] transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,102,0,0.5)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] active:scale-[0.98] motion-reduce:transition-none"
               >
                 Encontrar Tatuador
               </a>
@@ -180,7 +184,9 @@ export default function SplitJourneySection() {
               </p>
               <a
                 href="#artists-title"
-                className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full border border-[#00FF66]/45 bg-[#00FF66] px-6 text-sm font-semibold text-[#101713] shadow-[0_8px_32px_rgba(0,255,102,0.16)] transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] active:scale-[0.98] motion-reduce:transition-none"
+                onMouseEnter={playHoverClick}
+                onFocus={playHoverClick}
+                className="mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#00FF66]/45 bg-[#00FF66] px-6 text-sm font-semibold text-[#101713] shadow-[0_8px_32px_rgba(0,255,102,0.16)] transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,102,0,0.5)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] active:scale-[0.98] motion-reduce:transition-none"
               >
                 Sou Tatuador
               </a>

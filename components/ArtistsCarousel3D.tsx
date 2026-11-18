@@ -146,6 +146,7 @@ function CarouselScene() {
       }),
     [],
   );
+  const materialsRef = useRef(materials);
   const { viewport } = useThree();
 
   useEffect(
@@ -158,10 +159,11 @@ function CarouselScene() {
     [materials],
   );
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const group = groupRef.current;
     if (!group) return;
 
+    const easing = 1 - Math.exp(-delta * 8);
     const progress = useScrollStore.getState().progress;
     const rotation = progress * TAU;
     group.rotation.y = rotation;
@@ -174,8 +176,9 @@ function CarouselScene() {
     for (let index = 0; index < CARD_COUNT; index += 1) {
       const angle = (index / CARD_COUNT) * TAU;
       const mesh = cardMeshes.current[index];
-      const material = materials[index];
+      const material = materialsRef.current[index];
       const facing = Math.max(0, Math.cos(angle + rotation));
+      const cardScale = 0.9 + facing * 0.15;
 
       mesh.position.set(
         Math.sin(angle) * radius,
@@ -183,15 +186,14 @@ function CarouselScene() {
         Math.cos(angle) * radius,
       );
       mesh.rotation.y = angle;
-      mesh.scale.set(
-        cardWidth * (0.9 + facing * 0.12),
-        cardHeight * (0.9 + facing * 0.12),
-        1,
-      );
+      mesh.scale.x += (cardWidth * cardScale - mesh.scale.x) * easing;
+      mesh.scale.y += (cardHeight * cardScale - mesh.scale.y) * easing;
 
       material.uniforms.uTime.value = rotation;
       material.uniforms.uWave.value = 0.3;
-      material.uniforms.uFocus.value = 0.62 + facing * 0.38;
+      const focus = 0.62 + facing * 0.38;
+      material.uniforms.uFocus.value +=
+        (focus - material.uniforms.uFocus.value) * easing;
     }
   });
 

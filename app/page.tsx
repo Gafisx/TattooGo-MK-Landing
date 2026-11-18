@@ -5,10 +5,11 @@ import ImmersiveExperience from "@/components/ImmersiveExperience";
 import Deferred3DCanvas from "@/components/Deferred3DCanvas";
 import SplitJourneySection from "@/components/SplitJourneySection";
 import { ArtistsCarouselSection } from "@/components/ArtistsCarousel3D";
+import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
 
 export default function Home() {
   return (
-    <>
+    <ProceduralAudioProvider>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#FF9900] focus:px-4 focus:py-3 focus:font-semibold focus:text-[#121212] focus:outline-2 focus:outline-offset-2 focus:outline-white"
@@ -30,6 +31,6 @@ export default function Home() {
           <SecurityAndFooter />
         </div>
       </main>
-    </>
+    </ProceduralAudioProvider>
   );
 }
