@@ -61,27 +61,18 @@ function supportsWebGL(): boolean {
   }
 }
 
-function FrameBudgetProbe() {
-  const accumulatedTimeRef = useRef(0);
-  const frameCountRef = useRef(0);
+function SceneBudgetProbe() {
   const warnedRef = useRef(false);
 
-  useFrame((_state, delta) => {
-    if (process.env.NODE_ENV !== "development") return;
-    accumulatedTimeRef.current += delta * 1000;
-    frameCountRef.current += 1;
+  useFrame(({ gl }) => {
+    if (process.env.NODE_ENV !== "development" || warnedRef.current) return;
 
-    if (frameCountRef.current >= 120 && !warnedRef.current) {
-      const averageFrameTime =
-        accumulatedTimeRef.current / frameCountRef.current;
-      if (averageFrameTime > 16.6) {
-        warnedRef.current = true;
-        console.warn(
-          `[TattooGo] Average frame time is ${averageFrameTime.toFixed(
-            1,
-          )}ms. Reduce DPR, shadows, or scene complexity.`,
-        );
-      }
+    const drawCallCount = gl.info.render.calls;
+    if (drawCallCount > 100) {
+      warnedRef.current = true;
+      console.warn(
+        `[TattooGo] Scene rendered ${drawCallCount} draw calls; reduce scene complexity to stay within the 100-call budget.`,
+      );
     }
   });
   return null;
@@ -141,9 +132,11 @@ export default function Master3DCanvas() {
           >
             <StudioLighting />
             <ScrollProgressBridge reducedMotion={reducedMotion} />
-            <TattooMachineModel reducedMotion={reducedMotion} />
+            <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
+              <TattooMachineModel reducedMotion={reducedMotion} />
+            </WebGLErrorBoundary>
             <InkStrokePlane reducedMotion={reducedMotion} />
-            <FrameBudgetProbe />
+            <SceneBudgetProbe />
           </Suspense>
         </Canvas>
       </WebGLErrorBoundary>

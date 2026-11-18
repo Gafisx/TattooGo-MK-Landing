@@ -39,10 +39,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## 3D model production pipeline
 
 Place the final tattoo machine at `public/assets/models/tattoo-machine.glb`.
-The checked-in model currently uses `KHR_mesh_quantization`; it does not contain
-Draco-compressed geometry or KTX2 textures, so it loads without external decoder
-assets. Keep the model under 50,000 triangles and the complete scene under 100
-draw calls.
+The checked-in model uses `KHR_mesh_quantization` and embedded WebP/PNG textures;
+it does not contain Draco-compressed geometry or KTX2 textures, so it loads
+without external decoder assets. The GLTF loader fetches embedded image blob URLs,
+so keep `blob:` allowed in both `img-src` and `connect-src` in the Content
+Security Policy. Keep the model under 50,000 triangles and the complete scene
+under 100 draw calls.
 
 If Draco compression is introduced, include the matching decoder files under
 `public/draco/` and pass `"/draco/"` to both `useGLTF.preload` and `useGLTF`.

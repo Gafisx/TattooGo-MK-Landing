@@ -117,7 +117,7 @@ function RealTattooMachineModel({
   useFrame((_state, delta) => {
     const machine = machineRef.current;
     const { progress, pointer, isDrawing } = useScrollStore.getState();
-    if (!machine || (reducedMotion && !isDrawing)) return;
+    if (!machine || reducedMotion) return;
 
     const compactViewport = viewport.width < 6;
     const baseX = Math.min(
