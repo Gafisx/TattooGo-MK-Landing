@@ -89,7 +89,9 @@ function RealTattooMachineModel({
       normal: new Vector3(),
       needleDirection: new Vector3(),
       targetPosition: new Vector3(),
+      parentLocalPoint: new Vector3(),
       targetRotation: new Quaternion(),
+      parentWorldQuaternion: new Quaternion(),
       needleDown: new Vector3(0, -1, 0),
       needleTipWorld: new Vector3(),
     }),
@@ -146,6 +148,7 @@ function RealTattooMachineModel({
     const machine = machineRef.current;
     const path = pathRef.current;
     if (!machine || !path) return;
+    const parent = machine.parent;
 
     const progress = reducedMotion ? 1 : useScrollStore.getState().progress;
     motion.point
@@ -162,12 +165,26 @@ function RealTattooMachineModel({
       motion.needleDown,
       motion.needleDirection,
     );
-    machine.position.copy(motion.point);
-    machine.quaternion.copy(motion.targetRotation);
+    if (parent) {
+      parent.updateWorldMatrix(true, false);
+      parent.getWorldQuaternion(motion.parentWorldQuaternion).invert();
+      machine.quaternion
+        .copy(motion.parentWorldQuaternion)
+        .multiply(motion.targetRotation);
+      motion.parentLocalPoint.copy(motion.point);
+      parent.worldToLocal(motion.parentLocalPoint);
+    } else {
+      machine.quaternion.copy(motion.targetRotation);
+      motion.parentLocalPoint.copy(motion.point);
+    }
+    machine.position.copy(motion.parentLocalPoint);
     machine.updateMatrixWorld(true);
     motion.needleTipWorld.set(0, NEEDLE_TIP_Y, 0);
     machine.localToWorld(motion.needleTipWorld);
-    motion.targetPosition.copy(motion.point).sub(motion.needleTipWorld);
+    if (parent) parent.worldToLocal(motion.needleTipWorld);
+    motion.targetPosition
+      .copy(motion.parentLocalPoint)
+      .sub(motion.needleTipWorld);
     machine.position.add(motion.targetPosition);
 
     if (reducedMotion) {
