@@ -90,7 +90,7 @@ export default function HeroSection() {
     <section
       ref={sectionRef}
       id="top"
-      className="gpu-accelerate relative isolate flex h-screen min-h-[800px] overflow-hidden bg-[#121212]/65"
+      className="gpu-accelerate relative isolate flex h-screen min-h-[800px] overflow-hidden bg-[#121212]/20"
       aria-labelledby="hero-title"
     >
       <Image
@@ -99,10 +99,10 @@ export default function HeroSection() {
         fill
         priority
         sizes="100vw"
-        className="gpu-accelerate object-cover object-[58%_center] opacity-25"
+        className="gpu-accelerate object-cover object-[58%_center] opacity-[0.08]"
       />
 
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.26)_72%,rgba(18,18,18,0.58)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.18),rgba(18,18,18,0.64)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.06)_72%,rgba(18,18,18,0.16)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.08),rgba(18,18,18,0.28)_100%)]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">
         <div className="gpu-accelerate relative z-20 max-w-[720px] pt-10 lg:pt-0">
@@ -203,9 +203,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div
-          className="gpu-accelerate relative h-[36vh] min-h-[260px] w-full sm:h-[42vh] lg:h-[72vh] lg:min-h-[540px]"
-        >
+        <div className="gpu-accelerate relative h-[22vh] min-h-[180px] w-full sm:h-[32vh] sm:min-h-[220px] lg:h-[72vh] lg:min-h-[540px]">
           <button
             type="button"
             aria-label="Segure e arraste para guiar a máquina de tatuagem. Use as setas enquanto pressiona para desenhar com o teclado."

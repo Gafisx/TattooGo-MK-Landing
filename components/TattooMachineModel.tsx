@@ -119,13 +119,24 @@ function RealTattooMachineModel({
     const { progress, pointer, isDrawing } = useScrollStore.getState();
     if (!machine || (reducedMotion && !isDrawing)) return;
 
-    const baseX = Math.min(viewport.width * 0.24, 2.6);
+    const compactViewport = viewport.width < 6;
+    const baseX = Math.min(
+      viewport.width * (compactViewport ? 0.16 : 0.24),
+      2.6,
+    );
+    const baseY = compactViewport ? -2.45 : 0;
+    const travelAmplitude = Math.min(
+      viewport.width * (compactViewport ? 0.06 : 0.12),
+      1.5,
+    );
     const targetX = isDrawing
       ? (pointer.x - 0.5) * viewport.width
-      : baseX + Math.sin(progress * Math.PI * 4) * Math.min(viewport.width * 0.035, 0.4);
+      : baseX +
+        Math.sin(progress * Math.PI * 6 + Math.PI / 2) * travelAmplitude;
     const targetY = isDrawing
       ? (0.5 - pointer.y) * viewport.height
-      : Math.sin(progress * Math.PI * 2) * 0.35;
+      : baseY +
+        Math.sin(progress * Math.PI * 6) * (compactViewport ? 0.16 : 0.55);
     machine.position.x = MathUtils.damp(
       machine.position.x,
       targetX,
@@ -164,8 +175,12 @@ function RealTattooMachineModel({
   return (
     <group
       ref={machineRef}
-      scale={fittedModel.scale}
-      position={[Math.min(viewport.width * 0.24, 2.6), 0, 0]}
+      scale={fittedModel.scale * Math.min(1, viewport.width / 6.5)}
+      position={[
+        Math.min(viewport.width * (viewport.width < 6 ? 0.16 : 0.24), 2.6),
+        viewport.width < 6 ? -2.45 : 0,
+        0,
+      ]}
       rotation={[0.08, 0, -0.22]}
     >
       <primitive object={fittedModel.scene} dispose={null} />
