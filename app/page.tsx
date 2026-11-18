@@ -1,8 +1,18 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/HeroSection";
 import DualSidedSection from "@/components/DualSidedSection";
 import SecurityAndFooter from "@/components/SecurityAndFooter";
 import ImmersiveExperience from "@/components/ImmersiveExperience";
-import Master3DCanvas from "@/components/Master3DCanvas";
+
+const Master3DCanvas = dynamic(
+  () => import("@/components/Master3DCanvas"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
 
 export default function Home() {
   return (

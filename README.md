@@ -34,3 +34,20 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# TattooGo MK
+
+## 3D model production pipeline
+
+Place the final tattoo machine at `public/assets/models/tattoomachine.glb`.
+Before deployment:
+
+```bash
+npm install --global gltf-pipeline
+gltf-pipeline -i source.glb -o public/assets/models/tattoomachine.glb -d
+```
+
+Convert embedded PNG/JPG textures to KTX2 before packaging, and use a tool such as
+`toktx` or `gltf-transform` to reduce VRAM and download size. The GLB should contain
+fewer than 50,000 triangles and under 100 scene draw calls. Keep the Draco decoder
+binary set under `public/draco/`; the canvas is configured to load decoders from
+`/draco/`.
