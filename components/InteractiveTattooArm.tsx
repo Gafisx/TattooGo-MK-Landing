@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { createPortal, useFrame, useThree } from "@react-three/fiber";
 import {
@@ -22,6 +29,7 @@ import type { TattooPathRef } from "@/components/tattooPath";
 const ARM_MODEL_PATH = "/assets/models/arm_with_skin.glb";
 const TATTOO_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
 const FALLBACK_TEXTURE_PATH = "/assets/images/ink-stroke.svg";
+const SKIN_NORMAL_TEXTURE_PATH = "/assets/textures/skin_normal.png";
 type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
 
 function InkRevealMaterial({
@@ -42,17 +50,52 @@ function InkRevealMaterial({
       shaderRef.current = shader;
       shader.fragmentShader = shader.fragmentShader.replace(
         "#include <common>",
-        "#include <common>\nuniform float uProgress;",
+        `#include <common>
+         uniform float uProgress;
+         float tattooHash(vec2 point) {
+           return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
+         }
+         float tattooNoise(vec2 point) {
+           vec2 cell = floor(point);
+           vec2 local = fract(point);
+           local = local * local * (3.0 - 2.0 * local);
+           float lower = mix(
+             tattooHash(cell),
+             tattooHash(cell + vec2(1.0, 0.0)),
+             local.x
+           );
+           float upper = mix(
+             tattooHash(cell + vec2(0.0, 1.0)),
+             tattooHash(cell + vec2(1.0, 1.0)),
+             local.x
+           );
+           return mix(lower, upper, local.y);
+         }
+         float tattooFbm(vec2 point) {
+           float value = 0.0;
+           float amplitude = 0.5;
+           for (int octave = 0; octave < 4; octave++) {
+             value += amplitude * tattooNoise(point);
+             point = point * 2.0 + vec2(13.1, 7.7);
+             amplitude *= 0.5;
+           }
+           return value;
+         }`,
       );
       shader.fragmentShader = shader.fragmentShader.replace(
         "#include <map_fragment>",
         `#include <map_fragment>
          #ifdef USE_MAP
-           float tattooReveal = 1.0 - smoothstep(
-             uProgress - 0.025,
-             uProgress + 0.025,
-             vMapUv.x
-           );
+           float tattooReveal = 1.0;
+           if (uProgress < 1.0) {
+             float inkEdge =
+               uProgress + (tattooFbm(vMapUv * 10.0) - 0.5) * 0.1;
+             tattooReveal = 1.0 - smoothstep(
+               inkEdge - 0.02,
+               inkEdge + 0.02,
+               vMapUv.x
+             );
+           }
            diffuseColor.a *= tattooReveal;
          #endif`,
       );
@@ -78,13 +121,49 @@ function InkRevealMaterial({
       roughness={0.88}
       metalness={0}
       clearcoat={0}
-      alphaTest={0.12}
+      alphaTest={0.5}
       transparent
       depthWrite={false}
       onBeforeCompile={onBeforeCompile}
       customProgramCacheKey={() => "tattoogo-scroll-tattoo-reveal"}
     />
   );
+}
+
+function SkinNormalMap({ mesh }: { mesh: Mesh }) {
+  const texture = useTexture(SKIN_NORMAL_TEXTURE_PATH, (loadedTexture) => {
+    loadedTexture.anisotropy = 4;
+    loadedTexture.needsUpdate = true;
+  });
+  const normalMap = useMemo(() => texture.clone(), [texture]);
+
+  useEffect(() => () => normalMap.dispose(), [normalMap]);
+
+  useLayoutEffect(() => {
+    const materials = Array.isArray(mesh.material)
+      ? mesh.material
+      : [mesh.material];
+    const previousSettings = materials.flatMap((material) => {
+      if (!(material instanceof MeshStandardMaterial)) return [];
+
+      const previousMap = material.normalMap;
+      const previousScale = material.normalScale.clone();
+      material.normalMap = normalMap;
+      material.normalScale.set(0.8, 0.8);
+      material.needsUpdate = true;
+      return [{ material, previousMap, previousScale }];
+    });
+
+    return () => {
+      for (const { material, previousMap, previousScale } of previousSettings) {
+        material.normalMap = previousMap;
+        material.normalScale.copy(previousScale);
+        material.needsUpdate = true;
+      }
+    };
+  }, [mesh, normalMap]);
+
+  return null;
 }
 
 function getArmModel(scene: Group) {
@@ -121,7 +200,8 @@ function getArmModel(scene: Group) {
     if (!(material instanceof MeshStandardMaterial)) return material;
 
     const matteMaterial = material.clone();
-    matteMaterial.roughness = Math.max(matteMaterial.roughness, 0.82);
+    matteMaterial.color.set("#aa7957");
+    matteMaterial.roughness = 0.65;
     matteMaterial.metalness = 0;
     if (matteMaterial instanceof MeshPhysicalMaterial) {
       matteMaterial.clearcoat = 0;
@@ -205,6 +285,34 @@ export default function InteractiveTattooArm({
   const texture = useTexture(TATTOO_TEXTURE_PATH, textureSetup);
   const { viewport } = useThree();
   const asset = useMemo(() => getArmModel(scene), [scene]);
+  const [skinNormalMapAvailable, setSkinNormalMapAvailable] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch(SKIN_NORMAL_TEXTURE_PATH, { method: "HEAD" })
+      .then((response) => {
+        if (!active) return;
+        if (!response.ok) {
+          console.warn(
+            `[TattooGo] Skin normal map unavailable (${response.status}); using the base arm material.`,
+          );
+        }
+        setSkinNormalMapAvailable(response.ok);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        console.warn(
+          "[TattooGo] Could not load the skin normal map; using the base arm material.",
+          error,
+        );
+        setSkinNormalMapAvailable(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useLayoutEffect(() => {
     pathRef.current = asset.path;
@@ -222,6 +330,7 @@ export default function InteractiveTattooArm({
       rotation={asset.modelRotation}
     >
       <primitive object={asset.model} dispose={null} />
+      {skinNormalMapAvailable && <SkinNormalMap mesh={asset.mesh} />}
       {createPortal(
         <Decal
           position={asset.decalPosition}
