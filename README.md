@@ -11,6 +11,12 @@ O material da pele usa acabamento fosco para evitar reflexos artificiais. Os
 CTAs da landing levam às jornadas para clientes e tatuadores, sem simular links
 de download que ainda não existem.
 
+O carrossel de estilos reutiliza o Canvas principal, mostrando sete cartões com
+texturas procedurais enquanto a seção está visível. O progresso global do scroll
+completa uma volta no círculo; o shader aplica ondulação sutil e reforça o
+cartão em foco. Com `prefers-reduced-motion`, a cena 3D é substituída por uma
+grade HTML estática.
+
 Para a cena final, disponibilize estes assets:
 
 - `public/assets/models/arm_with_skin.glb` — antebraço com textura de pele.

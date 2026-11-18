@@ -22,6 +22,7 @@ import TattooMachineModel, {
 import StudioLighting from "@/components/StudioLighting";
 import ScrollProgressBridge from "@/components/ScrollProgressBridge";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
+import ArtistsCarousel3D from "@/components/ArtistsCarousel3D";
 import type { TattooPath } from "@/components/tattooPath";
 
 type WebGLErrorBoundaryProps = {
@@ -172,6 +173,7 @@ export default function Master3DCanvas() {
           >
             <StudioLighting />
             <ScrollProgressBridge reducedMotion={reducedMotion} />
+            <ArtistsCarousel3D reducedMotion={reducedMotion} />
             <WebGLErrorBoundary
               fallback={
                 <InteractiveTattooArmFallback

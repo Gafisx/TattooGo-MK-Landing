@@ -4,6 +4,7 @@ import SecurityAndFooter from "@/components/SecurityAndFooter";
 import ImmersiveExperience from "@/components/ImmersiveExperience";
 import Deferred3DCanvas from "@/components/Deferred3DCanvas";
 import SplitJourneySection from "@/components/SplitJourneySection";
+import { ArtistsCarouselSection } from "@/components/ArtistsCarousel3D";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
           <HeroSection />
           <ImmersiveExperience />
           <SplitJourneySection />
+          <ArtistsCarouselSection />
           <DualSidedSection />
           <SecurityAndFooter />
         </div>
