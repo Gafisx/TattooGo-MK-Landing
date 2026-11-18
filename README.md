@@ -5,6 +5,10 @@
 A cena usa `ScrollTrigger` para publicar o progresso da página no Zustand. O
 decalque e a máquina de tatuagem leem o mesmo progresso no `useFrame` do React
 Three Fiber; o Canvas usa `frameloop="demand"` e respeita `prefers-reduced-motion`.
+Durante o movimento, a agulha vibra em torno do ponto de contato calculado; com
+movimento reduzido, ela fica estática. O material da pele usa acabamento fosco
+para evitar reflexos artificiais. Os CTAs da landing levam às jornadas para
+clientes e tatuadores, sem simular links de download que ainda não existem.
 
 Para a cena final, disponibilize estes assets:
 

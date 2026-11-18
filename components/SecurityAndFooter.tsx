@@ -3,11 +3,11 @@
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import {
-  ArrowUpRight,
-  Apple,
+  ArrowRight,
   Check,
   Fingerprint,
-  Play,
+  MapPin,
+  Palette,
   ShieldCheck,
   WalletCards,
 } from "lucide-react";
@@ -372,55 +372,51 @@ export default function SecurityAndFooter() {
               </span>
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
-              Baixe o aplicativo e descubra uma nova forma de conectar ideias
-              aos artistas certos.
+              Explore as jornadas para clientes e tatuadores e descubra como a
+              plataforma aproxima ideias dos artistas certos.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
             <a
-              href="https://www.apple.com/app-store/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 hover:shadow-[0_0_30px_rgba(255,102,0,0.18)] motion-reduce:transition-none"
+              href="#clients-title"
+              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 hover:shadow-[0_0_30px_rgba(255,102,0,0.18)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none"
             >
-              <Apple
+              <MapPin
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF9900]"
               />
               <span className="flex flex-col text-left">
                 <span className="text-[0.62rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Baixar na
+                  Conheça a jornada
                 </span>
                 <span className="text-base font-semibold leading-tight">
-                  App Store
+                  Para clientes
                 </span>
               </span>
-              <ArrowUpRight
+              <ArrowRight
                 aria-hidden="true"
                 className="ml-2 h-4 w-4 opacity-45 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
               />
             </a>
 
             <a
-              href="https://play.google.com/store/apps"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 hover:shadow-[0_0_30px_rgba(0,255,102,0.16)] motion-reduce:transition-none"
+              href="#artists-title"
+              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 hover:shadow-[0_0_30px_rgba(0,255,102,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none"
             >
-              <Play
+              <Palette
                 aria-hidden="true"
-                className="h-7 w-7 shrink-0 fill-[#FF6600] text-[#FF6600]"
+                className="h-7 w-7 shrink-0 text-[#FF6600]"
               />
               <span className="flex flex-col text-left">
                 <span className="text-[0.62rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Disponível no
+                  Conheça a jornada
                 </span>
                 <span className="text-base font-semibold leading-tight">
-                  Google Play
+                  Para tatuadores
                 </span>
               </span>
-              <ArrowUpRight
+              <ArrowRight
                 aria-hidden="true"
                 className="ml-2 h-4 w-4 text-[#FF9900] opacity-45 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
               />

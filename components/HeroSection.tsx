@@ -2,7 +2,12 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  MapPin,
+  Palette,
+  ShieldCheck,
+} from "lucide-react";
 import gsap from "gsap";
 
 export default function HeroSection() {
@@ -139,48 +144,44 @@ export default function HeroSection() {
             className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
           >
             <a
-              href="https://www.apple.com/app-store/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/60 px-5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 sm:min-w-[218px]"
+              href="#clients-title"
+              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/60 px-5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none sm:min-w-[218px]"
             >
-              <Apple
+              <MapPin
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF9900]"
               />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Baixar na
+                  Descubra a jornada
                 </span>
                 <span className="text-[1.05rem] font-semibold leading-tight">
-                  App Store
+                  Para clientes
                 </span>
               </span>
-              <ArrowUpRight
+              <ArrowRight
                 aria-hidden="true"
                 className="h-4 w-4 opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
               />
             </a>
 
             <a
-              href="https://play.google.com/store/apps"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/14 bg-[#1A1A1A]/70 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 sm:min-w-[218px]"
+              href="#artists-title"
+              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/14 bg-[#1A1A1A]/70 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none sm:min-w-[218px]"
             >
-              <Play
+              <Palette
                 aria-hidden="true"
-                className="h-7 w-7 shrink-0 fill-[#FF6600] text-[#FF6600]"
+                className="h-7 w-7 shrink-0 text-[#FF6600]"
               />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Disponível no
+                  Conheça a jornada
                 </span>
                 <span className="text-[1.05rem] font-semibold leading-tight">
-                  Google Play
+                  Para tatuadores
                 </span>
               </span>
-              <ArrowUpRight
+              <ArrowRight
                 aria-hidden="true"
                 className="h-4 w-4 text-[#FF9900] opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
               />

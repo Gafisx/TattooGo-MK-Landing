@@ -10,6 +10,7 @@ import {
   Matrix4,
   Mesh,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   SRGBColorSpace,
   Vector3,
   type Texture,
@@ -113,6 +114,25 @@ function getArmModel(scene: Group) {
   }
 
   const mesh = skinMesh as Mesh;
+  const materials = Array.isArray(mesh.material)
+    ? mesh.material
+    : [mesh.material];
+  const matteMaterials = materials.map((material) => {
+    if (!(material instanceof MeshStandardMaterial)) return material;
+
+    const matteMaterial = material.clone();
+    matteMaterial.roughness = Math.max(matteMaterial.roughness, 0.82);
+    matteMaterial.metalness = 0;
+    if (matteMaterial instanceof MeshPhysicalMaterial) {
+      matteMaterial.clearcoat = 0;
+      matteMaterial.clearcoatRoughness = 1;
+    }
+    return matteMaterial;
+  });
+  mesh.material = Array.isArray(mesh.material)
+    ? matteMaterials
+    : matteMaterials[0];
+
   const bounds = mesh.geometry.boundingBox as Box3;
   const size = bounds.getSize(new Vector3());
   const dimensions = [size.x, size.y, size.z];
@@ -272,7 +292,7 @@ export function InteractiveTattooArmFallback({
           color="#b87960"
           roughness={0.78}
           metalness={0}
-          clearcoat={0.08}
+          clearcoat={0}
           clearcoatRoughness={0.9}
         />
         <Decal

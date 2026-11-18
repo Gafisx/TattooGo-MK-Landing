@@ -152,13 +152,13 @@ export default function ImmersiveExperience() {
             <span className="h-px w-10 bg-[#FF6600]" />
             Arte em movimento
           </p>
-          <h1
+          <h2
             id="immersive-experience-title"
             className="text-[clamp(3.25rem,8vw,7.5rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-white"
           >
             Cada traço
             <span className="block text-[#FF6600]">conta sua história.</span>
-          </h1>
+          </h2>
         </div>
 
         <div

@@ -17,7 +17,11 @@ import { useScrollStore } from "@/components/scrollProgressStore";
 import type { TattooPathRef } from "@/components/tattooPath";
 
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
-const NEEDLE_TIP_Y = -1.01;
+const NEEDLE_BASE_Y = -0.94;
+const NEEDLE_LENGTH = 0.14;
+const NEEDLE_TIP_Y = NEEDLE_BASE_Y - NEEDLE_LENGTH / 2;
+const NEEDLE_VIBRATION_AMPLITUDE = 0.004;
+const NEEDLE_VIBRATION_FREQUENCY = 35;
 
 useGLTF.preload(MODEL_PATH);
 
@@ -61,6 +65,7 @@ function RealTattooMachineModel({
   pathRef: TattooPathRef;
 }) {
   const machineRef = useRef<Group>(null);
+  const needleRef = useRef<Group>(null);
   const { scene } = useGLTF(MODEL_PATH);
   const invalidate = useThree((state) => state.invalidate);
   const fittedModel = useMemo(() => {
@@ -124,7 +129,7 @@ function RealTattooMachineModel({
     }
   }, [fittedModel.scene]);
 
-  useFrame((_state, delta) => {
+  useFrame((state, delta) => {
     const machine = machineRef.current;
     const path = pathRef.current;
     if (!machine || !path) return;
@@ -152,6 +157,9 @@ function RealTattooMachineModel({
     if (reducedMotion) {
       machine.position.copy(motion.targetPosition);
       machine.quaternion.copy(motion.targetRotation);
+      if (needleRef.current) {
+        needleRef.current.position.y = NEEDLE_BASE_Y;
+      }
       return;
     }
 
@@ -178,10 +186,20 @@ function RealTattooMachineModel({
       1 - Math.exp(-6 * delta),
     );
 
-    if (
+    const hasMotion =
       machine.position.distanceToSquared(motion.targetPosition) > 0.000001 ||
-      machine.quaternion.angleTo(motion.targetRotation) > 0.001
-    ) {
+      machine.quaternion.angleTo(motion.targetRotation) > 0.001;
+
+    if (needleRef.current) {
+      const vibration = hasMotion
+        ? Math.sin(
+            state.clock.elapsedTime * Math.PI * 2 * NEEDLE_VIBRATION_FREQUENCY,
+          ) * NEEDLE_VIBRATION_AMPLITUDE
+        : 0;
+      needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
+    }
+
+    if (hasMotion) {
       invalidate();
     }
   });
@@ -189,9 +207,11 @@ function RealTattooMachineModel({
   return (
     <group ref={machineRef} scale={fittedModel.scale}>
       <primitive object={fittedModel.scene} dispose={null} />
-      <group position={[0, -0.94, 0]}>
+      <group ref={needleRef} position={[0, NEEDLE_BASE_Y, 0]}>
         <mesh castShadow>
-          <cylinderGeometry args={[0.004, 0.014, 0.14, 8]} />
+          <cylinderGeometry
+            args={[0.014, 0.004, NEEDLE_LENGTH, 8]}
+          />
           <meshPhysicalMaterial
             color="#d5d3cf"
             metalness={0.92}
