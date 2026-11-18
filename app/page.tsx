@@ -3,6 +3,7 @@ import DualSidedSection from "@/components/DualSidedSection";
 import SecurityAndFooter from "@/components/SecurityAndFooter";
 import ImmersiveExperience from "@/components/ImmersiveExperience";
 import Deferred3DCanvas from "@/components/Deferred3DCanvas";
+import SplitJourneySection from "@/components/SplitJourneySection";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
         <div className="relative z-10">
           <HeroSection />
           <ImmersiveExperience />
+          <SplitJourneySection />
           <DualSidedSection />
           <SecurityAndFooter />
         </div>
