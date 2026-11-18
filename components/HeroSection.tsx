@@ -4,7 +4,6 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { Apple, ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
-import { useScrollStore } from "@/components/scrollProgressStore";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,20 +13,6 @@ export default function HeroSection() {
   const copyRef = useRef<HTMLParagraphElement>(null);
   const storesRef = useRef<HTMLDivElement>(null);
   const inkStrokeRef = useRef<HTMLDivElement>(null);
-
-  const updateNeedlePointer = (
-    clientX: number,
-    clientY: number,
-    isDrawing: boolean,
-  ) => {
-    useScrollStore
-      .getState()
-      .setPointer(
-        Math.min(1, Math.max(0, clientX / window.innerWidth)),
-        Math.min(1, Math.max(0, clientY / window.innerHeight)),
-        isDrawing,
-      );
-  };
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -204,73 +189,14 @@ export default function HeroSection() {
         </div>
 
         <div className="gpu-accelerate relative h-[22vh] min-h-[180px] w-full sm:h-[32vh] sm:min-h-[220px] lg:h-[72vh] lg:min-h-[540px]">
-          <button
-            type="button"
-            aria-label="Segure e arraste para guiar a máquina de tatuagem. Use as setas enquanto pressiona para desenhar com o teclado."
-            className="group absolute inset-0 z-30 flex touch-none items-end justify-center rounded-3xl border border-white/10 bg-transparent p-4 text-left outline-none transition-colors hover:border-[#FF6600]/35 focus-visible:border-[#00FF66]/70 focus-visible:ring-2 focus-visible:ring-[#00FF66]/50"
-            onPointerDown={(event) => {
-              if (event.button !== 0) return;
-              event.currentTarget.setPointerCapture(event.pointerId);
-              updateNeedlePointer(event.clientX, event.clientY, true);
-            }}
-            onPointerMove={(event) => {
-              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                updateNeedlePointer(event.clientX, event.clientY, true);
-              }
-            }}
-            onPointerUp={(event) => {
-              updateNeedlePointer(event.clientX, event.clientY, false);
-              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                event.currentTarget.releasePointerCapture(event.pointerId);
-              }
-            }}
-            onPointerCancel={() => {
-              const { pointer } = useScrollStore.getState();
-              updateNeedlePointer(
-                pointer.x * window.innerWidth,
-                pointer.y * window.innerHeight,
-                false,
-              );
-            }}
-            onKeyDown={(event) => {
-              if (
-                ![" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
-                  event.key,
-                )
-              ) {
-                return;
-              }
-              event.preventDefault();
-              const { pointer } = useScrollStore.getState();
-              const step = event.shiftKey ? 0.06 : 0.02;
-              const x =
-                pointer.x +
-                (event.key === "ArrowRight" ? step : event.key === "ArrowLeft" ? -step : 0);
-              const y =
-                pointer.y +
-                (event.key === "ArrowDown" ? step : event.key === "ArrowUp" ? -step : 0);
-              updateNeedlePointer(
-                Math.min(1, Math.max(0, x)) * window.innerWidth,
-                Math.min(1, Math.max(0, y)) * window.innerHeight,
-                true,
-              );
-            }}
-            onKeyUp={(event) => {
-              if (![" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
-                return;
-              }
-              const { pointer } = useScrollStore.getState();
-              updateNeedlePointer(
-                pointer.x * window.innerWidth,
-                pointer.y * window.innerHeight,
-                false,
-              );
-            }}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-end justify-center p-4"
           >
-            <span className="pointer-events-none rounded-full border border-white/15 bg-[#121212]/70 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition-colors group-hover:border-[#FF6600]/45 group-hover:text-white">
-              Segure e arraste para guiar a agulha
+            <span className="rounded-full border border-white/15 bg-[#121212]/70 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md">
+              Role a página para revelar a tatuagem
             </span>
-          </button>
+          </div>
           <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>
       </div>
@@ -278,9 +204,9 @@ export default function HeroSection() {
       <div className="pointer-events-none absolute right-5 top-6 z-20 flex flex-col items-end gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-white/55 sm:right-10 sm:top-10 sm:text-[10px]">
         <span className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-[#00FF66] shadow-[0_0_10px_#00FF66]" />
-          SCROLL + TOUCH: 3D ACTIVE
+          SCROLL: 3D ACTIVE
         </span>
-        <span className="text-[#FF9900]/75">HOLD + DRAG TO INK</span>
+        <span className="text-[#FF9900]/75">SCROLL TO REVEAL</span>
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF6600]/50 to-[#00FF66]/35" />

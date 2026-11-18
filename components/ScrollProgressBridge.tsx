@@ -20,11 +20,7 @@ export default function ScrollProgressBridge({
 
   useEffect(() => {
     const unsubscribe = useScrollStore.subscribe((state, previousState) => {
-      if (
-        state.pointer !== previousState.pointer ||
-        state.isDrawing !== previousState.isDrawing ||
-        state.drawProgress !== previousState.drawProgress
-      ) {
+      if (state.progress !== previousState.progress) {
         invalidate();
       }
     });
@@ -48,7 +44,9 @@ export default function ScrollProgressBridge({
           invalidate();
         },
         onRefresh: (trigger) => {
-          useScrollStore.getState().setProgress(trigger.progress);
+          useScrollStore
+            .getState()
+            .setProgress(Math.min(1, Math.max(0, trigger.progress)));
           invalidate();
         },
       },

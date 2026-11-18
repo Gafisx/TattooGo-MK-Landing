@@ -8,13 +8,16 @@ import {
   Group,
   MathUtils,
   Mesh,
-  type Object3D,
+  Quaternion,
   Vector3,
+  type Object3D,
 } from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
+import type { TattooPathRef } from "@/components/tattooPath";
 
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
+const NEEDLE_TIP_Y = -1.01;
 
 useGLTF.preload(MODEL_PATH);
 
@@ -50,49 +53,16 @@ export function MinimalMachineFallback() {
   );
 }
 
-type TattooMachineModelProps = {
-  reducedMotion: boolean;
-};
-
-function NeedleVibration({ reducedMotion }: { reducedMotion: boolean }) {
-  const needleRef = useRef<Group>(null);
-  const isDrawing = useScrollStore((state) => state.isDrawing);
-  const { invalidate } = useThree();
-  const baseY = -0.94;
-
-  // The GLB has generic Object_* meshes, not a separately named needle; keep
-  // this lightweight contact pin independent of the cached model geometry.
-  useFrame(({ clock }) => {
-    const needle = needleRef.current;
-    if (!needle) return;
-
-    needle.position.y = baseY;
-    if (reducedMotion || !isDrawing) return;
-
-    needle.position.y += Math.sin(clock.elapsedTime * 120) * 0.002;
-    invalidate();
-  });
-
-  return (
-    <group ref={needleRef} position={[0, baseY, 0.08]}>
-      <mesh castShadow>
-        <cylinderGeometry args={[0.004, 0.014, 0.14, 8]} />
-        <meshPhysicalMaterial
-          color="#d5d3cf"
-          metalness={0.92}
-          roughness={0.18}
-        />
-      </mesh>
-    </group>
-  );
-}
-
 function RealTattooMachineModel({
   reducedMotion,
-}: TattooMachineModelProps) {
+  pathRef,
+}: {
+  reducedMotion: boolean;
+  pathRef: TattooPathRef;
+}) {
   const machineRef = useRef<Group>(null);
   const { scene } = useGLTF(MODEL_PATH);
-  const { invalidate, viewport } = useThree();
+  const invalidate = useThree((state) => state.invalidate);
   const fittedModel = useMemo(() => {
     const instance = scene.clone(true);
     instance.updateMatrixWorld(true);
@@ -101,14 +71,25 @@ function RealTattooMachineModel({
     const size = bounds.getSize(new Vector3());
     const center = bounds.getCenter(new Vector3());
     const largestDimension = Math.max(size.x, size.y, size.z, 0.001);
-
     instance.position.sub(center);
 
     return {
       scene: instance,
-      scale: 3.2 / largestDimension,
+      scale: 1.6 / largestDimension,
     };
   }, [scene]);
+  const motion = useMemo(
+    () => ({
+      point: new Vector3(),
+      normal: new Vector3(),
+      needleDirection: new Vector3(),
+      needleOffset: new Vector3(),
+      targetPosition: new Vector3(),
+      targetRotation: new Quaternion(),
+      needleDown: new Vector3(0, -1, 0),
+    }),
+    [],
+  );
 
   useEffect(() => {
     let triangleCount = 0;
@@ -121,13 +102,11 @@ function RealTattooMachineModel({
       object.castShadow = true;
       object.receiveShadow = true;
       object.frustumCulled = true;
-      if (object.geometry) {
-        const position = object.geometry.getAttribute("position");
-        if (position) {
-          triangleCount += object.geometry.index
-            ? object.geometry.index.count / 3
-            : position.count / 3;
-        }
+      const position = object.geometry.getAttribute("position");
+      if (position) {
+        triangleCount += object.geometry.index
+          ? object.geometry.index.count / 3
+          : position.count / 3;
       }
     });
 
@@ -143,87 +122,98 @@ function RealTattooMachineModel({
         `[TattooGo] Tattoo machine mesh contains ${drawCallCount} draw calls; merge static meshes for the <100 scene budget.`,
       );
     }
-
-    // The GLTF cache owns shared geometries/materials; dispose={null} preserves them for remounts.
   }, [fittedModel.scene]);
 
   useFrame((_state, delta) => {
     const machine = machineRef.current;
-    const { progress, pointer, isDrawing } = useScrollStore.getState();
-    if (!machine || reducedMotion) return;
+    const path = pathRef.current;
+    if (!machine || !path) return;
 
-    const compactViewport = viewport.width < 6;
-    const baseX = Math.min(
-      viewport.width * (compactViewport ? 0.16 : 0.24),
-      2.6,
+    const progress = reducedMotion ? 1 : useScrollStore.getState().progress;
+    motion.point
+      .copy(path.center)
+      .addScaledVector(path.tangent, (progress - 0.5) * path.length);
+    path.mesh.updateWorldMatrix(true, false);
+    path.mesh.localToWorld(motion.point);
+
+    motion.normal
+      .copy(path.normal)
+      .transformDirection(path.mesh.matrixWorld);
+    motion.needleDirection.copy(motion.normal).negate();
+    motion.targetRotation.setFromUnitVectors(
+      motion.needleDown,
+      motion.needleDirection,
     );
-    const baseY = compactViewport ? -2.45 : 0;
-    const travelAmplitude = Math.min(
-      viewport.width * (compactViewport ? 0.06 : 0.12),
-      1.5,
-    );
-    const targetX = isDrawing
-      ? (pointer.x - 0.5) * viewport.width
-      : baseX +
-        Math.sin(progress * Math.PI * 6 + Math.PI / 2) * travelAmplitude;
-    const targetY = isDrawing
-      ? (0.5 - pointer.y) * viewport.height
-      : baseY +
-        Math.sin(progress * Math.PI * 6) * (compactViewport ? 0.16 : 0.55);
+    motion.needleOffset
+      .set(0, NEEDLE_TIP_Y * fittedModel.scale, 0)
+      .applyQuaternion(motion.targetRotation);
+    motion.targetPosition.copy(motion.point).sub(motion.needleOffset);
+
+    if (reducedMotion) {
+      machine.position.copy(motion.targetPosition);
+      machine.quaternion.copy(motion.targetRotation);
+      return;
+    }
+
     machine.position.x = MathUtils.damp(
       machine.position.x,
-      targetX,
-      4,
+      motion.targetPosition.x,
+      6,
       delta,
     );
     machine.position.y = MathUtils.damp(
       machine.position.y,
-      targetY,
-      4,
+      motion.targetPosition.y,
+      6,
       delta,
     );
-    machine.rotation.y = MathUtils.damp(
-      machine.rotation.y,
-      progress * Math.PI * 1.2,
-      3,
+    machine.position.z = MathUtils.damp(
+      machine.position.z,
+      motion.targetPosition.z,
+      6,
       delta,
     );
-    machine.rotation.z = MathUtils.damp(
-      machine.rotation.z,
-      -0.22 + progress * 0.12,
-      3,
-      delta,
+    machine.quaternion.slerp(
+      motion.targetRotation,
+      1 - Math.exp(-6 * delta),
     );
 
     if (
-      Math.abs(machine.position.x - targetX) > 0.001 ||
-      Math.abs(machine.position.y - targetY) > 0.001 ||
-      Math.abs(machine.rotation.y - progress * Math.PI * 1.2) > 0.001 ||
-      Math.abs(machine.rotation.z - (-0.22 + progress * 0.12)) > 0.001
+      machine.position.distanceToSquared(motion.targetPosition) > 0.000001 ||
+      machine.quaternion.angleTo(motion.targetRotation) > 0.001
     ) {
       invalidate();
     }
   });
 
   return (
-    <group
-      ref={machineRef}
-      scale={fittedModel.scale * Math.min(1, viewport.width / 6.5)}
-      position={[
-        Math.min(viewport.width * (viewport.width < 6 ? 0.16 : 0.24), 2.6),
-        viewport.width < 6 ? -2.45 : 0,
-        0,
-      ]}
-      rotation={[0.08, 0, -0.22]}
-    >
+    <group ref={machineRef} scale={fittedModel.scale}>
       <primitive object={fittedModel.scene} dispose={null} />
-      <NeedleVibration reducedMotion={reducedMotion} />
+      <group position={[0, -0.94, 0]}>
+        <mesh castShadow>
+          <cylinderGeometry args={[0.004, 0.014, 0.14, 8]} />
+          <meshPhysicalMaterial
+            color="#d5d3cf"
+            metalness={0.92}
+            roughness={0.18}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
 
 export default function TattooMachineModel({
   reducedMotion,
-}: TattooMachineModelProps) {
-  return <RealTattooMachineModel reducedMotion={reducedMotion} />;
+  pathRef,
+}: {
+  reducedMotion: boolean;
+  pathRef: TattooPathRef;
+}) {
+  return (
+    <RealTattooMachineModel
+      reducedMotion={reducedMotion}
+      pathRef={pathRef}
+    />
+  );
 }

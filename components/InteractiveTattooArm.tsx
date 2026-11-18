@@ -1,110 +1,272 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import { Decal, useTexture } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import { MeshPhysicalMaterial, SRGBColorSpace, type Texture } from "three";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { Decal, useGLTF, useTexture } from "@react-three/drei";
+import { createPortal, useFrame, useThree } from "@react-three/fiber";
+import {
+  Box3,
+  Euler,
+  Group,
+  Matrix4,
+  Mesh,
+  MeshPhysicalMaterial,
+  SRGBColorSpace,
+  Vector3,
+  type Texture,
+} from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
+import type { TattooPathRef } from "@/components/tattooPath";
 
-const INK_TEXTURE_PATH = "/assets/images/ink-stroke.svg";
+const ARM_MODEL_PATH = "/assets/models/arm_with_skin.glb";
+const TATTOO_TEXTURE_PATH = "/assets/decals/star_tattoo.png";
+const FALLBACK_TEXTURE_PATH = "/assets/images/ink-stroke.svg";
 type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
 
-function OrganicInkDecal({ reducedMotion }: { reducedMotion: boolean }) {
-  const configureTexture = useCallback((loadedTexture: Texture) => {
-    loadedTexture.colorSpace = SRGBColorSpace;
-    loadedTexture.anisotropy = 4;
-  }, []);
-  const texture = useTexture(INK_TEXTURE_PATH, configureTexture);
+function InkRevealMaterial({
+  texture,
+  reducedMotion,
+}: {
+  texture: Texture;
+  reducedMotion: boolean;
+}) {
   const shaderRef = useRef<PhysicalShader | null>(null);
   const invalidate = useThree((state) => state.invalidate);
 
-  useEffect(() => {
-    invalidate();
-  }, [invalidate]);
-
   const onBeforeCompile = useCallback(
     (shader: PhysicalShader) => {
-      shader.uniforms.uDrawProgress = {
-        value: reducedMotion ? 1 : useScrollStore.getState().drawProgress,
+      shader.uniforms.uProgress = {
+        value: reducedMotion ? 1 : useScrollStore.getState().progress,
       };
       shaderRef.current = shader;
       shader.fragmentShader = shader.fragmentShader.replace(
         "#include <common>",
-        "#include <common>\nuniform float uDrawProgress;",
+        "#include <common>\nuniform float uProgress;",
       );
       shader.fragmentShader = shader.fragmentShader.replace(
         "#include <map_fragment>",
         `#include <map_fragment>
          #ifdef USE_MAP
-           float inkReveal = 1.0 - smoothstep(
-             uDrawProgress - 0.025,
-             uDrawProgress + 0.025,
+           float tattooReveal = 1.0 - smoothstep(
+             uProgress - 0.025,
+             uProgress + 0.025,
              vMapUv.x
            );
-           diffuseColor.a *= inkReveal;
+           diffuseColor.a *= tattooReveal;
          #endif`,
       );
     },
     [reducedMotion],
   );
 
+  useEffect(() => {
+    invalidate();
+  }, [invalidate]);
+
   useFrame(() => {
-    if (!shaderRef.current) return;
-    shaderRef.current.uniforms.uDrawProgress.value = reducedMotion
-      ? 1
-      : useScrollStore.getState().drawProgress;
+    if (shaderRef.current) {
+      shaderRef.current.uniforms.uProgress.value = reducedMotion
+        ? 1
+        : useScrollStore.getState().progress;
+    }
   });
 
-  const handleMaterialRef = useCallback(
-    (material: MeshPhysicalMaterial | null) => {
-      if (!material) return;
-      material.customProgramCacheKey = () =>
-        "organic-ink-reveal-v1";
-    },
-    [],
+  return (
+    <meshPhysicalMaterial
+      map={texture}
+      roughness={0.88}
+      metalness={0}
+      clearcoat={0}
+      alphaTest={0.12}
+      transparent
+      depthWrite={false}
+      onBeforeCompile={onBeforeCompile}
+      customProgramCacheKey={() => "tattoogo-scroll-tattoo-reveal"}
+    />
+  );
+}
+
+function getArmModel(scene: Group) {
+  const model = scene.clone(true);
+  let skinMesh: Mesh | null = null;
+  let largestVolume = 0;
+
+  model.traverse((object) => {
+    if (!(object instanceof Mesh)) return;
+
+    object.castShadow = true;
+    object.receiveShadow = true;
+    object.geometry.computeBoundingBox();
+    const bounds = object.geometry.boundingBox;
+    if (!bounds) return;
+
+    const size = bounds.getSize(new Vector3());
+    const volume = size.x * size.y * size.z;
+    if (volume > largestVolume) {
+      largestVolume = volume;
+      skinMesh = object;
+    }
+  });
+
+  if (!skinMesh) {
+    throw new Error("The arm GLB does not contain a mesh for the tattoo decal.");
+  }
+
+  const mesh = skinMesh as Mesh;
+  const bounds = mesh.geometry.boundingBox as Box3;
+  const size = bounds.getSize(new Vector3());
+  const dimensions = [size.x, size.y, size.z];
+  const longitudinalAxis = dimensions.indexOf(Math.max(...dimensions));
+  const surfaceAxis = dimensions.indexOf(Math.min(...dimensions));
+  const tangent = new Vector3(
+    longitudinalAxis === 0 ? 1 : 0,
+    longitudinalAxis === 1 ? 1 : 0,
+    longitudinalAxis === 2 ? 1 : 0,
+  );
+  const normal = new Vector3(
+    surfaceAxis === 0 ? 1 : 0,
+    surfaceAxis === 1 ? 1 : 0,
+    surfaceAxis === 2 ? 1 : 0,
+  );
+  const decalUp = new Vector3().crossVectors(normal, tangent);
+  const decalBasis = new Matrix4().makeBasis(tangent, decalUp, normal);
+  const decalRotation = new Euler().setFromRotationMatrix(decalBasis);
+  const decalPosition = bounds.getCenter(new Vector3()).addScaledVector(
+    normal,
+    dimensions[surfaceAxis] / 2,
+  );
+  const middleAxis = 3 - longitudinalAxis - surfaceAxis;
+  const decalScale = new Vector3(
+    dimensions[longitudinalAxis] * 0.58,
+    dimensions[middleAxis] * 0.5,
+    Math.max(dimensions[surfaceAxis] * 1.5, 0.025),
+  );
+  const modelBounds = new Box3().setFromObject(model);
+  const modelCenter = modelBounds.getCenter(new Vector3());
+  const modelSize = modelBounds.getSize(new Vector3());
+  const modelScale = 4.2 / Math.max(modelSize.x, modelSize.y, modelSize.z, 0.001);
+  model.position.sub(modelCenter);
+
+  const modelRotation = new Euler().setFromRotationMatrix(
+    decalBasis.clone().transpose(),
   );
 
-  return (
-    <Decal
-      position={[0, 0, 0.385]}
-      rotation={[0, 0, Math.PI / 2]}
-      scale={[0.88, 0.52, 0.16]}
-      map={texture}
-      depthTest
-      polygonOffsetFactor={-4}
-    >
-      <meshPhysicalMaterial
-        ref={handleMaterialRef}
-        map={texture}
-        roughness={0.88}
-        metalness={0}
-        clearcoat={0}
-        alphaTest={0.18}
-        transparent={false}
-        onBeforeCompile={onBeforeCompile}
-      />
-    </Decal>
-  );
+  return {
+    model,
+    mesh,
+    decalPosition,
+    decalRotation,
+    decalScale,
+    modelScale,
+    modelRotation,
+    path: {
+      mesh,
+      center: decalPosition,
+      tangent,
+      normal,
+      length: decalScale.x,
+    },
+  };
 }
 
 export default function InteractiveTattooArm({
   reducedMotion,
+  pathRef,
 }: {
   reducedMotion: boolean;
+  pathRef: TattooPathRef;
 }) {
+  const { scene } = useGLTF(ARM_MODEL_PATH);
+  const textureSetup = useCallback((loadedTexture: Texture) => {
+    loadedTexture.colorSpace = SRGBColorSpace;
+    loadedTexture.anisotropy = 4;
+    loadedTexture.needsUpdate = true;
+  }, []);
+  const texture = useTexture(TATTOO_TEXTURE_PATH, textureSetup);
   const { viewport } = useThree();
+  const asset = useMemo(() => getArmModel(scene), [scene]);
+
+  useLayoutEffect(() => {
+    pathRef.current = asset.path;
+    return () => {
+      if (pathRef.current === asset.path) pathRef.current = null;
+    };
+  }, [asset, pathRef]);
+
   const armScale = Math.min(1, viewport.width / 6.5);
-  const armX = Math.min(viewport.width * 0.16, 2);
-  const armY = viewport.height < 6 ? -2.15 : -1.8;
 
   return (
     <group
-      position={[armX, armY, -0.55]}
+      position={[Math.min(viewport.width * 0.16, 2), -1.8, -0.55]}
+      scale={armScale * asset.modelScale}
+      rotation={asset.modelRotation}
+    >
+      <primitive object={asset.model} dispose={null} />
+      {createPortal(
+        <Decal
+          position={asset.decalPosition}
+          rotation={asset.decalRotation}
+          scale={asset.decalScale}
+          map={texture}
+          depthTest
+          polygonOffsetFactor={-4}
+        >
+          <InkRevealMaterial texture={texture} reducedMotion={reducedMotion} />
+        </Decal>,
+        asset.mesh,
+      )}
+    </group>
+  );
+}
+
+export function InteractiveTattooArmFallback({
+  reducedMotion,
+  pathRef,
+}: {
+  reducedMotion: boolean;
+  pathRef: TattooPathRef;
+}) {
+  const armRef = useRef<Mesh>(null);
+  const textureSetup = useCallback((loadedTexture: Texture) => {
+    loadedTexture.colorSpace = SRGBColorSpace;
+    loadedTexture.anisotropy = 4;
+    loadedTexture.needsUpdate = true;
+  }, []);
+  const texture = useTexture(FALLBACK_TEXTURE_PATH, textureSetup);
+  const invalidate = useThree((state) => state.invalidate);
+  const { viewport } = useThree();
+
+  useEffect(() => {
+    invalidate();
+  }, [invalidate]);
+
+  useLayoutEffect(() => {
+    const mesh = armRef.current;
+    if (!mesh) return;
+
+    const path = {
+      mesh,
+      center: new Vector3(0, 0, 0.385),
+      tangent: new Vector3(0, 1, 0),
+      normal: new Vector3(0, 0, 1),
+      length: 0.88,
+    };
+    pathRef.current = path;
+    invalidate();
+    return () => {
+      if (pathRef.current === path) pathRef.current = null;
+    };
+  }, [invalidate, pathRef]);
+
+  const armScale = Math.min(1, viewport.width / 6.5);
+
+  return (
+    <group
+      position={[Math.min(viewport.width * 0.16, 2), -1.8, -0.55]}
       scale={armScale}
       rotation={[0, 0, Math.PI / 2]}
     >
-      <mesh castShadow receiveShadow>
+      <mesh ref={armRef} castShadow receiveShadow>
         <capsuleGeometry args={[0.39, 1.7, 8, 24]} />
         <meshPhysicalMaterial
           color="#b87960"
@@ -113,7 +275,16 @@ export default function InteractiveTattooArm({
           clearcoat={0.08}
           clearcoatRoughness={0.9}
         />
-        <OrganicInkDecal reducedMotion={reducedMotion} />
+        <Decal
+          position={[0, 0, 0.385]}
+          rotation={[0, 0, Math.PI / 2]}
+          scale={[0.88, 0.52, 0.16]}
+          map={texture}
+          depthTest
+          polygonOffsetFactor={-4}
+        >
+          <InkRevealMaterial texture={texture} reducedMotion={reducedMotion} />
+        </Decal>
       </mesh>
     </group>
   );

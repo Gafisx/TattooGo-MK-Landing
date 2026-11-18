@@ -13,14 +13,16 @@ import {
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 
-import InteractiveTattooArm from "@/components/InteractiveTattooArm";
+import InteractiveTattooArm, {
+  InteractiveTattooArmFallback,
+} from "@/components/InteractiveTattooArm";
 import TattooMachineModel, {
   MinimalMachineFallback,
 } from "@/components/TattooMachineModel";
 import StudioLighting from "@/components/StudioLighting";
 import ScrollProgressBridge from "@/components/ScrollProgressBridge";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
-import { useScrollStore } from "@/components/scrollProgressStore";
+import type { TattooPath } from "@/components/tattooPath";
 
 type WebGLErrorBoundaryProps = {
   children: ReactNode;
@@ -82,12 +84,6 @@ function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
 
     if (warnedFrameTimeRef.current) return;
 
-    if (!useScrollStore.getState().isDrawing) {
-      frameTimeTotalRef.current = 0;
-      frameCountRef.current = 0;
-      return;
-    }
-
     if (!Number.isFinite(delta) || delta > 0.1) {
       frameTimeTotalRef.current = 0;
       frameCountRef.current = 0;
@@ -118,6 +114,7 @@ function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
 
 export default function Master3DCanvas() {
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
+  const tattooPathRef = useRef<TattooPath | null>(null);
   const lowerDprForPerformance = useCallback(
     () => setDpr([1, 1.5]),
     [],
@@ -145,8 +142,6 @@ export default function Master3DCanvas() {
     return <ReducedMotionFallback />;
   }
 
-  // No WebM or arm.glb is checked in, so use the requested Strategy B fallback:
-  // a low-poly forearm and a PBR decal, ready to coexist with a future video plane.
   return (
     <div
       aria-hidden="true"
@@ -177,9 +172,33 @@ export default function Master3DCanvas() {
           >
             <StudioLighting />
             <ScrollProgressBridge reducedMotion={reducedMotion} />
-            <InteractiveTattooArm reducedMotion={reducedMotion} />
+            <WebGLErrorBoundary
+              fallback={
+                <InteractiveTattooArmFallback
+                  reducedMotion={reducedMotion}
+                  pathRef={tattooPathRef}
+                />
+              }
+            >
+              <Suspense
+                fallback={
+                  <InteractiveTattooArmFallback
+                    reducedMotion={reducedMotion}
+                    pathRef={tattooPathRef}
+                  />
+                }
+              >
+                <InteractiveTattooArm
+                  reducedMotion={reducedMotion}
+                  pathRef={tattooPathRef}
+                />
+              </Suspense>
+            </WebGLErrorBoundary>
             <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
-              <TattooMachineModel reducedMotion={reducedMotion} />
+              <TattooMachineModel
+                reducedMotion={reducedMotion}
+                pathRef={tattooPathRef}
+              />
             </WebGLErrorBoundary>
             <FrameBudgetProbe onSlowFrame={lowerDprForPerformance} />
           </Suspense>
