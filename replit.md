@@ -1,17 +1,33 @@
-# TattooGo landing page
+# TattooGo MK
 
-The import contained a README and five supplied images, with no application code or package manifest. The user requested a runnable landing page.
+## Application
+
+This repository contains a Next.js 16 App Router landing page built with React,
+TypeScript, Tailwind CSS, GSAP, and React Three Fiber. The Portuguese page
+introduces the client and artist journeys and includes a scroll-linked 3D
+tattoo scene. The scene and page animations respect `prefers-reduced-motion`;
+the 3D canvas also has a fallback for browsers without WebGL.
 
 ## Run
-- Node.js 22 or newer; no third-party dependencies or secrets required.
-- Run `npm run dev` (or the configured **TattooGo** workflow).
-- The server listens on `0.0.0.0:5000` by default; `PORT` can override the port.
-- Run `npm test` for static-server smoke tests.
 
-## Structure
-- `index.html`, `styles.css`, `script.js`: the responsive Portuguese landing page.
-- `public/assets/images/`: original imported images, served under `/assets/images/`.
-- `server.js`: dependency-free static server. Only page files and public assets are exposed.
+- Install dependencies with `npm install`.
+- Start development with `npm run dev`.
+- For Replit, bind to all interfaces and use the configured port:
+  `npm run dev -- --hostname 0.0.0.0 --port 5000`.
+- Build for production with `npm run build`, then serve it with `npm start`.
+- `npm run lint` runs ESLint. `npx tsc --noEmit` runs the TypeScript check.
+- There is no `npm test` script configured.
+
+## Assets
+
+Static images, the arm and tattoo-machine GLB models, and the original SVG
+tattoo decal are served from `public/assets/`. The 3D experience includes
+fallback rendering when the arm model is unavailable.
 
 ## Scope
-This is a presentation website, not a working tattoo booking marketplace. Do not imply that booking, payments, account creation, or app downloads are operational without implementing those flows and providing real destinations. No customer data is collected.
+
+This is a presentation website, not a working tattoo booking marketplace.
+Booking, payment processing, account creation, and app downloads are not
+implemented; the calls to action navigate to sections on this page. The
+security and payment content describes the product concept and does not
+represent backend or payment-provider functionality in this landing page.
