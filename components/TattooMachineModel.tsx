@@ -14,7 +14,7 @@ import {
 
 import { useScrollStore } from "@/components/scrollProgressStore";
 
-const MODEL_PATH = "/assets/models/tattoomachine.glb";
+const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 
 useGLTF.preload(MODEL_PATH);
 

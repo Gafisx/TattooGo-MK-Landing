@@ -38,7 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## 3D model production pipeline
 
-Place the final tattoo machine at `public/assets/models/tattoomachine.glb`.
+Place the final tattoo machine at `public/assets/models/tattoo-machine.glb`.
 The checked-in model currently uses `KHR_mesh_quantization`; it does not contain
 Draco-compressed geometry or KTX2 textures, so it loads without external decoder
 assets. Keep the model under 50,000 triangles and the complete scene under 100
@@ -52,7 +52,7 @@ Before deployment, optimize the source model:
 
 ```bash
 npm install --global gltf-pipeline
-gltf-pipeline -i source.glb -o public/assets/models/tattoomachine.glb -d
+gltf-pipeline -i source.glb -o public/assets/models/tattoo-machine.glb -d
 ```
 
 Convert PNG/JPG source textures to KTX2 before packaging with `toktx` or
