@@ -14,7 +14,7 @@ Para a cena final, disponibilize estes assets:
 
 - `public/assets/models/arm_with_skin.glb` — antebraço com textura de pele.
 - `public/assets/models/tattoo-machine.glb` — máquina de tatuagem.
-- `public/assets/decals/star_tattoo.png` — arte PNG com transparência.
+- `public/assets/decals/star-tattoo.svg` — arte vetorial original com transparência.
 
 Se o modelo do braço ou o decalque não estiver disponível, a cena exibe um
 antebraço procedural e a textura de tinta já incluída em `public/assets/images/`.

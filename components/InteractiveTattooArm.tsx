@@ -20,7 +20,7 @@ import { useScrollStore } from "@/components/scrollProgressStore";
 import type { TattooPathRef } from "@/components/tattooPath";
 
 const ARM_MODEL_PATH = "/assets/models/arm_with_skin.glb";
-const TATTOO_TEXTURE_PATH = "/assets/decals/star_tattoo.png";
+const TATTOO_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
 const FALLBACK_TEXTURE_PATH = "/assets/images/ink-stroke.svg";
 type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
 
