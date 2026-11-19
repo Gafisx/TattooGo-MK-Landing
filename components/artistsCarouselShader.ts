@@ -17,6 +17,9 @@ export const artistsCarouselFragmentShader = `
 
   void main() {
     vec2 uv = vUv;
+    if (!gl_FrontFacing) {
+      uv.x = 1.0 - uv.x;
+    }
     float waveX = sin(uv.y * 18.0 + uTime * 1.4) * 0.009;
     float waveY = cos(uv.x * 14.0 - uTime * 1.1) * 0.006;
     uv += vec2(waveX, waveY) * uWave;

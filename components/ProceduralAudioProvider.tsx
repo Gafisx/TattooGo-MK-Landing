@@ -62,6 +62,10 @@ export function ProceduralAudioProvider({
   const createAudioGraph = useCallback(() => {
     if (graphRef.current) return graphRef.current;
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return null;
+    }
+
     if (typeof window.AudioContext === "undefined") {
       console.error("Web Audio API is not supported in this browser.");
       return null;
@@ -239,6 +243,27 @@ export function ProceduralAudioProvider({
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+    const handleChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) return;
+      mutedRef.current = true;
+      setMuted(true);
+      const graph = graphRef.current;
+      if (graph) {
+        graph.masterGain.gain.setTargetAtTime(
+          0,
+          graph.context.currentTime,
+          0.025,
+        );
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   useEffect(

@@ -116,7 +116,7 @@ export default function SplitJourneySection() {
               alt=""
               fill
               priority
-              sizes="100vw"
+              sizes="(max-width: 767px) 100vw, 50vw"
               className="object-cover object-center"
             />
           </div>

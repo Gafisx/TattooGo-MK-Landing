@@ -31,6 +31,96 @@ const FALLBACK_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
 const SKIN_NORMAL_TEXTURE_PATH = "/assets/textures/skin_normal.png";
 type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
 
+export type InkRevealShader = {
+  uniforms: Record<string, { value: number }>;
+  fragmentShader: string;
+};
+
+export function getInkRevealProgress(reducedMotion: boolean) {
+  return reducedMotion ? 1 : useScrollStore.getState().progress;
+}
+
+export function configureInkRevealShader(
+  shader: InkRevealShader,
+  reducedMotion: boolean,
+) {
+  shader.uniforms.uProgress = {
+    value: getInkRevealProgress(reducedMotion),
+  };
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <common>",
+    `#include <common>
+     uniform float uProgress;
+     float tattooHash(vec2 point) {
+       return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
+     }
+     float tattooNoise(vec2 point) {
+       vec2 cell = floor(point);
+       vec2 local = fract(point);
+       local = local * local * (3.0 - 2.0 * local);
+       float lower = mix(
+         tattooHash(cell),
+         tattooHash(cell + vec2(1.0, 0.0)),
+         local.x
+       );
+       float upper = mix(
+         tattooHash(cell + vec2(0.0, 1.0)),
+         tattooHash(cell + vec2(1.0, 1.0)),
+         local.x
+       );
+       return mix(lower, upper, local.y);
+     }
+     float tattooFbm(vec2 point) {
+       float value = 0.0;
+       float amplitude = 0.5;
+       for (int octave = 0; octave < 4; octave++) {
+         value += amplitude * tattooNoise(point);
+         point = point * 2.0 + vec2(13.1, 7.7);
+         amplitude *= 0.5;
+       }
+       return value;
+     }`,
+  );
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <map_fragment>",
+    `#include <map_fragment>
+     #ifdef USE_MAP
+      float tattooReveal = 0.0;
+      if (uProgress >= 1.0) {
+        tattooReveal = 1.0;
+      } else if (uProgress > 0.0) {
+        float bleedNoise = tattooFbm(vMapUv * 15.0);
+        float poreNoise = tattooFbm(vMapUv * 38.0 + vec2(17.3, 5.1));
+        float inkEdge = uProgress
+          + (bleedNoise - 0.5) * 0.12
+          + (poreNoise - 0.5) * 0.035;
+        float bleedWidth = mix(
+          0.018,
+          0.05,
+          tattooFbm(vMapUv * 24.0 + vec2(3.7, 11.2))
+        );
+        tattooReveal = 1.0 - smoothstep(
+          inkEdge - bleedWidth,
+          inkEdge + bleedWidth * 0.35,
+          vMapUv.x
+        );
+       }
+       diffuseColor.a *= tattooReveal;
+     #endif`,
+  );
+}
+
+export function updateInkRevealUniform(
+  shader: InkRevealShader,
+  reducedMotion: boolean,
+) {
+  const progressUniform = shader.uniforms.uProgress;
+  if (!progressUniform) {
+    throw new Error("Ink reveal shader has not been configured.");
+  }
+  progressUniform.value = getInkRevealProgress(reducedMotion);
+}
+
 function InkRevealMaterial({
   texture,
   reducedMotion,
@@ -43,71 +133,8 @@ function InkRevealMaterial({
 
   const onBeforeCompile = useCallback(
     (shader: PhysicalShader) => {
-      shader.uniforms.uProgress = {
-        value: reducedMotion ? 1 : useScrollStore.getState().progress,
-      };
+      configureInkRevealShader(shader, reducedMotion);
       shaderRef.current = shader;
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <common>",
-        `#include <common>
-         uniform float uProgress;
-         float tattooHash(vec2 point) {
-           return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
-         }
-         float tattooNoise(vec2 point) {
-           vec2 cell = floor(point);
-           vec2 local = fract(point);
-           local = local * local * (3.0 - 2.0 * local);
-           float lower = mix(
-             tattooHash(cell),
-             tattooHash(cell + vec2(1.0, 0.0)),
-             local.x
-           );
-           float upper = mix(
-             tattooHash(cell + vec2(0.0, 1.0)),
-             tattooHash(cell + vec2(1.0, 1.0)),
-             local.x
-           );
-           return mix(lower, upper, local.y);
-         }
-         float tattooFbm(vec2 point) {
-           float value = 0.0;
-           float amplitude = 0.5;
-           for (int octave = 0; octave < 4; octave++) {
-             value += amplitude * tattooNoise(point);
-             point = point * 2.0 + vec2(13.1, 7.7);
-             amplitude *= 0.5;
-           }
-           return value;
-         }`,
-      );
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <map_fragment>",
-        `#include <map_fragment>
-         #ifdef USE_MAP
-          float tattooReveal = 0.0;
-          if (uProgress >= 1.0) {
-            tattooReveal = 1.0;
-          } else if (uProgress > 0.0) {
-            float bleedNoise = tattooFbm(vMapUv * 15.0);
-            float poreNoise = tattooFbm(vMapUv * 38.0 + vec2(17.3, 5.1));
-            float inkEdge = uProgress
-              + (bleedNoise - 0.5) * 0.12
-              + (poreNoise - 0.5) * 0.035;
-            float bleedWidth = mix(
-              0.018,
-              0.05,
-              tattooFbm(vMapUv * 24.0 + vec2(3.7, 11.2))
-            );
-            tattooReveal = 1.0 - smoothstep(
-              inkEdge - bleedWidth,
-              inkEdge + bleedWidth * 0.35,
-              vMapUv.x
-            );
-           }
-           diffuseColor.a *= tattooReveal;
-         #endif`,
-      );
     },
     [reducedMotion],
   );
@@ -118,9 +145,7 @@ function InkRevealMaterial({
 
   useFrame(() => {
     if (shaderRef.current) {
-      shaderRef.current.uniforms.uProgress.value = reducedMotion
-        ? 1
-        : useScrollStore.getState().progress;
+      updateInkRevealUniform(shaderRef.current, reducedMotion);
     }
   });
 

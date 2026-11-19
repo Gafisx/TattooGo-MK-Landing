@@ -360,7 +360,7 @@ export default function DualSidedSection() {
             aria-labelledby="clients-title"
           >
             <MarketplaceMockup
-              src="/assets/images/cliente.png"
+              src="/assets/images/cliente.webp"
               alt="Aplicativo TattooGo para clientes com mapa e portfólios de tatuadores verificados"
               sizes="(max-width: 1024px) 90vw, 45vw"
               label="Descoberta local"
@@ -412,7 +412,7 @@ export default function DualSidedSection() {
             </div>
 
             <MarketplaceMockup
-              src="/assets/images/tatuador.png"
+              src="/assets/images/tatuador.webp"
               alt="Painel TattooGo para tatuadores com portfólio, ganhos, agenda e split payments"
               sizes="(max-width: 1024px) 90vw, 45vw"
               label="Painel do artista"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Image from "next/image";
 import {
   ArrowDown,
   ArrowRight,
@@ -84,15 +83,6 @@ export default function HeroSection() {
       className="gpu-accelerate relative isolate flex h-screen min-h-[800px] overflow-hidden bg-[#121212]/20"
       aria-labelledby="hero-title"
     >
-      <Image
-        src="/assets/images/hero-texture-background.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="gpu-accelerate object-cover object-[58%_center] opacity-[0.08]"
-      />
-
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.06)_72%,rgba(18,18,18,0.16)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.08),rgba(18,18,18,0.28)_100%)]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">

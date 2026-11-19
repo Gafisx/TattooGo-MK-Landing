@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-19",
+  "results": {
+    "vitest": {
+      "command": "npm run test:coverage",
+      "status": "passed",
+      "testFiles": 12,
+      "tests": 28,
+      "coverageScope": "45 statements from included files; not whole-repository coverage",
+      "coveragePercent": {
+        "statements": 93.33,
+        "branches": 90,
+        "functions": 86.66,
+        "lines": 95
+      }
+    },
+    "playwright": {
+      "command": "npm run test:e2e",
+      "status": "passed",
+      "browser": "Chromium",
+      "specFiles": 4,
+      "tests": 5
+    },
+    "lint": {
+      "command": "npm run lint",
+      "status": "passed"
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit",
+      "status": "passed"
+    },
+    "productionBuild": {
+      "command": "npm run build",
+      "status": "passed"
+    }
+  },
+  "carousel": {
+    "component": "components/ArtistsCarousel3D.tsx",
+    "assetCount": 7,
+    "assets": [
+      "public/assets/artists/artist-1.webp",
+      "public/assets/artists/artist-2.webp",
+      "public/assets/artists/artist-3.webp",
+      "public/assets/artists/artist-4.webp",
+      "public/assets/artists/artist-5.webp",
+      "public/assets/artists/artist-6.webp",
+      "public/assets/artists/artist-7.webp"
+    ],
+    "verified": [
+      "Seven texture-backed meshes and distinct texture uniforms",
+      "Equal radius and angular spacing of 2*pi/7",
+      "Rotation follows shared scroll progress"
+    ]
+  },
+  "limitations": [
+    "happy-dom does not compile GLSL or validate rendered pixels.",
+    "Coverage thresholds apply only to files included by vitest.config.ts.",
+    "LICENSE was not modified."
+  ],
+  "sha256": {
+    ".gitignore": "2fd48c3cc5a5bae6b195e84eed321bcf2a58438a9c48779de3b6f96b23ec3e4d",
+    "README.md": "0dd61ea0bcf0fc9976394b102bfa0826a7f8ecbecfe8c818d0bd0339df1ea47c",
+    "LICENSE": "1597a12c8720dca34eee33c857f0a22f71488377612a812ca85f480ddb05d745",
+    "package.json": "1fe1307354d0b7285f1b23a2aa746ca02f5b1b7a20e746c904c9fd711307a727",
+    "package-lock.json": "87e8cbe6edfb2d6964712d755360d1f13cbbc0ceba57b01130fe58f614207ca3",
+    "vitest.config.ts": "26c311f57ea145380adf1abd3f1db65cf0bdeb636077d87bf1d2fc2035bd91c4",
+    "vitest.setup.ts": "9af084137fc670b01c5eaabc35ea5c0ded30f6f62c776f03acd2b1fbcd13df52",
+    "playwright.config.ts": "36453c7adf271de1a595d7d9fe4f3f7fde5cfda381e6353603bd290d6cf68f0d",
+    ".github/workflows/tests.yml": "e4b2f6e4d494ed861d27f6c01f686dbe2f9820a05115001548f94f7229855476",
+    "components/ArtistsCarousel3D.test.tsx": "f7c61c91a3b1ee37e66a5edaeb02be4e142d7cd86a1791eb80d41f6adc267109",
+    "components/Deferred3DCanvas.test.tsx": "9a40f062f3fdee71c15c1e5255664ae47391fb966105515c4cf7ed157ffc12f7",
+    "components/DualSidedSection.test.tsx": "759c782a5f000a9ee5b967a6011c37a83fbd7f81585dcaefb8c483f5271a6c04",
+    "components/HeroSection.test.tsx": "faf9980b3b42a61c883483f7b5b3e35bf39e68791e44e29d0bfaf4421e93cfc7",
+    "components/InteractiveTattooArm.test.tsx": "0bcc893bab2040c1407c2a9089b6778c0467590bea035b86cd7392603cec3767",
+    "components/ProceduralAudioProvider.test.tsx": "c5a1d3a2d57405e1c992cbf0041ddb787934db3b4f9620f3bc3284a1bef195d8",
+    "components/SmoothScroll.test.tsx": "da12cb2e892bf6ff41cbbd45669d6d5daed321a8c866ba0854dae352e9438c7e",
+    "components/SplitJourneySection.test.tsx": "a707b55dc77f5ae4238ab77ce94d05234970bd4062c2e75497cfbc9e44c32c16",
+    "components/scrollProgressStore.test.ts": "d894ac5017cf13176d49dafeef69ebfd1f4f38ad5e71ed64611b0b89722aead3",
+    "components/useProceduralAudio.test.tsx": "d0bf10d46a9542346ff6d427bb8136e9da7d5f621888e20ef31e4467857e20b4",
+    "tests/a11y/components.test.tsx": "2b59e5cc66888485eec8b29174aad6be7effde129cc4869f265f3fa4b4abe085",
+    "tests/integration/home-flow.test.tsx": "8fd837ff0908c4d87e0ac1082cb4a1728916eeb583b03c1dfd51b24f4368f797",
+    "tests/setup/mocks/audio.ts": "c204122e46c896e83cc168cefbff7eca6fb5cf8d0422eeae8d597ab061e783da",
+    "tests/setup/mocks/gsap.ts": "1c411d8728cd9971884cd8da50fbab6a0526182da02f6df2f01bc27dc06a1216",
+    "tests/setup/mocks/lenis.ts": "8df42a3641c84796cf839a6a0b1dc67e92e21505faa9bbfb78073407590e1223",
+    "tests/setup/mocks/matchMedia.ts": "1495ae1592eb236f092c1b92b947a1bfab753f5b7628434960c4248ad2de9d1d",
+    "tests/setup/mocks/observers.ts": "e2588d7203cf153b5c630bb18f37507a440ccf2aa610e56a1649b42c988ddb52",
+    "tests/setup/mocks/three.ts": "b1020d165af1c5f10bec9e461425a103d1fc1c767634fbdd5985484f80447fb8",
+    "tests/utils/audio.ts": "15509dc9b92f1fe9c114aa3d8a2614410cff95f558ed9cf30a8e65e424826984",
+    "tests/utils/render.tsx": "9ab4ae133d76c38ffae16b84511bfd5218c772d9cccd986bb1b49c1d9859bcbd",
+    "e2e/a11y.spec.ts": "95d0371e562e77487e0b30ebac666390ae91c4a8f0b86bc14babf4afd749fdb8",
+    "e2e/home.spec.ts": "50444fedd0dd483defd6eeb8b7cf455826c1c88f443183a80fea6f5a0b12cacb",
+    "e2e/reduced-motion.spec.ts": "b8805cc0f09339098e5e010f88588e00e55551926b0ff90708bf6483fdaf64ae",
+    "e2e/scroll-story.spec.ts": "b3d592536a37ab64470cfa96d5ed0cb07256371633293a440fd462ddc43b1a64",
+    "docs/testing/README.md": "73e90cf38deb4d7ae0e8b7d53f541e182f47aeb335da4a61f046c0b75462da07",
+    "docs/testing/coverage-notes.md": "a16a3d632c8ade3326a72efb54547e6375a2c93a4c56aad7cb220c1339329d37",
+    "docs/testing/production-changes.md": "6cfe91c82f59d44bc8e6e8087d6935c201fbdb80f4eba8f128bf059b33ff0474",
+    "components/DualSidedSection.tsx": "92da9ea201c325c87427d564b73b07722485d2008fb8a217426ec85f93c35756",
+    "components/SplitJourneySection.tsx": "db85ab2366868c5da3a38ae2f7a9e874603e6c0fefaa03610bf19032e2eba4a3",
+    "components/InteractiveTattooArm.tsx": "39f070ea90d4a834537c8eccdf99ba269c40f09c5769381f16d0c5670d711ea9",
+    "components/ProceduralAudioProvider.tsx": "b3169987f14875352e1d99b2cfd5d7439faebbb3a7808391c607e2a1e3cb52d3",
+    "components/ReducedMotionFallback.tsx": "ac8d0de18d7104895a5d570cdea00dd27e3f5ef12f077e093d5e5b32671a8680",
+    "components/SecurityAndFooter.tsx": "fa8b1639c0e921c36740a15e966c04b64bd6d4ba8a523e15bab47f66f629cb39",
+    "public/assets/artists/artist-1.webp": "a14607da3141472cc7fec244bd21cd7229d58e7331d7198fc51ca0ec82da4d05",
+    "public/assets/artists/artist-2.webp": "6fef0e662ed8a8dbbc3f72470f40af7ea69c213f39d13d694584d1d992bdfd0e",
+    "public/assets/artists/artist-3.webp": "bdd27fc47b4eba43076912d163c6a294836660b26d3fe3f90b27b4cc0ff86607",
+    "public/assets/artists/artist-4.webp": "c521d20c3691812965ded7f1192b44a11a993a806c727c879d93ba9ae5f3c98d",
+    "public/assets/artists/artist-5.webp": "8cd03668125f6f6effe5146492667e2a4989f6942951985c029b9585f9c8ce22",
+    "public/assets/artists/artist-6.webp": "7fdbb88b923a7d06a5ec7e08555bad84f7e7f5b137de904c8fdea27928d2d284",
+    "public/assets/artists/artist-7.webp": "1c23aa72ce6eb9f4c1ed07540e57be42649f04267faf873af0ef3b65ebd4242c",
+    "public/assets/images/cliente.webp": "e1283d4eb87e740872cf254fa53f1f2c2abfda189812e6f3626797ac732680b2",
+    "public/assets/images/tatuador.webp": "4a09fd31657d0b3a299e48e85a31ac41f04e8bcad716cf776067b2a51525c057"
+  }
+}

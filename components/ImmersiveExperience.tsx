@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -118,14 +117,6 @@ export default function ImmersiveExperience() {
       className="gpu-accelerate relative h-[100svh] min-h-[640px] overflow-hidden bg-[#121212]/25"
       aria-labelledby="immersive-experience-title"
     >
-      <Image
-        src="/assets/images/hero-texture-background.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="gpu-accelerate object-cover opacity-[0.12]"
-      />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.92)_0%,rgba(18,18,18,0.34)_42%,rgba(18,18,18,0.06)_100%)]" />
       <div
         ref={orangeGlowRef}

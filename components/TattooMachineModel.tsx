@@ -17,7 +17,7 @@ import type { TattooPathRef } from "@/components/tattooPath";
 
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
-const NEEDLE_LENGTH = 0.14;
+const NEEDLE_LENGTH = 0.2;
 const NEEDLE_TIP_Y = NEEDLE_BASE_Y - NEEDLE_LENGTH / 2;
 
 useGLTF.preload(MODEL_PATH);
@@ -77,7 +77,7 @@ function RealTattooMachineModel({
 
     return {
       scene: instance,
-      scale: 1.6 / largestDimension,
+      scale: 2 / largestDimension,
     };
   }, [scene]);
   const motion = useMemo(
@@ -204,7 +204,7 @@ function RealTattooMachineModel({
       <group ref={needleRef} position={[0, NEEDLE_BASE_Y, 0]}>
         <mesh castShadow>
           <cylinderGeometry
-            args={[0.014, 0.004, NEEDLE_LENGTH, 8]}
+            args={[0.02, 0.006, NEEDLE_LENGTH, 8]}
           />
           <meshPhysicalMaterial
             color="#d5d3cf"

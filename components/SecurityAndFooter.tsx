@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Image from "next/image";
 import {
   ArrowRight,
   Check,
@@ -286,13 +285,13 @@ export default function SecurityAndFooter() {
             <div className="pointer-events-none absolute right-[8%] top-[12%] h-[36%] w-[42%] rounded-full bg-[#4977FF]/[0.09] blur-[70px]" />
             <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/[0.08] bg-gradient-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
 
-            <Image
-              src="/assets/images/security-split-payments-shield.png"
-              alt="Escudo TattooGo MK simbolizando a proteção dos pagamentos entre cliente e tatuador"
-              fill
-              sizes="(max-width: 1024px) 90vw, 48vw"
-              className="gpu-accelerate object-contain p-[5%] [transform:translate3d(0,0,24px)]"
-            />
+            <div
+              role="img"
+              aria-label="Escudo TattooGo MK simbolizando a proteção dos pagamentos entre cliente e tatuador"
+              className="gpu-accelerate absolute inset-[16%] flex items-center justify-center text-[#FF9900] drop-shadow-[0_0_32px_rgba(255,102,0,0.3)] [transform:translate3d(0,0,24px)]"
+            >
+              <ShieldCheck aria-hidden="true" className="size-full" />
+            </div>
 
             <div
               data-shield-reveal
@@ -436,7 +435,6 @@ export default function SecurityAndFooter() {
           <a
             href="#top"
             className="gpu-accelerate-child inline-flex w-fit flex-col rounded-sm text-white transition-colors duration-200 hover:text-[#FF9900] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]"
-            aria-label="TattooGo MK - voltar ao início"
           >
             <span className="text-lg font-semibold tracking-[-0.04em]">
               <span className="bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
@@ -473,9 +471,9 @@ export default function SecurityAndFooter() {
             </ul>
           </nav>
 
-          <p className="text-xs leading-5 text-white/40 md:text-right">
+          <p className="text-xs leading-5 text-white/60 md:text-right">
             © {new Date().getFullYear()} Gafisx Labs. TattooGo MK.
-            <span className="block text-[#FF9900]/65">
+            <span className="block text-[#FF9900]/85">
               Arte conectada com confiança.
             </span>
           </p>
