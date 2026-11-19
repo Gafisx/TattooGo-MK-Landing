@@ -13,25 +13,14 @@ import {
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 
-import InteractiveTattooArm, {
-  InteractiveTattooArmFallback,
-} from "@/components/InteractiveTattooArm";
-import TattooMachineModel, {
-  MinimalMachineFallback,
-} from "@/components/TattooMachineModel";
+import TattooMachineModel, { MinimalMachineFallback } from "@/components/TattooMachineModel";
 import StudioLighting from "@/components/StudioLighting";
 import ScrollProgressBridge from "@/components/ScrollProgressBridge";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
 import ArtistsCarousel3D from "@/components/ArtistsCarousel3D";
 import { useScrollStore } from "@/components/scrollProgressStore";
-import type { TattooPath } from "@/components/tattooPath";
 
-// ... (Mantenha as classes WebGLErrorBoundary e FrameBudgetProbe iguais) ...
-
-class WebGLErrorBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
-  { failed: boolean }
-> {
+class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   componentDidCatch(error: Error, info: ErrorInfo) { console.error("3D Error", error, info); }
@@ -45,24 +34,9 @@ function supportsWebGL(): boolean {
   } catch { return false; }
 }
 
-function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
-  const warnedRef = useRef(false);
-  useFrame(({ gl }, delta) => {
-    if (process.env.NODE_ENV !== "development" || warnedRef.current) return;
-    if (gl.info.render.calls > 100) {
-      console.warn("Draw calls acima do limite");
-      warnedRef.current = true;
-    }
-  });
-  return null;
-}
-
 export default function Master3DCanvas() {
   const artistsCarouselVisible = useScrollStore((s) => s.artistsCarouselVisible);
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
-  const tattooPathRef = useRef<TattooPath | null>(null);
-  const lowerDpr = useCallback(() => setDpr([1, 1.5]), []);
-  
   const [reducedMotion, setReducedMotion] = useState(false);
   const [webGLAvailable] = useState(() => typeof document !== "undefined" ? supportsWebGL() : false);
 
@@ -77,11 +51,7 @@ export default function Master3DCanvas() {
   if (!webGLAvailable) return <ReducedMotionFallback />;
 
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-      style={{ backgroundColor: "#121212" }} // Fundo sempre visível
-    >
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden" style={{ backgroundColor: "#121212" }}>
       <WebGLErrorBoundary fallback={<ReducedMotionFallback />}>
         <Canvas
           frameloop="demand"
@@ -94,7 +64,6 @@ export default function Master3DCanvas() {
             gl.toneMappingExposure = 1.2;
           }}
         >
-          {/* O Fallback do Suspense agora é um material escuro, não null */}
           <Suspense fallback={null}>
             <WebGLErrorBoundary fallback={null}>
               <Suspense fallback={null}>
@@ -105,18 +74,11 @@ export default function Master3DCanvas() {
             <ArtistsCarousel3D reducedMotion={reducedMotion} />
             
             {!artistsCarouselVisible && (
-              <>
-                <WebGLErrorBoundary fallback={<InteractiveTattooArmFallback reducedMotion={reducedMotion} pathRef={tattooPathRef} />}>
-                  <Suspense fallback={<InteractiveTattooArmFallback reducedMotion={reducedMotion} pathRef={tattooPathRef} />}>
-                    <InteractiveTattooArm reducedMotion={reducedMotion} pathRef={tattooPathRef} />
-                  </Suspense>
-                </WebGLErrorBoundary>
-                <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
-                  <TattooMachineModel reducedMotion={reducedMotion} pathRef={tattooPathRef} />
-                </WebGLErrorBoundary>
-              </>
+              <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
+                {/* Apenas a máquina, sem o pathRef do braço */}
+                <TattooMachineModel reducedMotion={reducedMotion} />
+              </WebGLErrorBoundary>
             )}
-            <FrameBudgetProbe onSlowFrame={lowerDpr} />
           </Suspense>
         </Canvas>
       </WebGLErrorBoundary>
