@@ -6,6 +6,7 @@ import { useGLTF } from "@react-three/drei";
 import {
   Box3,
   Group,
+  MathUtils,
   Mesh,
   Quaternion,
   Vector3,
@@ -86,8 +87,10 @@ function RealTattooMachineModel({
       normal: new Vector3(),
       needleDirection: new Vector3(),
       targetPosition: new Vector3(),
+      currentPosition: new Vector3(),
       parentLocalPoint: new Vector3(),
       targetRotation: new Quaternion(),
+      localTargetRotation: new Quaternion(),
       parentWorldQuaternion: new Quaternion(),
       needleDown: new Vector3(0, -1, 0),
       needleTipWorld: new Vector3(),
@@ -136,7 +139,7 @@ function RealTattooMachineModel({
     }
   }, [fittedModel.scene]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const machine = machineRef.current;
     const path = pathRef.current;
     if (!machine || !path) return;
@@ -157,19 +160,22 @@ function RealTattooMachineModel({
       motion.needleDown,
       motion.needleDirection,
     );
+    const rotationDamping = reducedMotion ? 1 : 1 - Math.exp(-12 * delta);
     if (parent) {
       parent.updateWorldMatrix(true, false);
       parent.getWorldQuaternion(motion.parentWorldQuaternion).invert();
-      machine.quaternion
-        .copy(motion.parentWorldQuaternion)
-        .multiply(motion.targetRotation);
+      motion.localTargetRotation
+        .copy(motion.targetRotation)
+        .premultiply(motion.parentWorldQuaternion);
+      machine.quaternion.slerp(motion.localTargetRotation, rotationDamping);
       motion.parentLocalPoint.copy(motion.point);
       parent.worldToLocal(motion.parentLocalPoint);
     } else {
-      machine.quaternion.copy(motion.targetRotation);
+      machine.quaternion.slerp(motion.targetRotation, rotationDamping);
       motion.parentLocalPoint.copy(motion.point);
     }
-    machine.position.copy(motion.parentLocalPoint);
+    motion.currentPosition.copy(machine.position);
+    machine.position.set(0, 0, 0);
     machine.updateMatrixWorld(true);
     motion.needleTipWorld.set(0, NEEDLE_TIP_Y, 0);
     machine.localToWorld(motion.needleTipWorld);
@@ -177,7 +183,36 @@ function RealTattooMachineModel({
     motion.targetPosition
       .copy(motion.parentLocalPoint)
       .sub(motion.needleTipWorld);
-    machine.position.add(motion.targetPosition);
+    machine.position.copy(motion.currentPosition);
+    if (reducedMotion) {
+      machine.position.copy(motion.targetPosition);
+    } else {
+      machine.position.x = MathUtils.damp(
+        machine.position.x,
+        motion.targetPosition.x,
+        12,
+        delta,
+      );
+      machine.position.y = MathUtils.damp(
+        machine.position.y,
+        motion.targetPosition.y,
+        12,
+        delta,
+      );
+      machine.position.z = MathUtils.damp(
+        machine.position.z,
+        motion.targetPosition.z,
+        12,
+        delta,
+      );
+    }
+    if (
+      Math.abs(machine.position.x - motion.targetPosition.x) > 0.001 ||
+      Math.abs(machine.position.y - motion.targetPosition.y) > 0.001 ||
+      Math.abs(machine.position.z - motion.targetPosition.z) > 0.001
+    ) {
+      invalidate();
+    }
 
     if (reducedMotion) {
       if (needleRef.current) {

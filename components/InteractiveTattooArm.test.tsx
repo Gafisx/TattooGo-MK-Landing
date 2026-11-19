@@ -76,4 +76,22 @@ describe("InteractiveTattooArmFallback", () => {
     expect(pathRef.current).not.toBeNull();
     expect(getInkRevealProgress(true)).toBe(1);
   });
+
+  it("amortece a revelação da tinta nos dois sentidos do scroll", () => {
+    const shader: InkRevealShader = {
+      uniforms: { uProgress: { value: 0.72 } },
+      fragmentShader: "",
+    };
+
+    useScrollStore.getState().setProgress(0.2);
+    updateInkRevealUniform(shader, false, 0.1);
+    const reverseProgress = shader.uniforms.uProgress.value;
+    expect(reverseProgress).toBeLessThan(0.72);
+    expect(reverseProgress).toBeGreaterThan(0.2);
+
+    useScrollStore.getState().setProgress(0.9);
+    updateInkRevealUniform(shader, false, 0.1);
+    expect(shader.uniforms.uProgress.value).toBeGreaterThan(reverseProgress);
+    expect(shader.uniforms.uProgress.value).toBeLessThan(0.9);
+  });
 });

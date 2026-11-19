@@ -17,6 +17,7 @@ import {
   Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  MathUtils,
   SRGBColorSpace,
   Vector3,
   type Texture,
@@ -113,12 +114,17 @@ export function configureInkRevealShader(
 export function updateInkRevealUniform(
   shader: InkRevealShader,
   reducedMotion: boolean,
+  delta?: number,
 ) {
   const progressUniform = shader.uniforms.uProgress;
   if (!progressUniform) {
     throw new Error("Ink reveal shader has not been configured.");
   }
-  progressUniform.value = getInkRevealProgress(reducedMotion);
+  const targetProgress = getInkRevealProgress(reducedMotion);
+  progressUniform.value =
+    reducedMotion || delta === undefined
+      ? targetProgress
+      : MathUtils.damp(progressUniform.value, targetProgress, 12, delta);
 }
 
 function InkRevealMaterial({
@@ -141,11 +147,23 @@ function InkRevealMaterial({
 
   useEffect(() => {
     invalidate();
-  }, [invalidate]);
+    if (reducedMotion) return;
 
-  useFrame(() => {
+    return useScrollStore.subscribe((state, previousState) => {
+      if (state.progress !== previousState.progress) invalidate();
+    });
+  }, [invalidate, reducedMotion]);
+
+  useFrame((_, delta) => {
     if (shaderRef.current) {
-      updateInkRevealUniform(shaderRef.current, reducedMotion);
+      updateInkRevealUniform(shaderRef.current, reducedMotion, delta);
+      const progress = shaderRef.current.uniforms.uProgress.value;
+      if (
+        !reducedMotion &&
+        Math.abs(progress - getInkRevealProgress(false)) > 0.001
+      ) {
+        invalidate();
+      }
     }
   });
 

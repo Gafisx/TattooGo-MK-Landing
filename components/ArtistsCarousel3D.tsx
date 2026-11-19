@@ -1,6 +1,13 @@
 "use client";
 
-import { Component, Suspense, type ErrorInfo, type ReactNode } from "react";
+import {
+  Component,
+  Suspense,
+  useCallback,
+  type ErrorInfo,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import {
   useEffect,
   useLayoutEffect,
@@ -81,7 +88,7 @@ function SolidColorCarousel() {
   return (
     <group position={[0, CAROUSEL_CENTER_Y, 0]}>
       {artists.map(({ style, color }, index) => {
-        const angle = (2 * Math.PI * index) / CARD_COUNT;
+        const angle = (index / CARD_COUNT) * Math.PI * 2;
         const depth = Math.cos(angle) * radius;
         return (
           <mesh
@@ -154,7 +161,20 @@ function CarouselScene() {
     [textures],
   );
   const materialsRef = useRef(materials);
-  const { viewport } = useThree();
+  const { invalidate, viewport } = useThree();
+
+  useEffect(
+    () =>
+      useScrollStore.subscribe((state, previousState) => {
+        if (
+          state.artistsCarouselProgress !==
+          previousState.artistsCarouselProgress
+        ) {
+          invalidate();
+        }
+      }),
+    [invalidate],
+  );
 
   useEffect(
     () => () => {
@@ -178,7 +198,7 @@ function CarouselScene() {
       viewport.width,
     );
     for (let index = 0; index < CARD_COUNT; index += 1) {
-      const angle = (2 * Math.PI * index) / CARD_COUNT;
+      const angle = (index / CARD_COUNT) * Math.PI * 2;
       const depth = Math.cos(angle + rotation) * radius;
       const mesh = cardMeshes.current[index];
       const material = materialsRef.current[index];
@@ -191,14 +211,23 @@ function CarouselScene() {
         Math.cos(angle) * radius,
       );
       mesh.rotation.y = angle;
-      mesh.scale.x += (cardWidth * cardScale - mesh.scale.x) * easing;
-      mesh.scale.y += (cardHeight * cardScale - mesh.scale.y) * easing;
+      const targetScaleX = cardWidth * cardScale;
+      const targetScaleY = cardHeight * cardScale;
+      mesh.scale.x += (targetScaleX - mesh.scale.x) * easing;
+      mesh.scale.y += (targetScaleY - mesh.scale.y) * easing;
 
       material.uniforms.uTime.value = rotation;
       material.uniforms.uWave.value = 0.3;
       const focus = 0.62 + facing * 0.38;
       material.uniforms.uFocus.value +=
         (focus - material.uniforms.uFocus.value) * easing;
+      if (
+        Math.abs(targetScaleX - mesh.scale.x) > 0.001 ||
+        Math.abs(targetScaleY - mesh.scale.y) > 0.001 ||
+        Math.abs(focus - material.uniforms.uFocus.value) > 0.001
+      ) {
+        invalidate();
+      }
     }
   });
 
@@ -241,10 +270,56 @@ export default function ArtistsCarousel3D({
 
 export function ArtistsCarouselSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startProgress: number;
+    width: number;
+  } | null>(null);
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
     getReducedMotionSnapshot,
     getReducedMotionServerSnapshot,
+  );
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      if (event.button !== 0) return;
+      const bounds = event.currentTarget.getBoundingClientRect();
+      dragRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startProgress: useScrollStore.getState().artistsCarouselProgress,
+        width: Math.max(1, bounds.width),
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      const drag = dragRef.current;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+
+      const progress =
+        drag.startProgress - (event.clientX - drag.startX) / drag.width;
+      useScrollStore
+        .getState()
+        .setArtistsCarouselProgress(Math.min(1, Math.max(0, progress)));
+    },
+    [],
+  );
+
+  const handlePointerEnd = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      if (dragRef.current?.pointerId !== event.pointerId) return;
+      dragRef.current = null;
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    },
+    [],
   );
 
   useEffect(() => {
@@ -272,22 +347,26 @@ export function ArtistsCarouselSection() {
     if (!section) return;
 
     const context = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        invalidateOnRefresh: true,
-        onUpdate: ({ progress }) => {
+      const progress = { value: 0 };
+      const tween = gsap.to(progress, {
+        value: 1,
+        ease: "none",
+        onUpdate: () => {
           useScrollStore
             .getState()
-            .setArtistsCarouselProgress(Math.min(1, Math.max(0, progress)));
+            .setArtistsCarouselProgress(
+              Math.min(1, Math.max(0, progress.value)),
+            );
         },
-        onRefresh: ({ progress }) => {
-          useScrollStore
-            .getState()
-            .setArtistsCarouselProgress(Math.min(1, Math.max(0, progress)));
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true,
         },
       });
+      tween.scrollTrigger?.refresh();
     }, section);
 
     return () => context.revert();
@@ -296,7 +375,11 @@ export function ArtistsCarouselSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[linear-gradient(180deg,rgba(18,18,18,0.72),rgba(18,18,18,0.2)_48%,rgba(18,18,18,0.76))] py-20"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
+      className="relative isolate flex min-h-[100svh] touch-pan-y items-center overflow-hidden bg-[linear-gradient(180deg,rgba(18,18,18,0.72),rgba(18,18,18,0.2)_48%,rgba(18,18,18,0.76))] py-20"
       aria-labelledby="artists-carousel-title"
     >
       <div className="relative z-10 mx-auto w-full max-w-[1440px] px-5 sm:px-10 lg:px-16">

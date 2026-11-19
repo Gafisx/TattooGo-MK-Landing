@@ -24,7 +24,15 @@ export default function ScrollProgressBridge({
       return;
     }
 
-    const timeline = gsap.timeline({
+    const scrollProgress = { value: 0 };
+    const tween = gsap.to(scrollProgress, {
+      value: 1,
+      ease: "none",
+      onUpdate: () => {
+        const progress = Math.min(1, Math.max(0, scrollProgress.value));
+        useScrollStore.getState().setProgress(progress);
+        invalidate();
+      },
       scrollTrigger: {
         trigger: document.documentElement,
         start: "top top",
@@ -32,22 +40,14 @@ export default function ScrollProgressBridge({
         scrub: 1,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (trigger) => {
-          const progress = Math.min(1, Math.max(0, trigger.progress));
-          useScrollStore.getState().setProgress(progress);
-          invalidate();
-        },
       },
     });
 
-    // Keeping explicit endpoints makes normalized timelines reach 0 and 1 reliably.
-    timeline.set({}, {}, 0);
-    timeline.set({}, {}, 1);
-    timeline.scrollTrigger?.refresh();
+    tween.scrollTrigger?.refresh();
 
     return () => {
-      timeline.scrollTrigger?.kill();
-      timeline.kill();
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [invalidate, reducedMotion]);
 

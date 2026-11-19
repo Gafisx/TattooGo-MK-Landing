@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ReactThreeTestRenderer from "@react-three/test-renderer";
 import { DoubleSide, Group, Mesh, ShaderMaterial, Texture } from "three";
@@ -48,6 +48,37 @@ describe("ArtistsCarouselSection", () => {
     expect(observer.observe).toHaveBeenCalled();
     unmount();
     expect(observer.disconnect).toHaveBeenCalled();
+  });
+
+  it("permite controlar o progresso do carrossel ao arrastar", () => {
+    setPrefersReducedMotion(false);
+    useScrollStore.getState().setArtistsCarouselProgress(0);
+    vi.stubGlobal("IntersectionObserver", ControlledIntersectionObserver);
+    render(<ArtistsCarouselSection />);
+    const section = document.querySelector("section");
+    expect(section).not.toBeNull();
+    if (!section) return;
+
+    Object.defineProperty(section, "getBoundingClientRect", {
+      value: () => ({ width: 200 }),
+    });
+    Object.defineProperty(section, "setPointerCapture", {
+      value: vi.fn(),
+    });
+    Object.defineProperty(section, "hasPointerCapture", {
+      value: () => false,
+    });
+
+    fireEvent.pointerDown(section, {
+      button: 0,
+      pointerId: 7,
+      clientX: 100,
+    });
+    fireEvent.pointerMove(section, { pointerId: 7, clientX: 40 });
+
+    expect(useScrollStore.getState().artistsCarouselProgress).toBeCloseTo(0.3);
+
+    fireEvent.pointerUp(section, { pointerId: 7 });
   });
 });
 

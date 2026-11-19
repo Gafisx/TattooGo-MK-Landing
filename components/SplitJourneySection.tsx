@@ -134,7 +134,7 @@ export default function SplitJourneySection() {
                 id="split-client-title"
                 className="text-[clamp(2.4rem,5vw,4.6rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white"
               >
-                Sua próxima tatuagem começa com uma ideia.
+                Encontre o artista ideal para a sua ideia.
               </h2>
               <p className="mt-5 max-w-md text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
                 Descubra artistas, explore portfólios e encontre o profissional

@@ -106,7 +106,7 @@ function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
           1,
         )}ms; reducing the Canvas DPR cap to 1.5.`,
       );
-      onSlowFrame();
+      window.setTimeout(onSlowFrame, 0);
     }
 
     frameTimeTotalRef.current = 0;
