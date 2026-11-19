@@ -163,9 +163,9 @@ export default function ImmersiveExperience() {
 
         <div
           ref={detailRef}
-          className="gpu-accelerate absolute bottom-8 right-6 z-20 max-w-[280px] rounded-2xl border border-white/10 bg-[#1A1A1A]/85 p-5 backdrop-blur-md sm:bottom-12 sm:right-10 lg:right-16"
+          className="gpu-accelerate absolute bottom-8 right-6 z-20 max-w-[280px] rounded-2xl border border-white/10 bg-[#121212]/80 p-5 text-white backdrop-blur-md sm:bottom-12 sm:right-10 lg:right-16"
         >
-          <p className="text-sm leading-6 text-white/72">
+          <p className="text-sm leading-6 text-white/85">
             Conecte sua ideia ao artista certo, com segurança e transparência
             em cada etapa.
           </p>

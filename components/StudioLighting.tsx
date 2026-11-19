@@ -1,13 +1,33 @@
 "use client";
 
+import { useEffect, useMemo, useRef } from "react";
 import { ContactShadows, Environment } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import { Object3D, type SpotLight } from "three";
 
 export default function StudioLighting() {
+  const { invalidate, scene } = useThree();
+  const orangeLightRef = useRef<SpotLight>(null);
+  const orangeTarget = useMemo(() => new Object3D(), []);
+
+  useEffect(() => {
+    orangeTarget.position.set(1.5, -1.8, -0.55);
+    scene.add(orangeTarget);
+    if (orangeLightRef.current) {
+      orangeLightRef.current.target = orangeTarget;
+    }
+    invalidate();
+
+    return () => {
+      scene.remove(orangeTarget);
+    };
+  }, [invalidate, orangeTarget, scene]);
+
   return (
     <>
       <Environment
         files="/assets/hdri/studio.hdr"
-        environmentIntensity={0.8}
+        environmentIntensity={1}
         resolution={256}
       />
       <directionalLight
@@ -20,10 +40,11 @@ export default function StudioLighting() {
         shadow-bias={-0.00012}
       />
       <spotLight
-        position={[4, 5, 5]}
-        angle={0.52}
-        penumbra={0.75}
-        intensity={28}
+        ref={orangeLightRef}
+        position={[4, 2, 5]}
+        angle={0.6}
+        penumbra={0.8}
+        intensity={15}
         color="#FF6600"
         distance={18}
       />
@@ -44,11 +65,11 @@ export default function StudioLighting() {
         distance={14}
       />
       <ContactShadows
-        position={[0, -2.1, 0]}
-        opacity={0.34}
-        scale={8}
-        blur={2.4}
-        far={4}
+        position={[1.5, -2.2, -0.55]}
+        opacity={0.42}
+        scale={7}
+        blur={2.8}
+        far={5}
         frames={1}
         color="#121212"
       />

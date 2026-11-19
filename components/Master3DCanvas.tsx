@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { useProgress } from "@react-three/drei";
 import { ACESFilmicToneMapping } from "three";
 
 import InteractiveTattooArm, {
@@ -114,6 +115,7 @@ function FrameBudgetProbe({ onSlowFrame }: { onSlowFrame: () => void }) {
 }
 
 export default function Master3DCanvas() {
+  const { progress } = useProgress();
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
   const tattooPathRef = useRef<TattooPath | null>(null);
   const lowerDprForPerformance = useCallback(
@@ -147,6 +149,11 @@ export default function Master3DCanvas() {
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      style={{
+        backgroundColor: "#121212",
+        opacity: progress === 100 ? 1 : 0,
+        transition: "opacity 500ms ease",
+      }}
     >
       <WebGLErrorBoundary fallback={<ReducedMotionFallback />}>
         <Canvas
@@ -161,16 +168,10 @@ export default function Master3DCanvas() {
           onCreated={({ gl }) => {
             gl.setClearColor("#121212", 0);
             gl.toneMapping = ACESFilmicToneMapping;
-            gl.toneMappingExposure = 1.08;
+            gl.toneMappingExposure = 1.2;
           }}
         >
-          <Suspense
-            fallback={
-              <group position={[0, 0, 0]}>
-                <MinimalMachineFallback />
-              </group>
-            }
-          >
+          <Suspense fallback={null}>
             <WebGLErrorBoundary fallback={null}>
               <Suspense fallback={null}>
                 <StudioLighting />

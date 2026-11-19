@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import {
+  ArrowDown,
   ArrowRight,
   MapPin,
   Palette,
@@ -192,11 +193,12 @@ export default function HeroSection() {
         <div className="gpu-accelerate relative h-[22vh] min-h-[180px] w-full sm:h-[32vh] sm:min-h-[220px] lg:h-[72vh] lg:min-h-[540px]">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-end justify-center p-4"
+            className="pointer-events-none absolute inset-0 flex items-end justify-center p-7"
           >
-            <span className="rounded-full border border-white/15 bg-[#121212]/70 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md">
-              Role a página para revelar a tatuagem
-            </span>
+            <ArrowDown
+              aria-hidden="true"
+              className="scroll-cue h-6 w-6 text-white/70"
+            />
           </div>
           <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>

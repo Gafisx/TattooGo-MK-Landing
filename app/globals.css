@@ -72,6 +72,23 @@ html.lenis body {
   transform-origin: 68% 54%;
 }
 
+.scroll-cue {
+  animation: scroll-cue 1.6s ease-in-out infinite;
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(7px);
+  }
+}
+
 .hero-store-button::before {
   content: "";
   position: absolute;
@@ -109,6 +126,10 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
+    animation: none;
+  }
+
   .hero-store-button,
   .hero-store-button::before,
   .footer-store-button,

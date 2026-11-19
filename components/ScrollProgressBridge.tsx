@@ -30,6 +30,7 @@ export default function ScrollProgressBridge({
         start: "top top",
         end: () => `+=${Math.max(1, ScrollTrigger.maxScroll(window))}`,
         scrub: 1,
+        anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (trigger) => {
           const progress = Math.min(1, Math.max(0, trigger.progress));
