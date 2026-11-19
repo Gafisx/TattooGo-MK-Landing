@@ -85,15 +85,25 @@ function InkRevealMaterial({
         "#include <map_fragment>",
         `#include <map_fragment>
          #ifdef USE_MAP
-           float tattooReveal = 1.0;
-           if (uProgress < 1.0) {
-             float inkEdge =
-               uProgress + (tattooFbm(vMapUv * 10.0) - 0.5) * 0.1;
-             tattooReveal = 1.0 - smoothstep(
-               inkEdge - 0.02,
-               inkEdge + 0.02,
-               vMapUv.x
-             );
+          float tattooReveal = 0.0;
+          if (uProgress >= 1.0) {
+            tattooReveal = 1.0;
+          } else if (uProgress > 0.0) {
+            float bleedNoise = tattooFbm(vMapUv * 15.0);
+            float poreNoise = tattooFbm(vMapUv * 38.0 + vec2(17.3, 5.1));
+            float inkEdge = uProgress
+              + (bleedNoise - 0.5) * 0.12
+              + (poreNoise - 0.5) * 0.035;
+            float bleedWidth = mix(
+              0.018,
+              0.05,
+              tattooFbm(vMapUv * 24.0 + vec2(3.7, 11.2))
+            );
+            tattooReveal = 1.0 - smoothstep(
+              inkEdge - bleedWidth,
+              inkEdge + bleedWidth * 0.35,
+              vMapUv.x
+            );
            }
            diffuseColor.a *= tattooReveal;
          #endif`,
@@ -120,7 +130,7 @@ function InkRevealMaterial({
       roughness={0.88}
       metalness={0}
       clearcoat={0}
-      alphaTest={0.5}
+      alphaTest={0.4}
       transparent
       depthWrite={false}
       onBeforeCompile={onBeforeCompile}

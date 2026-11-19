@@ -19,9 +19,6 @@ const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.14;
 const NEEDLE_TIP_Y = NEEDLE_BASE_Y - NEEDLE_LENGTH / 2;
-const NEEDLE_VIBRATION_AMPLITUDE = 0.004;
-const NEEDLE_VIBRATION_FREQUENCY = 35;
-const NEEDLE_VIBRATION_TAIL_MS = 180;
 
 useGLTF.preload(MODEL_PATH);
 
@@ -97,17 +94,12 @@ function RealTattooMachineModel({
     }),
     [],
   );
-  const vibrationUntilRef = useRef(0);
 
   useEffect(() => {
     if (reducedMotion) return;
 
     return useScrollStore.subscribe((state, previousState) => {
-      if (state.progress === previousState.progress) return;
-
-      vibrationUntilRef.current =
-        performance.now() + NEEDLE_VIBRATION_TAIL_MS;
-      invalidate();
+      if (state.progress !== previousState.progress) invalidate();
     });
   }, [invalidate, reducedMotion]);
 
@@ -194,20 +186,16 @@ function RealTattooMachineModel({
       return;
     }
 
-    const isVibrating = performance.now() < vibrationUntilRef.current;
+    const isTattooing = progress > 0.1 && progress < 0.9;
 
     if (needleRef.current) {
-      const vibration = isVibrating
-        ? Math.sin(
-            state.clock.elapsedTime * Math.PI * 2 * NEEDLE_VIBRATION_FREQUENCY,
-          ) * NEEDLE_VIBRATION_AMPLITUDE
+      const vibration = isTattooing
+        ? Math.sin(state.clock.elapsedTime * 50) * 0.005
         : 0;
       needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
     }
 
-    if (isVibrating) {
-      invalidate();
-    }
+    if (isTattooing) invalidate();
   });
 
   return (

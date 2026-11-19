@@ -24,14 +24,20 @@ type AudioGraph = {
   machineOscillator: OscillatorNode;
 };
 
-function updateMachineSound(graph: AudioGraph, progress: number) {
+const SCROLL_PAUSE_DELAY_MS = 220;
+
+function updateMachineSound(
+  graph: AudioGraph,
+  progress: number,
+  isScrolling: boolean,
+) {
   const { context, machineGain, noiseGain, machineOscillator } = graph;
   const now = context.currentTime;
-  const isTattooing = progress > 0.05 && progress < 0.95;
+  const isTattooing = isScrolling && progress > 0.05 && progress < 0.95;
 
   if (!isTattooing) {
-    machineGain.gain.setValueAtTime(0, now);
-    noiseGain.gain.setValueAtTime(0, now);
+    machineGain.gain.setTargetAtTime(0, now, 0.045);
+    noiseGain.gain.setTargetAtTime(0, now, 0.045);
     return;
   }
 
@@ -49,6 +55,9 @@ export function ProceduralAudioProvider({
   const mutedRef = useRef(true);
   const graphRef = useRef<AudioGraph | null>(null);
   const unsubscribeProgressRef = useRef<(() => void) | null>(null);
+  const scrollPauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const createAudioGraph = useCallback(() => {
     if (graphRef.current) return graphRef.current;
@@ -107,10 +116,30 @@ export function ProceduralAudioProvider({
     };
     graphRef.current = graph;
 
-    unsubscribeProgressRef.current = useScrollStore.subscribe((state) => {
-      updateMachineSound(graph, state.progress);
-    });
-    updateMachineSound(graph, useScrollStore.getState().progress);
+    unsubscribeProgressRef.current = useScrollStore.subscribe(
+      (state, previousState) => {
+        if (state.progress === previousState.progress) return;
+
+        if (scrollPauseTimeoutRef.current) {
+          clearTimeout(scrollPauseTimeoutRef.current);
+        }
+
+        const isTattooing = state.progress > 0.05 && state.progress < 0.95;
+        updateMachineSound(graph, state.progress, isTattooing);
+
+        if (isTattooing) {
+          scrollPauseTimeoutRef.current = setTimeout(() => {
+            scrollPauseTimeoutRef.current = null;
+            updateMachineSound(graph, useScrollStore.getState().progress, false);
+          }, SCROLL_PAUSE_DELAY_MS);
+        }
+      },
+    );
+    updateMachineSound(
+      graph,
+      useScrollStore.getState().progress,
+      false,
+    );
 
     return graph;
   }, []);
@@ -214,6 +243,10 @@ export function ProceduralAudioProvider({
 
   useEffect(
     () => () => {
+      if (scrollPauseTimeoutRef.current) {
+        clearTimeout(scrollPauseTimeoutRef.current);
+        scrollPauseTimeoutRef.current = null;
+      }
       unsubscribeProgressRef.current?.();
       const graph = graphRef.current;
       graphRef.current = null;
@@ -239,7 +272,11 @@ export function ProceduralAudioProvider({
         aria-label={muted ? "Ativar áudio" : "Silenciar áudio"}
         aria-pressed={!muted}
         onClick={() => void toggleMuted()}
-        className="fixed bottom-5 right-5 z-[100] inline-flex size-12 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[#1a1a1a]/90 text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[background-color,box-shadow,transform] duration-200 hover:scale-105 hover:bg-[#242424] hover:shadow-[0_0_24px_rgba(255,102,0,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none"
+        className={`fixed bottom-5 left-5 z-[100] inline-flex size-12 cursor-pointer items-center justify-center rounded-full border bg-[#121212]/85 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[background-color,border-color,box-shadow,color,transform] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none ${
+          muted
+            ? "border-white/15 text-white/70 hover:border-white/30 hover:text-white"
+            : "border-[#FF6600]/50 text-[#FF9900] shadow-[0_0_24px_rgba(255,102,0,0.2)] hover:border-[#FF6600]/75 hover:text-[#FF6600]"
+        }`}
       >
         {muted ? (
           <VolumeX aria-hidden="true" size={20} />
