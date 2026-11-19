@@ -1,26 +1,15 @@
 "use client";
 
-import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
+import { ContactShadows, Environment } from "@react-three/drei";
 
 export default function StudioLighting() {
   return (
     <>
-      <Environment resolution={256}>
-        <Lightformer
-          form="rect"
-          intensity={1.8}
-          position={[0, 5, -5]}
-          scale={[8, 8, 1]}
-          color="#F4F1ED"
-        />
-        <Lightformer
-          form="ring"
-          intensity={0.8}
-          position={[-5, 1, 2]}
-          scale={3}
-          color="#00FF66"
-        />
-      </Environment>
+      <Environment
+        files="/assets/hdri/studio.hdr"
+        environmentIntensity={0.45}
+        resolution={256}
+      />
       <directionalLight
         castShadow
         position={[-4, 6, 6]}

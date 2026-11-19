@@ -6,7 +6,6 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { createPortal, useFrame, useThree } from "@react-three/fiber";
@@ -131,11 +130,13 @@ function InkRevealMaterial({
 }
 
 function SkinNormalMap({ mesh }: { mesh: Mesh }) {
-  const texture = useTexture(SKIN_NORMAL_TEXTURE_PATH, (loadedTexture) => {
-    loadedTexture.anisotropy = 4;
-    loadedTexture.needsUpdate = true;
-  });
-  const normalMap = useMemo(() => texture.clone(), [texture]);
+  const texture = useTexture(SKIN_NORMAL_TEXTURE_PATH);
+  const normalMap = useMemo(() => {
+    const map = texture.clone();
+    map.anisotropy = 4;
+    map.needsUpdate = true;
+    return map;
+  }, [texture]);
 
   useEffect(() => () => normalMap.dispose(), [normalMap]);
 
@@ -277,42 +278,16 @@ export default function InteractiveTattooArm({
   pathRef: TattooPathRef;
 }) {
   const { scene } = useGLTF(ARM_MODEL_PATH);
-  const textureSetup = useCallback((loadedTexture: Texture) => {
-    loadedTexture.colorSpace = SRGBColorSpace;
-    loadedTexture.anisotropy = 4;
-    loadedTexture.needsUpdate = true;
-  }, []);
-  const texture = useTexture(TATTOO_TEXTURE_PATH, textureSetup);
+  const sourceTexture = useTexture(TATTOO_TEXTURE_PATH);
+  const texture = useMemo(() => {
+    const map = sourceTexture.clone();
+    map.colorSpace = SRGBColorSpace;
+    map.anisotropy = 4;
+    map.needsUpdate = true;
+    return map;
+  }, [sourceTexture]);
   const { viewport } = useThree();
   const asset = useMemo(() => getArmModel(scene), [scene]);
-  const [skinNormalMapAvailable, setSkinNormalMapAvailable] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    fetch(SKIN_NORMAL_TEXTURE_PATH, { method: "HEAD" })
-      .then((response) => {
-        if (!active) return;
-        if (!response.ok) {
-          console.warn(
-            `[TattooGo] Skin normal map unavailable (${response.status}); using the base arm material.`,
-          );
-        }
-        setSkinNormalMapAvailable(response.ok);
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        console.warn(
-          "[TattooGo] Could not load the skin normal map; using the base arm material.",
-          error,
-        );
-        setSkinNormalMapAvailable(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useLayoutEffect(() => {
     pathRef.current = asset.path;
@@ -320,6 +295,8 @@ export default function InteractiveTattooArm({
       if (pathRef.current === asset.path) pathRef.current = null;
     };
   }, [asset, pathRef]);
+
+  useEffect(() => () => texture.dispose(), [texture]);
 
   const armScale = Math.min(1, viewport.width / 6.5);
 
@@ -330,7 +307,7 @@ export default function InteractiveTattooArm({
       rotation={asset.modelRotation}
     >
       <primitive object={asset.model} dispose={null} />
-      {skinNormalMapAvailable && <SkinNormalMap mesh={asset.mesh} />}
+      <SkinNormalMap mesh={asset.mesh} />
       {createPortal(
         <Decal
           position={asset.decalPosition}
@@ -356,18 +333,22 @@ export function InteractiveTattooArmFallback({
   pathRef: TattooPathRef;
 }) {
   const armRef = useRef<Mesh>(null);
-  const textureSetup = useCallback((loadedTexture: Texture) => {
-    loadedTexture.colorSpace = SRGBColorSpace;
-    loadedTexture.anisotropy = 4;
-    loadedTexture.needsUpdate = true;
-  }, []);
-  const texture = useTexture(FALLBACK_TEXTURE_PATH, textureSetup);
+  const sourceTexture = useTexture(FALLBACK_TEXTURE_PATH);
+  const texture = useMemo(() => {
+    const map = sourceTexture.clone();
+    map.colorSpace = SRGBColorSpace;
+    map.anisotropy = 4;
+    map.needsUpdate = true;
+    return map;
+  }, [sourceTexture]);
   const invalidate = useThree((state) => state.invalidate);
   const { viewport } = useThree();
 
   useEffect(() => {
     invalidate();
   }, [invalidate]);
+
+  useEffect(() => () => texture.dispose(), [texture]);
 
   useLayoutEffect(() => {
     const mesh = armRef.current;

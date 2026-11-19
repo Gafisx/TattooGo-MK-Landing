@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
-  CanvasTexture,
   LinearFilter,
   Mesh,
   ShaderMaterial,
@@ -30,6 +30,9 @@ const artists = [
 const CARD_COUNT = artists.length;
 const TAU = Math.PI * 2;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const ARTIST_TEXTURE_PATHS = artists.map(
+  (_, index) => `/assets/artists/artist-${index + 1}.webp`,
+);
 
 function subscribeToReducedMotion(onChange: () => void) {
   const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
@@ -45,118 +48,50 @@ function getReducedMotionServerSnapshot() {
   return false;
 }
 
-function createPlaceholderTexture(
-  style: string,
-  descriptor: string,
-  accent: string,
-  index: number,
-): CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 640;
-  canvas.height = 840;
-
-  const context = canvas.getContext("2d");
-  if (!context) {
-    throw new Error("Unable to create the artists carousel placeholder texture");
-  }
-
-  context.fillStyle = "#121212";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  const wash = context.createLinearGradient(0, 0, 640, 840);
-  wash.addColorStop(0, `${accent}55`);
-  wash.addColorStop(0.48, "#121212");
-  wash.addColorStop(1, `${accent}22`);
-  context.fillStyle = wash;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.save();
-  context.translate(320, 350);
-  context.strokeStyle = `${accent}CC`;
-  context.lineWidth = 3;
-  context.globalAlpha = 0.85;
-
-  for (let ring = 0; ring < 6; ring += 1) {
-    context.beginPath();
-    context.arc(0, 0, 62 + ring * 37, ring * 0.28, Math.PI * 1.75 + ring * 0.28);
-    context.stroke();
-  }
-
-  context.rotate((index % 4) * 0.22);
-  context.beginPath();
-  context.moveTo(-145, 130);
-  context.lineTo(0, -170);
-  context.lineTo(145, 130);
-  context.closePath();
-  context.stroke();
-  context.restore();
-
-  context.fillStyle = accent;
-  context.fillRect(44, 54, 54, 5);
-  context.fillStyle = "rgba(255,255,255,0.68)";
-  context.font = "600 17px Arial, sans-serif";
-  context.letterSpacing = "4px";
-  context.fillText("TATTOOGO / ARTIST", 44, 93);
-
-  context.fillStyle = "#FFFFFF";
-  context.font = "600 48px Arial, sans-serif";
-  context.letterSpacing = "-1px";
-  context.fillText(style.toUpperCase(), 44, 700, 552);
-
-  context.fillStyle = "rgba(255,255,255,0.58)";
-  context.font = "400 20px Arial, sans-serif";
-  context.letterSpacing = "1px";
-  context.fillText(descriptor.toUpperCase(), 44, 746, 552);
-
-  context.fillStyle = accent;
-  context.font = "500 18px Arial, sans-serif";
-  context.fillText(`PORTFOLIO  /  0${index + 1}`, 44, 794);
-
-  const texture = new CanvasTexture(canvas);
-  texture.colorSpace = SRGBColorSpace;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  texture.generateMipmaps = false;
-  return texture;
-}
-
 function CarouselScene() {
   const groupRef = useRef<Group>(null);
   const cardMeshes = useRef<Mesh[]>([]);
+  const sourceTextures = useTexture(ARTIST_TEXTURE_PATHS);
+  const textures = useMemo(
+    () =>
+      sourceTextures.map((sourceTexture) => {
+        const texture = sourceTexture.clone();
+        texture.colorSpace = SRGBColorSpace;
+        texture.minFilter = LinearFilter;
+        texture.magFilter = LinearFilter;
+        texture.generateMipmaps = false;
+        texture.needsUpdate = true;
+        return texture;
+      }),
+    [sourceTextures],
+  );
   const materials = useMemo(
     () =>
-      artists.map(({ style, descriptor, color }, index) => {
-        const texture = createPlaceholderTexture(
-          style,
-          descriptor,
-          color,
-          index,
-        );
-        return new ShaderMaterial({
-          uniforms: {
-            uTexture: { value: texture },
-            uTime: { value: 0 },
-            uWave: { value: 0.18 },
-            uFocus: { value: 1 },
-          },
-          vertexShader: artistsCarouselVertexShader,
-          fragmentShader: artistsCarouselFragmentShader,
-          toneMapped: false,
-        });
-      }),
-    [],
+      textures.map(
+        (texture) =>
+          new ShaderMaterial({
+            uniforms: {
+              uTexture: { value: texture },
+              uTime: { value: 0 },
+              uWave: { value: 0.18 },
+              uFocus: { value: 1 },
+            },
+            vertexShader: artistsCarouselVertexShader,
+            fragmentShader: artistsCarouselFragmentShader,
+            toneMapped: false,
+          }),
+      ),
+    [textures],
   );
   const materialsRef = useRef(materials);
   const { viewport } = useThree();
 
   useEffect(
     () => () => {
-      materials.forEach((material) => {
-        material.uniforms.uTexture.value.dispose();
-        material.dispose();
-      });
+      materials.forEach((material) => material.dispose());
+      textures.forEach((texture) => texture.dispose());
     },
-    [materials],
+    [materials, textures],
   );
 
   useFrame((_, delta) => {
