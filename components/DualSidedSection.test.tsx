@@ -11,17 +11,23 @@ describe("DualSidedSection", () => {
     setPrefersReducedMotion(true);
     render(<DualSidedSection />);
 
-    const section = screen.getByRole("heading", { name: /Feito para quem/i }).closest("section");
+    const section = screen
+      .getByRole("heading", { name: /Para quem tatua/i })
+      .closest("section");
     expect(section).not.toBeNull();
-    expect(screen.getByRole("heading", { name: /A sua próxima tatuagem/i })).toBeVisible();
-    expect(screen.getByRole("heading", { name: /Mais tempo para criar/i })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /Encontre o traço/i }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /Seu trabalho merece alcance/i }),
+    ).toBeVisible();
 
     const articleNames = screen
       .getAllByRole("article")
       .map((article) => within(article).getAllByRole("heading")[0].textContent);
     expect(articleNames).toEqual([
-      "A sua próxima tatuagem começa aqui.",
-      "Mais tempo para criar. Controle para crescer.",
+      "Encontre o traço que fala por você.",
+      "Seu trabalho merece alcance. Sua agenda, controle.",
     ]);
   });
 

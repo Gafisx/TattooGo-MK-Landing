@@ -92,13 +92,13 @@ export default function HeroSection() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FF9900]/25 bg-[#1A1A1A]/70 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#FF9900] backdrop-blur-md sm:text-xs"
           >
             <ShieldCheck aria-hidden="true" className="h-4 w-4" />
-            Tecnologia para quem cria
+            Para quem vive de arte
           </div>
 
           <h1
             ref={titleRef}
             id="hero-title"
-            className="text-[clamp(3.25rem,7.4vw,8.25rem)] font-semibold leading-[0.82] tracking-[-0.075em] text-white"
+            className="text-[clamp(3.25rem,7.4vw,8.25rem)] font-semibold leading-none tracking-tighter text-white"
           >
             <span className="block bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent [filter:drop-shadow(0_0_26px_rgba(255,102,0,0.2))]">
               TattooGo
@@ -118,16 +118,15 @@ export default function HeroSection() {
             ref={taglineRef}
             className="mt-6 bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
           >
-            Arte em Movimento
+            A arte não é opcional.
           </p>
 
           <p
             ref={copyRef}
             className="mt-3 max-w-[590px] text-[clamp(1.05rem,1.45vw,1.35rem)] leading-[1.65] text-white/72 sm:mt-4"
           >
-            Uma experiência premium que une artistas, ideias e histórias.
-            Descubra talentosos profissionais e agende sua próxima tatuagem
-            com confiança, tecnologia e segurança.
+            Encontre artistas, compare traços e reserve com clareza. Da primeira
+            busca à sessão, a arte continua sendo o centro.
           </p>
 
           <div
@@ -136,15 +135,15 @@ export default function HeroSection() {
           >
             <a
               href="#clients-title"
-              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/60 px-5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none sm:min-w-[218px]"
+              className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none sm:min-w-[218px]"
             >
               <MapPin
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF9900]"
               />
               <span className="flex min-w-0 flex-1 flex-col text-left">
-                <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Descubra a jornada
+                <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
+                  Encontre seu artista
                 </span>
                 <span className="text-[1.05rem] font-semibold leading-tight">
                   Para clientes
@@ -158,15 +157,15 @@ export default function HeroSection() {
 
             <a
               href="#artists-title"
-              className="hero-store-button group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/14 bg-[#1A1A1A]/70 px-5 text-white backdrop-blur-xl transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none sm:min-w-[218px]"
+              className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/70 px-5 text-[#E0E0E0] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none sm:min-w-[218px]"
             >
               <Palette
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF6600]"
               />
               <span className="flex min-w-0 flex-1 flex-col text-left">
-                <span className="text-[0.63rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Conheça a jornada
+                <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
+                  Mostre seu trabalho
                 </span>
                 <span className="text-[1.05rem] font-semibold leading-tight">
                   Para tatuadores

@@ -111,6 +111,20 @@ html.lenis body {
   transform: translate3d(30%, 0, 0);
 }
 
+.cta-microphysics {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cta-microphysics:hover,
+.cta-microphysics:focus-visible {
+  transform: scale(1.02);
+  box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+}
+
+.cta-microphysics:active {
+  transform: scale(0.98);
+}
+
 .footer-store-button,
 .footer-nav-link {
   transform: translateZ(0);
@@ -135,5 +149,12 @@ html.lenis body {
   .footer-store-button,
   .footer-nav-link {
     transition: none;
+  }
+
+  .cta-microphysics:hover,
+  .cta-microphysics:focus-visible,
+  .cta-microphysics:active {
+    transform: none;
+    box-shadow: none;
   }
 }

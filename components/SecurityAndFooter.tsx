@@ -20,28 +20,28 @@ const securityPoints = [
     icon: Fingerprint,
     title: "Criptografia ponta a ponta",
     description:
-      "Proteção criptográfica acompanha a troca de informações sensíveis em cada etapa.",
+      "Dados sensíveis protegidos durante a troca de informações.",
     status: "E2E PROTECTED",
   },
   {
     icon: WalletCards,
     title: "Custódia acompanhada",
     description:
-      "As condições e o status de cada reserva orientam as etapas até a liberação do saldo.",
+      "Acompanhe as condições da reserva até a liberação do saldo.",
     status: "RESERVATION-BASED",
   },
   {
     icon: ShieldCheck,
-    title: "Split payments automatizados",
+    title: "Divisão automática",
     description:
-      "A divisão segue as condições apresentadas na reserva, com mais clareza para cliente e tatuador.",
+      "A divisão do pagamento segue o que foi combinado na reserva.",
     status: "AUTO SPLIT",
   },
   {
     icon: Check,
     title: "Perfis verificados",
     description:
-      "Uma comunidade com mais confiança para encontrar, contratar e criar.",
+      "Mais clareza sobre quem está do outro lado antes de fechar a reserva.",
     status: "TRUSTED PROFILES",
   },
 ];
@@ -283,7 +283,7 @@ export default function SecurityAndFooter() {
             <div className="pointer-events-none absolute -left-[12%] top-[8%] h-[55%] w-[65%] rounded-full bg-[#FF6600]/15 blur-[80px]" />
             <div className="pointer-events-none absolute -bottom-[14%] right-[-8%] h-[58%] w-[62%] rounded-full bg-[#00FF66]/10 blur-[90px]" />
             <div className="pointer-events-none absolute right-[8%] top-[12%] h-[36%] w-[42%] rounded-full bg-[#4977FF]/[0.09] blur-[70px]" />
-            <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/[0.08] bg-gradient-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
+            <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/20 bg-gradient-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
 
             <div
               role="img"
@@ -299,11 +299,11 @@ export default function SecurityAndFooter() {
               className="gpu-accelerate-child pointer-events-none absolute inset-3 z-[1] rounded-[2rem] bg-[linear-gradient(160deg,rgba(18,18,18,0.92)_0%,rgba(255,102,0,0.2)_42%,rgba(0,255,102,0.22)_100%)] motion-reduce:scale-y-0"
             />
 
-            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/10 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
+            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/20 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#00FF66]">
                 Secure enclave
               </p>
-              <p className="mt-1 text-[11px] text-white/65">
+              <p className="mt-1 text-[11px] text-[#E0E0E0]">
                 Reserva protegida
               </p>
             </div>
@@ -313,21 +313,21 @@ export default function SecurityAndFooter() {
         <div ref={copyRef} className="gpu-accelerate">
           <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF9900] sm:text-sm">
             <span className="h-px w-9 bg-[#FF6600]" />
-            Confiança em cada transação
+            Clareza em cada reserva
           </p>
           <h2
             id="security-title"
             className="max-w-2xl text-[clamp(2.6rem,5vw,5.25rem)] font-semibold leading-[0.91] tracking-[-0.065em] text-white"
           >
-            Segurança que protege
+            Regras claras
             <span className="block bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-transparent">
-              o valor da sua arte.
+              para cada pagamento.
             </span>
           </h2>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
-            Criptografia avançada protege os dados e as etapas de pagamento.
-            Com regras claras de split e liberação de saldo vinculada à reserva,
-            clientes e artistas podem focar no que importa: a arte.
+          <p className="mt-6 max-w-2xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
+            Os dados são protegidos por criptografia. As condições da reserva
+            orientam o pagamento e a liberação do saldo — visíveis para cliente
+            e artista.
           </p>
 
           <ul className="mt-8 space-y-5 sm:mt-10">
@@ -343,15 +343,15 @@ export default function SecurityAndFooter() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <h3 className="text-sm font-semibold text-white sm:text-base">
+                    <h3 className="text-sm font-semibold text-[#E0E0E0] sm:text-base">
                       {title}
                     </h3>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.14em] text-[#00FF66]/75">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-normal text-[#00FF66]">
                       <span className="h-1 w-1 rounded-full bg-[#00FF66] shadow-[0_0_7px_#00FF66]" />
                       {status}
                     </span>
                   </div>
-                  <p className="mt-1 max-w-lg text-sm leading-6 text-white/55">
+                  <p className="mt-1 max-w-lg text-sm leading-6 text-[#E0E0E0]">
                     {description}
                   </p>
                 </div>
@@ -368,32 +368,32 @@ export default function SecurityAndFooter() {
           <div ref={ctaRef} className="gpu-accelerate max-w-3xl">
             <p className="mb-4 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF9900] sm:text-sm">
               <span className="h-px w-9 bg-[#00FF66]" />
-              Sua próxima história começa agora
+              Cliente e artista, no mesmo lugar
             </p>
             <h2 className="text-[clamp(2.35rem,4.7vw,4.8rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white">
-              Encontre sua arte.
+              Encontre seu artista.
               <span className="block bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
-                Faça parte do TattooGo.
+                Ou seus próximos clientes.
               </span>
             </h2>
-            <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
-              Explore as jornadas para clientes e tatuadores e descubra como a
-              plataforma aproxima ideias dos artistas certos.
+            <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
+              Escolha seu próximo traço ou coloque seu trabalho diante de quem
+              procura por ele.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
             <a
               href="#clients-title"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#FF6600]/70 hover:shadow-[0_0_30px_rgba(255,102,0,0.18)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none"
+              className="footer-store-button cta-microphysics gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/65 px-5 text-[#E0E0E0] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none"
             >
               <MapPin
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF9900]"
               />
               <span className="flex flex-col text-left">
-                <span className="text-[0.62rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Conheça a jornada
+                <span className="text-[0.62rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
+                  Encontre seu artista
                 </span>
                 <span className="text-base font-semibold leading-tight">
                   Para clientes
@@ -407,15 +407,15 @@ export default function SecurityAndFooter() {
 
             <a
               href="#artists-title"
-              className="footer-store-button gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/15 bg-[#1A1A1A]/65 px-5 text-white backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-[#00FF66]/60 hover:shadow-[0_0_30px_rgba(0,255,102,0.16)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none"
+              className="footer-store-button cta-microphysics gpu-accelerate group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/65 px-5 text-[#E0E0E0] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none"
             >
               <Palette
                 aria-hidden="true"
                 className="h-7 w-7 shrink-0 text-[#FF6600]"
               />
               <span className="flex flex-col text-left">
-                <span className="text-[0.62rem] font-medium uppercase tracking-[0.12em] text-white/55">
-                  Conheça a jornada
+                <span className="text-[0.62rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
+                  Mostre seu trabalho
                 </span>
                 <span className="text-base font-semibold leading-tight">
                   Para tatuadores
@@ -474,7 +474,7 @@ export default function SecurityAndFooter() {
           <p className="text-xs leading-5 text-white/60 md:text-right">
             © {new Date().getFullYear()} Gafisx Labs. TattooGo MK.
             <span className="block text-[#FF9900]/85">
-              Arte conectada com confiança.
+              Da ideia ao traço.
             </span>
           </p>
         </div>

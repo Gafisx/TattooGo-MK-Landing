@@ -30,6 +30,7 @@ export default function SplitJourneySection() {
     media.add(
       "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
       () => {
+        const tiltCleanups: Array<() => void> = [];
         const updatePanelInteractivity = (progress: number) => {
           const clientActive = progress <= 0.001;
           const artistActive = progress >= 0.999;
@@ -58,6 +59,51 @@ export default function SplitJourneySection() {
           force3D: true,
           willChange: "transform",
         });
+        if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+          section
+            .querySelectorAll<HTMLElement>("[data-split-tilt]")
+            .forEach((card) => {
+              gsap.set(card, {
+                transformPerspective: 1000,
+                transformStyle: "preserve-3d",
+                force3D: true,
+                willChange: "transform",
+              });
+              const rotateX = gsap.quickTo(card, "rotationX", {
+                duration: 0.55,
+                ease: "power3.out",
+                force3D: true,
+              });
+              const rotateY = gsap.quickTo(card, "rotationY", {
+                duration: 0.55,
+                ease: "power3.out",
+                force3D: true,
+              });
+              const handlePointerMove = (event: PointerEvent) => {
+                const bounds = card.getBoundingClientRect();
+                const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+                const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+                rotateX(y * -4);
+                rotateY(x * 5);
+              };
+              const resetTilt = () => {
+                rotateX(0);
+                rotateY(0);
+              };
+
+              card.addEventListener("pointermove", handlePointerMove, {
+                passive: true,
+              });
+              card.addEventListener("pointerleave", resetTilt, {
+                passive: true,
+              });
+              tiltCleanups.push(() => {
+                card.removeEventListener("pointermove", handlePointerMove);
+                card.removeEventListener("pointerleave", resetTilt);
+                gsap.killTweensOf(card);
+              });
+            });
+        }
         updatePanelInteractivity(0);
 
         const timeline = gsap.timeline({
@@ -84,6 +130,7 @@ export default function SplitJourneySection() {
           .to(artistImage, { yPercent: 6, duration: 1, ease: "none" }, 0);
 
         return () => {
+          tiltCleanups.forEach((cleanup) => cleanup());
           clientPanel.inert = false;
           clientPanel.style.pointerEvents = "";
           clientPanel.removeAttribute("aria-hidden");
@@ -129,24 +176,24 @@ export default function SplitJourneySection() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF9900] sm:text-sm">
               Para clientes
             </p>
-            <div className="rounded-[1.75rem] border border-white/15 bg-[#121212]/55 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-9">
+            <div data-split-tilt className="rounded-[1.75rem] border border-white/20 bg-[#121212]/55 p-6 text-[#E0E0E0] shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-9">
               <h2
                 id="split-client-title"
                 className="text-[clamp(2.4rem,5vw,4.6rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white"
               >
-                Encontre o artista ideal para a sua ideia.
+                Encontre quem entende o que você quer marcar.
               </h2>
-              <p className="mt-5 max-w-md text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
-                Descubra artistas, explore portfólios e encontre o profissional
-                ideal para transformar sua ideia em arte.
+              <p className="mt-5 max-w-md text-[clamp(0.875rem,1.1vw,1rem)] leading-relaxed">
+                Pesquise por estilo e região. Veja trabalhos, converse com o
+                artista e reserve com clareza.
               </p>
               <a
                 href="#clients-title"
                 onMouseEnter={playHoverClick}
                 onFocus={playHoverClick}
-                className="mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#FF9900]/55 bg-[#FF6600] px-6 text-sm font-semibold text-[#121212] shadow-[0_8px_32px_rgba(255,102,0,0.22)] transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,102,0,0.5)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] active:scale-[0.98] motion-reduce:transition-none"
+                className="cta-microphysics mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#FF9900]/55 bg-[#FF6600] px-6 text-sm font-semibold text-[#121212] shadow-[0_8px_32px_rgba(255,102,0,0.22)] transition-[transform,box-shadow] duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none"
               >
-                Encontrar Tatuador
+                Explorar artistas
               </a>
             </div>
           </div>
@@ -177,24 +224,24 @@ export default function SplitJourneySection() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#00FF66] sm:text-sm">
               Para tatuadores
             </p>
-            <div className="rounded-[1.75rem] border border-white/15 bg-[#101713]/60 p-6 shadow-2xl shadow-black/25 backdrop-blur-xl sm:p-9">
+            <div data-split-tilt className="rounded-[1.75rem] border border-white/20 bg-[#101713]/60 p-6 text-[#E0E0E0] shadow-2xl shadow-black/25 backdrop-blur-xl sm:p-9">
               <h2
                 id="split-artist-title"
                 className="text-[clamp(2.4rem,4.8vw,4.2rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white"
               >
-                Mais espaço para criar. Mais controle para crescer.
+                Menos operação. Mais tempo no traço.
               </h2>
-              <p className="mt-5 max-w-md text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
-                Organize sua agenda, apresente seu trabalho e acompanhe seus
-                ganhos em uma só plataforma.
+              <p className="mt-5 max-w-md text-[clamp(0.875rem,1.1vw,1rem)] leading-relaxed">
+                Apresente seu portfólio, organize a agenda e acompanhe cada
+                pagamento sem perder o foco no estúdio.
               </p>
               <a
                 href="#artists-title"
                 onMouseEnter={playHoverClick}
                 onFocus={playHoverClick}
-                className="mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#00FF66]/45 bg-[#00FF66] px-6 text-sm font-semibold text-[#101713] shadow-[0_8px_32px_rgba(0,255,102,0.16)] transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(255,102,0,0.5)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] active:scale-[0.98] motion-reduce:transition-none"
+                className="cta-microphysics mt-7 inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full border border-[#00FF66]/45 bg-[#00FF66] px-6 text-sm font-semibold text-[#101713] shadow-[0_8px_32px_rgba(0,255,102,0.16)] transition-[transform,box-shadow] duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none"
               >
-                Sou Tatuador
+                Organizar meu estúdio
               </a>
             </div>
           </div>

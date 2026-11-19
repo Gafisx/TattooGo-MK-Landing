@@ -25,9 +25,11 @@ describe("SplitJourneySection", () => {
 
     expect(screen.getByRole("region", { name: "Jornadas de cliente e tatuador" }))
       .toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Encontrar Tatuador" }))
+    expect(screen.getByRole("link", { name: "Explorar artistas" }))
       .toHaveAttribute("href", "#clients-title");
-    const artistLink = screen.getByRole("link", { name: "Sou Tatuador" });
+    const artistLink = screen.getByRole("link", {
+      name: "Organizar meu estúdio",
+    });
     artistLink.focus();
     expect(playHoverClick).toHaveBeenCalled();
   });

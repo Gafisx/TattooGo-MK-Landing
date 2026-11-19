@@ -45,7 +45,7 @@ const artistBenefits = [
   },
   {
     icon: ShieldCheck,
-    title: "Split payments automatizados",
+    title: "Divisão automática",
     description: "Receba com mais previsibilidade e reduza o risco de calotes.",
   },
 ];
@@ -72,8 +72,8 @@ function BenefitList({
             <Icon aria-hidden="true" className="h-[18px] w-[18px]" />
           </span>
           <div>
-            <h3 className="text-sm font-semibold text-white">{title}</h3>
-            <p className="mt-1 text-sm leading-6 text-white/55">
+            <h3 className="text-sm font-semibold text-[#E0E0E0]">{title}</h3>
+            <p className="mt-1 text-sm leading-6 text-[#E0E0E0]">
               {description}
             </p>
           </div>
@@ -135,7 +135,7 @@ function MarketplaceMockup({
           aria-hidden="true"
           className={`pointer-events-none absolute -inset-[12%] rounded-full blur-[90px] ${accent.glow}`}
         />
-        <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.015] to-transparent" />
+        <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] border border-white/20 bg-gradient-to-br from-white/[0.07] via-white/[0.015] to-transparent" />
 
         <div className="gpu-accelerate-child absolute inset-5 [transform:translate3d(0,0,26px)]">
           <Image
@@ -159,10 +159,10 @@ function MarketplaceMockup({
           >
             {label}
           </p>
-          <p className="mt-1 text-[11px] text-white/75">{descriptor}</p>
+          <p className="mt-1 text-[11px] text-[#E0E0E0]">{descriptor}</p>
         </div>
 
-        <div className="gpu-accelerate-child absolute bottom-7 right-7 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-[#121212]/65 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/65 backdrop-blur-lg [transform:translate3d(0,0,42px)]">
+        <div className="gpu-accelerate-child absolute bottom-7 right-7 z-10 flex items-center gap-2 rounded-full border border-white/20 bg-[#121212]/65 px-3 py-2 font-mono text-[9px] uppercase tracking-normal text-[#E0E0E0] backdrop-blur-lg [transform:translate3d(0,0,42px)]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#00FF66] shadow-[0_0_8px_#00FF66]" />
           Verified
         </div>
@@ -338,18 +338,18 @@ export default function DualSidedSection() {
       <div className="mx-auto max-w-[1440px] px-5 sm:px-10 lg:px-16">
         <header className="mx-auto mb-16 max-w-3xl text-center sm:mb-24 lg:mb-32">
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-[#FF9900] sm:text-sm">
-            Um ecossistema. Duas jornadas.
+            A mesma plataforma. Dois lados da arte.
           </p>
           <h2
             id="ecosystem-title"
             className="text-[clamp(2.5rem,5.6vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.065em] text-white"
           >
-            Feito para quem
-            <span className="block text-white/45">cria e para quem sente.</span>
+            Para quem tatua.
+            <span className="block text-white/55">Para quem escolhe o traço.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
-            A tecnologia aproxima pessoas e transforma a descoberta, a criação
-            e a gestão de cada tatuagem em uma experiência mais segura.
+          <p className="mx-auto mt-6 max-w-2xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
+            Um lugar para encontrar artistas, apresentar trabalho e conduzir
+            cada reserva com clareza.
           </p>
         </header>
 
@@ -376,13 +376,11 @@ export default function DualSidedSection() {
                 id="clients-title"
                 className="max-w-xl text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white"
               >
-                A sua próxima tatuagem começa aqui.
+                Encontre o traço que fala por você.
               </h3>
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
-                Descubra artistas que combinam com a sua ideia. Explore
-                trabalhos autênticos, encontre talentos por geolocalização e
-                agende com tranquilidade — do primeiro contato ao resultado
-                final.
+              <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
+                Veja trabalhos reais, compare estilos e encontre artistas perto
+                de você. Escolha com os olhos abertos; reserve sem dúvida.
               </p>
               <BenefitList items={clientBenefits} />
             </div>
@@ -401,12 +399,11 @@ export default function DualSidedSection() {
                 id="artists-title"
                 className="max-w-xl text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white"
               >
-                Mais tempo para criar. Controle para crescer.
+                Seu trabalho merece alcance. Sua agenda, controle.
               </h3>
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
-                Seu talento merece uma operação à altura. Reúna agenda,
-                portfólio e desempenho em um painel intuitivo, enquanto os
-                pagamentos acompanham cada reserva com mais transparência.
+              <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
+                Apresente seu portfólio, organize horários e acompanhe os
+                pagamentos. Menos abas abertas. Mais tempo no estúdio.
               </p>
               <BenefitList items={artistBenefits} tone="green" />
             </div>
