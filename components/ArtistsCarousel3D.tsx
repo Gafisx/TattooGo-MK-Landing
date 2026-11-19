@@ -29,7 +29,6 @@ const artists = [
 ];
 
 const CARD_COUNT = artists.length;
-const TAU = Math.PI * 2;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const ARTIST_TEXTURE_PATHS = artists.map(
   (_, index) => `/assets/artists/artist-${index + 1}.webp`,
@@ -57,16 +56,24 @@ class CarouselTextureErrorBoundary extends Component<
 }
 
 function SolidColorCarousel() {
+  const { viewport } = useThree();
+  const radius = Math.min(4, viewport.width * 0.3);
+  const cardWidth = Math.min(1.45, Math.max(0.82, viewport.width * 0.15));
+
   return (
     <group>
       {artists.map(({ style, color }, index) => {
-        const angle = (index / CARD_COUNT) * TAU;
+        const angle = (2 * Math.PI * index) / CARD_COUNT;
         return (
           <mesh
             key={style}
-            position={[Math.sin(angle) * 2.85, 0, Math.cos(angle) * 2.85]}
+            position={[
+              Math.sin(angle) * radius,
+              0,
+              Math.cos(angle) * radius,
+            ]}
             rotation={[0, angle, 0]}
-            scale={[1.48, 2.05, 1]}
+            scale={[cardWidth, cardWidth * 1.385, 1]}
           >
             <planeGeometry args={[1, 1]} />
             <meshBasicMaterial color={color} />
@@ -143,20 +150,20 @@ function CarouselScene() {
 
     const easing = 1 - Math.exp(-delta * 8);
     const progress = useScrollStore.getState().progress;
-    const rotation = progress * TAU;
+    const rotation = progress * 2 * Math.PI;
     group.rotation.y = rotation;
     group.rotation.x = 0.035 + Math.sin(rotation) * 0.025;
 
-    const radius = Math.min(2.85, viewport.width * 0.3);
-    const cardWidth = Math.min(1.48, Math.max(0.86, viewport.width * 0.19));
+    const radius = Math.min(4, viewport.width * 0.3);
+    const cardWidth = Math.min(1.45, Math.max(0.82, viewport.width * 0.15));
     const cardHeight = cardWidth * 1.385;
 
     for (let index = 0; index < CARD_COUNT; index += 1) {
-      const angle = (index / CARD_COUNT) * TAU;
+      const angle = (2 * Math.PI * index) / CARD_COUNT;
       const mesh = cardMeshes.current[index];
       const material = materialsRef.current[index];
       const facing = Math.max(0, Math.cos(angle + rotation));
-      const cardScale = 0.9 + facing * 0.15;
+      const cardScale = 0.88 + facing * 0.22;
 
       mesh.position.set(
         Math.sin(angle) * radius,

@@ -30,38 +30,35 @@ export default function SplitJourneySection() {
     media.add(
       "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
       () => {
-        const setArtistAccessibility = (revealed: boolean) => {
-          artistPanel.inert = !revealed;
-          if (revealed) {
-            artistPanel.removeAttribute("aria-hidden");
-          } else {
-            artistPanel.setAttribute("aria-hidden", "true");
-          }
+        const updatePanelInteractivity = (progress: number) => {
+          const clientActive = progress <= 0.001;
+          const artistActive = progress >= 0.999;
+
+          clientPanel.inert = !clientActive;
+          clientPanel.style.pointerEvents = clientActive ? "auto" : "none";
+          clientPanel.toggleAttribute("aria-hidden", !clientActive);
+          artistPanel.inert = !artistActive;
+          artistPanel.style.pointerEvents = artistActive ? "auto" : "none";
+          artistPanel.toggleAttribute("aria-hidden", !artistActive);
         };
 
         gsap.set(clientPanel, {
           position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 0,
+          inset: 0,
+          zIndex: 2,
+          clipPath: "inset(0 0 0 0)",
         });
         gsap.set(artistPanel, {
           position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: "50%",
-          right: 0,
+          inset: 0,
           zIndex: 1,
-          clipPath: "inset(100% 0 0 0)",
         });
         gsap.set([clientImage, artistImage], {
           scale: 1.12,
           force3D: true,
           willChange: "transform",
         });
-        setArtistAccessibility(false);
+        updatePanelInteractivity(0);
 
         const timeline = gsap.timeline({
           scrollTrigger: {
@@ -72,21 +69,28 @@ export default function SplitJourneySection() {
             scrub: 1,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            onUpdate: ({ progress }) => setArtistAccessibility(progress > 0.02),
-            onRefresh: ({ progress }) => setArtistAccessibility(progress > 0.02),
+            onUpdate: ({ progress }) => updatePanelInteractivity(progress),
+            onRefresh: ({ progress }) => updatePanelInteractivity(progress),
           },
         });
 
         timeline
           .to(
-            artistPanel,
-            { clipPath: "inset(0% 0 0 0)", duration: 1, ease: "none" },
+            clientPanel,
+            { clipPath: "inset(0 100% 0 0)", duration: 1, ease: "none" },
             0,
           )
           .to(clientImage, { yPercent: -6, duration: 1, ease: "none" }, 0)
           .to(artistImage, { yPercent: 6, duration: 1, ease: "none" }, 0);
 
-        return () => setArtistAccessibility(true);
+        return () => {
+          clientPanel.inert = false;
+          clientPanel.style.pointerEvents = "";
+          clientPanel.removeAttribute("aria-hidden");
+          artistPanel.inert = false;
+          artistPanel.style.pointerEvents = "";
+          artistPanel.removeAttribute("aria-hidden");
+        };
       },
     );
 
@@ -96,13 +100,13 @@ export default function SplitJourneySection() {
   return (
     <section
       ref={sectionRef}
-      className="relative isolate overflow-hidden bg-[#121212]"
+      className="relative isolate h-auto overflow-hidden bg-[#121212] md:h-screen md:min-h-[640px]"
       aria-label="Jornadas de cliente e tatuador"
     >
-      <div className="relative grid min-h-[100svh] grid-cols-1 overflow-hidden md:grid-cols-2">
+      <div className="relative grid grid-cols-1 overflow-hidden md:h-full md:grid-cols-2">
         <article
           ref={clientPanelRef}
-          className="relative isolate flex min-h-[78svh] items-center overflow-hidden px-5 py-16 sm:px-10 md:min-h-[100svh] md:px-12 lg:px-20"
+          className="relative isolate flex min-h-[78svh] items-center overflow-hidden px-5 py-16 sm:px-10 md:h-full md:min-h-0 md:px-12 lg:px-20"
           aria-labelledby="split-client-title"
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -150,7 +154,7 @@ export default function SplitJourneySection() {
 
         <article
           ref={artistPanelRef}
-          className="relative isolate flex min-h-[78svh] items-center overflow-hidden px-5 py-16 sm:px-10 md:min-h-[100svh] md:px-10 lg:px-16"
+          className="relative isolate flex min-h-[78svh] items-center overflow-hidden px-5 py-16 sm:px-10 md:h-full md:min-h-0 md:px-10 lg:px-16"
           aria-labelledby="split-artist-title"
         >
           <div className="absolute inset-0 overflow-hidden">
