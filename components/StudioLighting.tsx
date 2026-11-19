@@ -7,7 +7,7 @@ export default function StudioLighting() {
     <>
       <Environment
         files="/assets/hdri/studio.hdr"
-        environmentIntensity={0.45}
+        environmentIntensity={0.8}
         resolution={256}
       />
       <directionalLight

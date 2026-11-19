@@ -27,7 +27,7 @@ import type { TattooPathRef } from "@/components/tattooPath";
 
 const ARM_MODEL_PATH = "/assets/models/arm_with_skin.glb";
 const TATTOO_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
-const FALLBACK_TEXTURE_PATH = "/assets/images/ink-stroke.svg";
+const FALLBACK_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
 const SKIN_NORMAL_TEXTURE_PATH = "/assets/textures/skin_normal.png";
 type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
 

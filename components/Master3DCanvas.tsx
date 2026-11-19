@@ -171,7 +171,11 @@ export default function Master3DCanvas() {
               </group>
             }
           >
-            <StudioLighting />
+            <WebGLErrorBoundary fallback={null}>
+              <Suspense fallback={null}>
+                <StudioLighting />
+              </Suspense>
+            </WebGLErrorBoundary>
             <ScrollProgressBridge reducedMotion={reducedMotion} />
             <ArtistsCarousel3D reducedMotion={reducedMotion} />
             <WebGLErrorBoundary

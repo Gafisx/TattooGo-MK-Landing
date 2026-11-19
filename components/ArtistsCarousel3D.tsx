@@ -1,5 +1,6 @@
 "use client";
 
+import { Component, Suspense, type ErrorInfo, type ReactNode } from "react";
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
@@ -33,6 +34,48 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const ARTIST_TEXTURE_PATHS = artists.map(
   (_, index) => `/assets/artists/artist-${index + 1}.webp`,
 );
+
+useTexture.preload(ARTIST_TEXTURE_PATHS);
+
+class CarouselTextureErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("TattooGo artist carousel textures failed to load", error, info);
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
+function SolidColorCarousel() {
+  return (
+    <group>
+      {artists.map(({ style, color }, index) => {
+        const angle = (index / CARD_COUNT) * TAU;
+        return (
+          <mesh
+            key={style}
+            position={[Math.sin(angle) * 2.85, 0, Math.cos(angle) * 2.85]}
+            rotation={[0, angle, 0]}
+            scale={[1.48, 2.05, 1]}
+          >
+            <planeGeometry args={[1, 1]} />
+            <meshBasicMaterial color={color} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
 
 function subscribeToReducedMotion(onChange: () => void) {
   const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
@@ -157,7 +200,13 @@ export default function ArtistsCarousel3D({
   const visible = useScrollStore((state) => state.artistsCarouselVisible);
 
   if (reducedMotion || !visible) return null;
-  return <CarouselScene />;
+  return (
+    <CarouselTextureErrorBoundary fallback={<SolidColorCarousel />}>
+      <Suspense fallback={<SolidColorCarousel />}>
+        <CarouselScene />
+      </Suspense>
+    </CarouselTextureErrorBoundary>
+  );
 }
 
 export function ArtistsCarouselSection() {

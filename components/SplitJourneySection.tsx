@@ -108,9 +108,10 @@ export default function SplitJourneySection() {
           <div className="absolute inset-0 overflow-hidden">
             <Image
               ref={clientImageRef}
-              src="/assets/images/cliente.png"
+              src="/assets/images/cliente.webp"
               alt=""
               fill
+              priority
               sizes="100vw"
               className="object-cover object-center"
             />
@@ -155,9 +156,10 @@ export default function SplitJourneySection() {
           <div className="absolute inset-0 overflow-hidden">
             <Image
               ref={artistImageRef}
-              src="/assets/images/tatuador.png"
+              src="/assets/images/tatuador.webp"
               alt=""
               fill
+              loading="lazy"
               sizes="(max-width: 767px) 100vw, 50vw"
               className="object-cover object-center"
             />
