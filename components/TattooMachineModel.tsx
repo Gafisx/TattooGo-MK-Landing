@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Group, MathUtils, Mesh, Quaternion, Vector3, type Object3D } from "three";
+import { Box3, Group, MathUtils, Mesh, Quaternion, Vector3 } from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
 import type { TattooPathRef } from "@/components/tattooPath";
@@ -15,7 +15,6 @@ const NEEDLE_TIP_Y = NEEDLE_BASE_Y - NEEDLE_LENGTH / 2;
 
 useGLTF.preload(MODEL_PATH);
 
-// ... (Mantenha o MinimalMachineFallback igual) ...
 export function MinimalMachineFallback() {
   return (
     <group scale={0.82}>
@@ -59,9 +58,13 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
     const parent = machine.parent;
 
     const progress = reducedMotion ? 1 : useScrollStore.getState().progress;
+    
+    // A máquina segue o centro do caminho (a mão)
     motion.point.copy(path.center).addScaledVector(path.tangent, (progress - 0.5) * path.length);
     path.mesh.updateWorldMatrix(true, false);
     path.mesh.localToWorld(motion.point);
+    
+    // A agulha aponta para a superfície do braço
     motion.normal.copy(path.normal).transformDirection(path.mesh.matrixWorld);
     motion.needleDir.copy(motion.normal).negate();
     motion.targetRot.setFromUnitVectors(motion.needleDown, motion.needleDir);
@@ -100,7 +103,6 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
 
     if (reducedMotion) { if (needleRef.current) needleRef.current.position.y = NEEDLE_BASE_Y; return; }
 
-    // MUDANÇA CRÍTICA: Vibração muito mais forte e rápida
     const isTattooing = progress > 0.05 && progress < 0.95;
     if (needleRef.current) {
       const vibration = isTattooing ? Math.sin(state.clock.elapsedTime * 80) * 0.05 : 0;
@@ -110,7 +112,7 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
   });
 
   return (
-    <group ref={machineRef} scale={fittedModel.scale}>
+    <group ref={machineRef} scale={fittedModel.scale} rotation={[0, 0, 0]}>
       <primitive object={fittedModel.scene} dispose={null} />
       <group ref={needleRef} position={[0, NEEDLE_BASE_Y, 0]}>
         <mesh castShadow>
@@ -124,4 +126,4 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
 
 export default function TattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boolean; pathRef: TattooPathRef; }) {
   return <RealTattooMachineModel reducedMotion={reducedMotion} pathRef={pathRef} />;
-}
+  }
