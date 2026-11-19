@@ -1,169 +1,80 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Decal, useGLTF, useTexture } from "@react-three/drei";
 import { createPortal, useFrame, useThree } from "@react-three/fiber";
-import {
-  Box3,
-  Euler,
-  Group,
-  Matrix4,
-  Mesh,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  MathUtils,
-  SRGBColorSpace,
-  Vector3,
-  type Texture,
-} from "three";
+import { Box3, Euler, Group, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, MathUtils, SRGBColorSpace, Vector3, type Texture } from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
 import type { TattooPathRef } from "@/components/tattooPath";
 
 const ARM_MODEL_PATH = "/assets/models/arm_with_skin.glb";
-const TATTOO_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
-const FALLBACK_TEXTURE_PATH = "/assets/decals/star-tattoo.svg";
+const TATTOO_TEXTURE_PATH = "/assets/decals/star-tattoo.png"; 
 const SKIN_NORMAL_TEXTURE_PATH = "/assets/textures/skin_normal.png";
-type PhysicalShader = Parameters<MeshPhysicalMaterial["onBeforeCompile"]>[0];
-
-export type InkRevealShader = {
-  uniforms: Record<string, { value: number }>;
-  fragmentShader: string;
-};
 
 export function getInkRevealProgress(reducedMotion: boolean) {
   return reducedMotion ? 1 : useScrollStore.getState().progress;
 }
 
-export function configureInkRevealShader(
-  shader: InkRevealShader,
-  reducedMotion: boolean,
-) {
-  shader.uniforms.uProgress = {
-    value: getInkRevealProgress(reducedMotion),
-  };
+export function configureInkRevealShader(shader: any, reducedMotion: boolean) {
+  shader.uniforms.uProgress = { value: getInkRevealProgress(reducedMotion) };
   shader.fragmentShader = shader.fragmentShader.replace(
     "#include <common>",
     `#include <common>
      uniform float uProgress;
-     float tattooHash(vec2 point) {
-       return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123);
-     }
+     float tattooHash(vec2 point) { return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453123); }
      float tattooNoise(vec2 point) {
-       vec2 cell = floor(point);
-       vec2 local = fract(point);
+       vec2 cell = floor(point); vec2 local = fract(point);
        local = local * local * (3.0 - 2.0 * local);
-       float lower = mix(
-         tattooHash(cell),
-         tattooHash(cell + vec2(1.0, 0.0)),
-         local.x
-       );
-       float upper = mix(
-         tattooHash(cell + vec2(0.0, 1.0)),
-         tattooHash(cell + vec2(1.0, 1.0)),
-         local.x
-       );
-       return mix(lower, upper, local.y);
+       return mix(mix(tattooHash(cell), tattooHash(cell + vec2(1.0, 0.0)), local.x), mix(tattooHash(cell + vec2(0.0, 1.0)), tattooHash(cell + vec2(1.0, 1.0)), local.x), local.y);
      }
      float tattooFbm(vec2 point) {
-       float value = 0.0;
-       float amplitude = 0.5;
-       for (int octave = 0; octave < 4; octave++) {
-         value += amplitude * tattooNoise(point);
-         point = point * 2.0 + vec2(13.1, 7.7);
-         amplitude *= 0.5;
-       }
+       float value = 0.0; float amplitude = 0.5;
+       for (int i = 0; i < 4; i++) { value += amplitude * tattooNoise(point); point = point * 2.0 + vec2(13.1, 7.7); amplitude *= 0.5; }
        return value;
-     }`,
+     }`
   );
   shader.fragmentShader = shader.fragmentShader.replace(
     "#include <map_fragment>",
     `#include <map_fragment>
      #ifdef USE_MAP
       float tattooReveal = 0.0;
-      if (uProgress >= 1.0) {
-        tattooReveal = 1.0;
-      } else if (uProgress > 0.0) {
-        float bleedNoise = tattooFbm(vMapUv * 15.0);
-        float poreNoise = tattooFbm(vMapUv * 38.0 + vec2(17.3, 5.1));
-        float inkEdge = uProgress
-          + (bleedNoise - 0.5) * 0.12
-          + (poreNoise - 0.5) * 0.035;
-        float bleedWidth = mix(
-          0.018,
-          0.05,
-          tattooFbm(vMapUv * 24.0 + vec2(3.7, 11.2))
-        );
-        tattooReveal = 1.0 - smoothstep(
-          inkEdge - bleedWidth,
-          inkEdge + bleedWidth * 0.35,
-          vMapUv.x
-        );
+      if (uProgress >= 1.0) { tattooReveal = 1.0; } 
+      else if (uProgress > 0.0) {
+        float bleed = tattooFbm(vMapUv * 15.0);
+        float edge = uProgress + (bleed - 0.5) * 0.12;
+        tattooReveal = 1.0 - smoothstep(edge - 0.05, edge + 0.02, vMapUv.x);
        }
        diffuseColor.a *= tattooReveal;
-     #endif`,
+     #endif`
   );
 }
 
-export function updateInkRevealUniform(
-  shader: InkRevealShader,
-  reducedMotion: boolean,
-  delta?: number,
-) {
-  const progressUniform = shader.uniforms.uProgress;
-  if (!progressUniform) {
-    throw new Error("Ink reveal shader has not been configured.");
-  }
-  const targetProgress = getInkRevealProgress(reducedMotion);
-  progressUniform.value =
-    reducedMotion || delta === undefined
-      ? targetProgress
-      : MathUtils.damp(progressUniform.value, targetProgress, 12, delta);
+export function updateInkRevealUniform(shader: any, reducedMotion: boolean, delta?: number) {
+  const p = shader.uniforms.uProgress;
+  if (!p) return;
+  const target = getInkRevealProgress(reducedMotion);
+  p.value = (reducedMotion || delta === undefined) ? target : MathUtils.damp(p.value, target, 12, delta);
 }
 
-function InkRevealMaterial({
-  texture,
-  reducedMotion,
-}: {
-  texture: Texture;
-  reducedMotion: boolean;
-}) {
-  const shaderRef = useRef<PhysicalShader | null>(null);
-  const invalidate = useThree((state) => state.invalidate);
+function InkRevealMaterial({ texture, reducedMotion }: { texture: Texture; reducedMotion: boolean }) {
+  const shaderRef = useRef<any>(null);
+  const invalidate = useThree((s) => s.invalidate);
 
-  const onBeforeCompile = useCallback(
-    (shader: PhysicalShader) => {
-      configureInkRevealShader(shader, reducedMotion);
-      shaderRef.current = shader;
-    },
-    [reducedMotion],
-  );
+  const onBeforeCompile = useCallback((shader: any) => {
+    configureInkRevealShader(shader, reducedMotion);
+    shaderRef.current = shader;
+  }, [reducedMotion]);
 
   useEffect(() => {
     invalidate();
-    if (reducedMotion) return;
-
-    return useScrollStore.subscribe((state, previousState) => {
-      if (state.progress !== previousState.progress) invalidate();
-    });
-  }, [invalidate, reducedMotion]);
+    return useScrollStore.subscribe((s, p) => { if (s.progress !== p.progress) invalidate(); });
+  }, [invalidate]);
 
   useFrame((_, delta) => {
     if (shaderRef.current) {
       updateInkRevealUniform(shaderRef.current, reducedMotion, delta);
-      const progress = shaderRef.current.uniforms.uProgress.value;
-      if (
-        !reducedMotion &&
-        Math.abs(progress - getInkRevealProgress(false)) > 0.001
-      ) {
-        invalidate();
-      }
+      if (Math.abs(shaderRef.current.uniforms.uProgress.value - getInkRevealProgress(false)) > 0.001) invalidate();
     }
   });
 
@@ -172,8 +83,7 @@ function InkRevealMaterial({
       map={texture}
       roughness={0.88}
       metalness={0}
-      clearcoat={0}
-      alphaTest={0.4}
+      alphaTest={0.1}
       transparent
       depthWrite={false}
       onBeforeCompile={onBeforeCompile}
@@ -184,39 +94,18 @@ function InkRevealMaterial({
 
 function SkinNormalMap({ mesh }: { mesh: Mesh }) {
   const texture = useTexture(SKIN_NORMAL_TEXTURE_PATH);
-  const normalMap = useMemo(() => {
-    const map = texture.clone();
-    map.anisotropy = 4;
-    map.needsUpdate = true;
-    return map;
-  }, [texture]);
-
+  const normalMap = useMemo(() => { const m = texture.clone(); m.anisotropy = 4; m.needsUpdate = true; return m; }, [texture]);
   useEffect(() => () => normalMap.dispose(), [normalMap]);
-
   useLayoutEffect(() => {
-    const materials = Array.isArray(mesh.material)
-      ? mesh.material
-      : [mesh.material];
-    const previousSettings = materials.flatMap((material) => {
-      if (!(material instanceof MeshStandardMaterial)) return [];
-
-      const previousMap = material.normalMap;
-      const previousScale = material.normalScale.clone();
-      material.normalMap = normalMap;
-      material.normalScale.set(0.8, 0.8);
-      material.needsUpdate = true;
-      return [{ material, previousMap, previousScale }];
+    const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const prev = mats.flatMap((mat) => {
+      if (!(mat instanceof MeshStandardMaterial)) return [];
+      const pMap = mat.normalMap; const pScale = mat.normalScale.clone();
+      mat.normalMap = normalMap; mat.normalScale.set(0.8, 0.8); mat.needsUpdate = true;
+      return [{ material: mat, pMap, pScale }];
     });
-
-    return () => {
-      for (const { material, previousMap, previousScale } of previousSettings) {
-        material.normalMap = previousMap;
-        material.normalScale.copy(previousScale);
-        material.needsUpdate = true;
-      }
-    };
+    return () => prev.forEach(({ material, pMap, pScale }) => { material.normalMap = pMap; material.normalScale.copy(pScale); material.needsUpdate = true; });
   }, [mesh, normalMap]);
-
   return null;
 }
 
@@ -225,131 +114,83 @@ function getArmModel(scene: Group) {
   let skinMesh: Mesh | null = null;
   let largestVolume = 0;
 
-  model.traverse((object) => {
-    if (!(object instanceof Mesh)) return;
-
-    object.castShadow = true;
-    object.receiveShadow = true;
-    object.geometry.computeBoundingBox();
-    const bounds = object.geometry.boundingBox;
+  model.traverse((obj) => {
+    if (!(obj instanceof Mesh)) return;
+    obj.castShadow = true; obj.receiveShadow = true;
+    obj.geometry.computeBoundingBox();
+    const bounds = obj.geometry.boundingBox;
     if (!bounds) return;
-
     const size = bounds.getSize(new Vector3());
     const volume = size.x * size.y * size.z;
-    if (volume > largestVolume) {
-      largestVolume = volume;
-      skinMesh = object;
-    }
+    if (volume > largestVolume) { largestVolume = volume; skinMesh = obj; }
   });
 
-  if (!skinMesh) {
-    throw new Error("The arm GLB does not contain a mesh for the tattoo decal.");
-  }
-
+  if (!skinMesh) throw new Error("Arm GLB missing mesh.");
   const mesh = skinMesh as Mesh;
-  const materials = Array.isArray(mesh.material)
-    ? mesh.material
-    : [mesh.material];
-  const matteMaterials = materials.map((material) => {
-    if (!(material instanceof MeshStandardMaterial)) return material;
-
-    const matteMaterial = material.clone();
-    matteMaterial.color.set("#aa7957");
-    matteMaterial.roughness = 0.65;
-    matteMaterial.metalness = 0;
-    if (matteMaterial instanceof MeshPhysicalMaterial) {
-      matteMaterial.clearcoat = 0;
-      matteMaterial.clearcoatRoughness = 1;
-    }
-    return matteMaterial;
-  });
-  mesh.material = Array.isArray(mesh.material)
-    ? matteMaterials
-    : matteMaterials[0];
-
+  
   const bounds = mesh.geometry.boundingBox as Box3;
   const size = bounds.getSize(new Vector3());
-  const dimensions = [size.x, size.y, size.z];
-  const longitudinalAxis = dimensions.indexOf(Math.max(...dimensions));
-  const surfaceAxis = dimensions.indexOf(Math.min(...dimensions));
-  const tangent = new Vector3(
-    longitudinalAxis === 0 ? 1 : 0,
-    longitudinalAxis === 1 ? 1 : 0,
-    longitudinalAxis === 2 ? 1 : 0,
-  );
-  const normal = new Vector3(
-    surfaceAxis === 0 ? 1 : 0,
-    surfaceAxis === 1 ? 1 : 0,
-    surfaceAxis === 2 ? 1 : 0,
-  );
-  const decalUp = new Vector3().crossVectors(normal, tangent);
-  const decalBasis = new Matrix4().makeBasis(tangent, decalUp, normal);
-  const decalRotation = new Euler().setFromRotationMatrix(decalBasis);
-  const decalPosition = bounds.getCenter(new Vector3()).addScaledVector(
-    normal,
-    dimensions[surfaceAxis] / 2,
-  );
-  const middleAxis = 3 - longitudinalAxis - surfaceAxis;
-  const decalScale = new Vector3(
-    dimensions[longitudinalAxis] * 0.58,
-    dimensions[middleAxis] * 0.5,
-    Math.max(dimensions[surfaceAxis] * 1.5, 0.025),
-  );
+  const dim = [size.x, size.y, size.z];
+  const longAxis = dim.indexOf(Math.max(...dim));
+  const surfAxis = dim.indexOf(Math.min(...dim));
+  const tangent = new Vector3(longAxis === 0 ? 1 : 0, longAxis === 1 ? 1 : 0, longAxis === 2 ? 1 : 0);
+  const normal = new Vector3(surfAxis === 0 ? 1 : 0, surfAxis === 1 ? 1 : 0, surfAxis === 2 ? 1 : 0);
+  const up = new Vector3().crossVectors(normal, tangent);
+  const basis = new Matrix4().makeBasis(tangent, up, normal);
+  const rot = new Euler().setFromRotationMatrix(basis);
+  const pos = bounds.getCenter(new Vector3()).addScaledVector(normal, dim[surfAxis] / 2);
+  const midAxis = 3 - longAxis - surfAxis;
+  const decalScale = new Vector3(dim[longAxis] * 0.58, dim[midAxis] * 0.5, Math.max(dim[surfAxis] * 1.5, 0.025));
+  
   const modelBounds = new Box3().setFromObject(model);
-  const modelCenter = modelBounds.getCenter(new Vector3());
-  const modelSize = modelBounds.getSize(new Vector3());
-  const modelScale = 4.2 / Math.max(modelSize.x, modelSize.y, modelSize.z, 0.001);
-  model.position.sub(modelCenter);
+  const center = modelBounds.getCenter(new Vector3());
+  const mSize = modelBounds.getSize(new Vector3());
+  const scale = 4.2 / Math.max(mSize.x, mSize.y, mSize.z, 0.001);
+  model.position.sub(center);
+  
+  // ROTAÇÃO DO BRAÇO: Faz o braço vir da parte de cima para baixo
+  const modelRot = new Euler(-Math.PI / 2.5, 0, Math.PI / 4);
 
-  const modelRotation = new Euler().setFromRotationMatrix(
-    decalBasis.clone().transpose(),
-  );
-
-  return {
-    model,
-    mesh,
-    decalPosition,
-    decalRotation,
-    decalScale,
-    modelScale,
-    modelRotation,
-    path: {
-      mesh,
-      center: decalPosition,
-      tangent,
-      normal,
-      length: decalScale.x,
-    },
-  };
+  return { model, mesh, decalPosition: pos, decalRotation: rot, decalScale, modelScale: scale, modelRotation: modelRot, path: { mesh, center: pos, tangent, normal, length: decalScale.x } };
 }
 
-export default function InteractiveTattooArm({
-  reducedMotion,
-  pathRef,
-}: {
-  reducedMotion: boolean;
-  pathRef: TattooPathRef;
-}) {
+export default function InteractiveTattooArm({ reducedMotion, pathRef }: { reducedMotion: boolean; pathRef: TattooPathRef; }) {
   const { scene } = useGLTF(ARM_MODEL_PATH);
   const sourceTexture = useTexture(TATTOO_TEXTURE_PATH);
   const texture = useMemo(() => {
     const map = sourceTexture.clone();
-    map.colorSpace = SRGBColorSpace;
-    map.anisotropy = 4;
-    map.needsUpdate = true;
-    return map;
+    map.colorSpace = SRGBColorSpace; map.anisotropy = 4; map.needsUpdate = true; return map;
   }, [sourceTexture]);
   const { viewport } = useThree();
   const asset = useMemo(() => getArmModel(scene), [scene]);
 
   useLayoutEffect(() => {
     pathRef.current = asset.path;
-    return () => {
-      if (pathRef.current === asset.path) pathRef.current = null;
-    };
+    return () => { if (pathRef.current === asset.path) pathRef.current = null; };
   }, [asset, pathRef]);
 
   useEffect(() => () => texture.dispose(), [texture]);
+  const armScale = Math.min(1, viewport.width / 6.5);
+
+  return (
+    // MUDANÇA: Posição no centro e rotação para vir de cima
+    <group position={[0, 0.5, -1]} scale={armScale * asset.modelScale} rotation={asset.modelRotation}>
+      <primitive object={asset.model} dispose={null} />
+      <SkinNormalMap mesh={asset.mesh} />
+      {createPortal(
+        <Decal position={asset.decalPosition} rotation={asset.decalRotation} scale={asset.decalScale} map={texture} depthTest polygonOffsetFactor={-4}>
+          <InkRevealMaterial texture={texture} reducedMotion={reducedMotion} />
+        </Decal>,
+        asset.mesh
+      )}
+    </group>
+  );
+}
+
+// ... (Mantenha o InteractiveTattooArmFallback igual ao original) ...
+export function InteractiveTattooArmFallback({ reducedMotion, pathRef }: { reducedMotion: boolean; pathRef: TattooPathRef; }) {
+  return null; 
+}e.dispose(), [texture]);
 
   const armScale = Math.min(1, viewport.width / 6.5);
 
