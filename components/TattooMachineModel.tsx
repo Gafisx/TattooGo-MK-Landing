@@ -59,12 +59,12 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
 
     const progress = reducedMotion ? 1 : useScrollStore.getState().progress;
     
-    // A máquina segue o centro do caminho (a mão)
+    // Posição no braço
     motion.point.copy(path.center).addScaledVector(path.tangent, (progress - 0.5) * path.length);
     path.mesh.updateWorldMatrix(true, false);
     path.mesh.localToWorld(motion.point);
     
-    // A agulha aponta para a superfície do braço
+    // Rotação apontando para baixo
     motion.normal.copy(path.normal).transformDirection(path.mesh.matrixWorld);
     motion.needleDir.copy(motion.normal).negate();
     motion.targetRot.setFromUnitVectors(motion.needleDown, motion.needleDir);
@@ -94,8 +94,10 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
     if (reducedMotion) {
       machine.position.copy(motion.targetPos);
     } else {
+      // Efeito de flutuação (respiração) + Movimento do scroll
+      const hover = Math.sin(state.clock.elapsedTime * 2) * 0.03;
       machine.position.x = MathUtils.damp(machine.position.x, motion.targetPos.x, 12, delta);
-      machine.position.y = MathUtils.damp(machine.position.y, motion.targetPos.y, 12, delta);
+      machine.position.y = MathUtils.damp(machine.position.y, motion.targetPos.y + hover, 12, delta);
       machine.position.z = MathUtils.damp(machine.position.z, motion.targetPos.z, 12, delta);
     }
 
@@ -126,4 +128,4 @@ function RealTattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boo
 
 export default function TattooMachineModel({ reducedMotion, pathRef }: { reducedMotion: boolean; pathRef: TattooPathRef; }) {
   return <RealTattooMachineModel reducedMotion={reducedMotion} pathRef={pathRef} />;
-  }
+}
