@@ -148,8 +148,8 @@ function getArmModel(scene: Group) {
   const scale = 4.2 / Math.max(mSize.x, mSize.y, mSize.z, 0.001);
   model.position.sub(center);
   
-  // ROTAÇÃO DO BRAÇO: Faz o braço vir da parte de cima para baixo
-  const modelRot = new Euler(-Math.PI / 2.5, 0, Math.PI / 4);
+  // Braço deitado e inclinado levemente
+  const modelRot = new Euler(Math.PI / 2, 0, -Math.PI / 4); 
 
   return { model, mesh, decalPosition: pos, decalRotation: rot, decalScale, modelScale: scale, modelRotation: modelRot, path: { mesh, center: pos, tangent, normal, length: decalScale.x } };
 }
@@ -173,8 +173,7 @@ export default function InteractiveTattooArm({ reducedMotion, pathRef }: { reduc
   const armScale = Math.min(1, viewport.width / 6.5);
 
   return (
-    // MUDANÇA: Posição no centro e rotação para vir de cima
-    <group position={[0, 0.5, -1]} scale={armScale * asset.modelScale} rotation={asset.modelRotation}>
+    <group position={[0, -0.5, 0]} scale={armScale * asset.modelScale} rotation={asset.modelRotation}>
       <primitive object={asset.model} dispose={null} />
       <SkinNormalMap mesh={asset.mesh} />
       {createPortal(
@@ -187,109 +186,6 @@ export default function InteractiveTattooArm({ reducedMotion, pathRef }: { reduc
   );
 }
 
-// ... (Mantenha o InteractiveTattooArmFallback igual ao original) ...
 export function InteractiveTattooArmFallback({ reducedMotion, pathRef }: { reducedMotion: boolean; pathRef: TattooPathRef; }) {
   return null; 
-}e.dispose(), [texture]);
-
-  const armScale = Math.min(1, viewport.width / 6.5);
-
-  return (
-    <group
-      position={[Math.min(viewport.width * 0.16, 2), -1.8, -0.55]}
-      scale={armScale * asset.modelScale}
-      rotation={asset.modelRotation}
-    >
-      <primitive object={asset.model} dispose={null} />
-      <SkinNormalMap mesh={asset.mesh} />
-      {createPortal(
-        <Decal
-          position={asset.decalPosition}
-          rotation={asset.decalRotation}
-          scale={asset.decalScale}
-          map={texture}
-          depthTest
-          polygonOffsetFactor={-4}
-        >
-          <InkRevealMaterial texture={texture} reducedMotion={reducedMotion} />
-        </Decal>,
-        asset.mesh,
-      )}
-    </group>
-  );
-}
-
-export function InteractiveTattooArmFallback({
-  reducedMotion,
-  pathRef,
-}: {
-  reducedMotion: boolean;
-  pathRef: TattooPathRef;
-}) {
-  const armRef = useRef<Mesh>(null);
-  const sourceTexture = useTexture(FALLBACK_TEXTURE_PATH);
-  const texture = useMemo(() => {
-    const map = sourceTexture.clone();
-    map.colorSpace = SRGBColorSpace;
-    map.anisotropy = 4;
-    map.needsUpdate = true;
-    return map;
-  }, [sourceTexture]);
-  const invalidate = useThree((state) => state.invalidate);
-  const { viewport } = useThree();
-
-  useEffect(() => {
-    invalidate();
-  }, [invalidate]);
-
-  useEffect(() => () => texture.dispose(), [texture]);
-
-  useLayoutEffect(() => {
-    const mesh = armRef.current;
-    if (!mesh) return;
-
-    const path = {
-      mesh,
-      center: new Vector3(0, 0, 0.385),
-      tangent: new Vector3(0, 1, 0),
-      normal: new Vector3(0, 0, 1),
-      length: 0.88,
-    };
-    pathRef.current = path;
-    invalidate();
-    return () => {
-      if (pathRef.current === path) pathRef.current = null;
-    };
-  }, [invalidate, pathRef]);
-
-  const armScale = Math.min(1, viewport.width / 6.5);
-
-  return (
-    <group
-      position={[Math.min(viewport.width * 0.16, 2), -1.8, -0.55]}
-      scale={armScale}
-      rotation={[0, 0, Math.PI / 2]}
-    >
-      <mesh ref={armRef} castShadow receiveShadow>
-        <capsuleGeometry args={[0.39, 1.7, 8, 24]} />
-        <meshPhysicalMaterial
-          color="#b87960"
-          roughness={0.78}
-          metalness={0}
-          clearcoat={0}
-          clearcoatRoughness={0.9}
-        />
-        <Decal
-          position={[0, 0, 0.385]}
-          rotation={[0, 0, Math.PI / 2]}
-          scale={[0.88, 0.52, 0.16]}
-          map={texture}
-          depthTest
-          polygonOffsetFactor={-4}
-        >
-          <InkRevealMaterial texture={texture} reducedMotion={reducedMotion} />
-        </Decal>
-      </mesh>
-    </group>
-  );
-}
+    }
