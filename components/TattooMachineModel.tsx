@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, Trail, Sparkles } from "@react-three/drei";
+import { useGLTF, Sparkles } from "@react-three/drei";
 import { Box3, Group, MathUtils, Vector3 } from "three";
 
 import { useScrollStore } from "@/components/scrollProgressStore";
@@ -10,7 +10,6 @@ import { useScrollStore } from "@/components/scrollProgressStore";
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.2;
-const NEEDLE_TIP_Y = NEEDLE_BASE_Y - NEEDLE_LENGTH / 2;
 
 useGLTF.preload(MODEL_PATH);
 
@@ -28,8 +27,6 @@ export function MinimalMachineFallback() {
 export default function TattooMachineModel({ reducedMotion }: { reducedMotion: boolean }) {
   const machineRef = useRef<Group>(null);
   const needleRef = useRef<Group>(null);
-  const trailTargetRef = useRef<Group>(null);
-  const sparklesRef = useRef<Group>(null);
   
   const { scene } = useGLTF(MODEL_PATH);
   const invalidate = useThree((s) => s.invalidate);
@@ -44,11 +41,12 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     return { scene: inst, scale: 2 / Math.max(size.x, size.y, size.z, 0.001) };
   }, [scene]);
 
-  // Invalida o frame quando o progresso muda para o frameloop="demand"
   useEffect(() => {
     if (reducedMotion) return;
     return useScrollStore.subscribe((s, p) => { 
-      if (s.progress !== p.progress || s.immersiveProgress !== p.immersiveProgress) invalidate(); 
+      if (s.progress !== p.progress || s.immersiveProgress !== p.immersiveProgress || s.immersiveVisible !== p.immersiveVisible) {
+        invalidate(); 
+      }
     });
   }, [invalidate, reducedMotion]);
 
@@ -56,7 +54,6 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     const machine = machineRef.current;
     if (!machine) return;
 
-    // Lendo o Zustand diretamente (Zero Re-renders)
     const store = useScrollStore.getState();
     const { progress, immersiveVisible, immersiveProgress } = store;
 
@@ -64,17 +61,25 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
       let targetX, targetY, targetRotX, targetRotY, targetRotZ, needleSpeed;
 
       if (immersiveVisible) {
-        // --- MODO TATUAGEM (Seção Immersive) ---
-        // Move a máquina da esquerda (-4) para a direita (4) conforme o scroll
+        // MODO TATUAGEM
+        // Move a máquina horizontalmente baseada no scroll da seção imersiva
+        // O range vai de -3.5 a 3.5 para cobrir o tamanho do texto na tela
         targetX = MathUtils.lerp(-3.5, 3.5, immersiveProgress);
-        targetY = 0; // Centralizada na tela
-        targetRotX = 0.6; // Inclinada para frente (apontando a agulha)
-        targetRotY = -Math.PI / 2; // Virada de lado
+        targetY = 0; 
+        targetRotX = 0.6; 
+        targetRotY = -Math.PI / 2; 
         targetRotZ = 0;
-        needleSpeed = 120; // Vibração rápida e agressiva
+        needleSpeed = 150; 
       } else {
-        // --- MODO FLUTUANTE (Resto da página) ---
-        targetY = 2 - (progress * 4);
+        // MODO FLUTUANTE (No Hero)
+        // Só aparece se estiver no topo da página
+        if (progress > 0.2) {
+          // Se saiu do Hero, joga a máquina para baixo da tela (invisível)
+          targetY = -10; 
+        } else {
+          targetY = 2 - (progress * 4);
+        }
+        
         targetX = Math.sin(progress * Math.PI * 2) * 1.5;
         const hover = Math.sin(state.clock.elapsedTime * 3) * 0.05;
         targetY += hover;
@@ -84,34 +89,24 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
         needleSpeed = 80;
       }
 
-      // Aplica a física com amortecimento (muito mais suave que o lerp puro)
       machine.position.x = MathUtils.damp(machine.position.x, targetX, 8, delta);
       machine.position.y = MathUtils.damp(machine.position.y, targetY, 8, delta);
       machine.rotation.x = MathUtils.damp(machine.rotation.x, targetRotX, 8, delta);
       machine.rotation.y = MathUtils.damp(machine.rotation.y, targetRotY, 8, delta);
       machine.rotation.z = MathUtils.damp(machine.rotation.z, targetRotZ, 8, delta);
 
-      // Vibração da Agulha
       if (needleRef.current) {
-        const isTattooing = immersiveVisible || (progress > 0.05 && progress < 0.95);
+        const isTattooing = immersiveVisible;
         const vibration = isTattooing 
           ? Math.sin(state.clock.elapsedTime * needleSpeed) * 0.05 
           : 0;
         needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
       }
-
-      // Atualiza o rastro de tinta (Trail) para seguir a ponta da agulha
-      if (trailTargetRef.current && machineRef.current) {
-        machineRef.current.updateMatrixWorld();
-        trailTargetRef.current.position.set(0, NEEDLE_TIP_Y, 0);
-        machineRef.current.localToWorld(trailTargetRef.current.position);
-      }
     }
 
-    invalidate(); // Força o R3F a renderizar o próximo frame
+    invalidate();
   });
 
-  // Verifica se está tatuando para mostrar as faíscas
   const isTattooing = useScrollStore((s) => s.immersiveVisible);
 
   return (
@@ -124,31 +119,20 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
             <meshPhysicalMaterial color="#d5d3cf" metalness={0.92} roughness={0.18} />
           </mesh>
           
-          {/* Partículas de tinta (Faíscas) que só aparecem quando está tatuando */}
-          <group ref={sparklesRef} position={[0, -NEEDLE_LENGTH / 2, 0]}>
+          <group position={[0, -NEEDLE_LENGTH / 2, 0]}>
             {isTattooing && (
               <Sparkles 
-                count={20} 
-                scale={0.5} 
+                count={25} 
+                scale={0.6} 
                 size={2} 
-                speed={0.4} 
+                speed={0.5} 
                 color="#FF6600" 
-                opacity={0.8} 
+                opacity={0.9} 
               />
             )}
           </group>
         </group>
       </group>
-
-      {/* Rastro de Tinta Neon */}
-      <Trail
-        width={0.5}
-        length={6}
-        color={isTattooing ? "#00FF66" : "#FF6600"}
-        attenuation={(t) => t * t}
-      >
-        <mesh ref={trailTargetRef} />
-      </Trail>
     </>
   );
 }
