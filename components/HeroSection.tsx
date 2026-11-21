@@ -44,12 +44,11 @@ export default function HeroSection() {
       className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-[#121212] py-20 lg:py-0"
       aria-labelledby="hero-title"
     >
-      {/* Fundo limpo, sem gradientes estranhos. Apenas um glow sutil no canto */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
+      {/* max-w-[1440px] virou max-w-360 */}
+      <div className="relative z-10 mx-auto grid w-full max-w-360 items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
         
-        {/* COLUNA ESQUERDA: Texto e Botões */}
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           
           <div
@@ -60,10 +59,10 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          {/* A LOGO RECRIADA COM AS FONTES DO APP */}
           <div id="hero-title" className="mb-6 flex flex-col items-center lg:items-start">
             <DepthText smokeColor="#00FF66" depth={2} className="text-[clamp(3.5rem,7vw,6rem)]">
-              <span className="font-[family-name:var(--font-great-vibes)] text-[#00FF66] pr-2 drop-shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+              {/* font-[family-name...] virou font-(family-name:...) */}
+              <span className="font-(family-name:--font-great-vibes) text-[#00FF66] pr-2 drop-shadow-[0_0_20px_rgba(0,255,102,0.4)]">
                 TattooGo
               </span>
               <span className="font-sans font-black tracking-tighter text-[#FF6600] drop-shadow-[0_0_20px_rgba(255,102,0,0.4)]">
@@ -72,27 +71,30 @@ export default function HeroSection() {
             </DepthText>
           </div>
 
+          {/* bg-gradient-to-r virou bg-linear-to-r */}
           <p
             ref={taglineRef}
-            className="mt-4 bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
+            className="mt-4 bg-linear-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
           >
             A arte não é opcional.
           </p>
 
+          {/* max-w-[500px] virou max-w-125 */}
           <p
             ref={copyRef}
-            className="mt-3 max-w-[500px] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-white/70"
+            className="mt-3 max-w-125 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-white/70"
           >
             Encontre artistas, compare traços e reserve com clareza. Da primeira
             busca à sessão, a arte continua sendo o centro.
           </p>
 
+          {/* sm:min-w-[218px] virou sm:min-w-54.5 */}
           <div ref={storesRef} className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
             <a
               href="#clients-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#FF6600]/70 hover:bg-[#1A1A1A] sm:min-w-[218px]"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#FF6600]/70 hover:bg-[#1A1A1A] sm:min-w-54.5"
             >
               <MapPin aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF9900]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
@@ -110,7 +112,7 @@ export default function HeroSection() {
               href="#artists-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#00FF66]/60 hover:bg-[#1A1A1A] sm:min-w-[218px]"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#00FF66]/60 hover:bg-[#1A1A1A] sm:min-w-54.5"
             >
               <Palette aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF6600]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
@@ -126,9 +128,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* COLUNA DIREITA: Espaço para a Máquina 3D (que vem do Canvas de fundo) */}
         <div className="relative hidden h-[50vh] w-full lg:block lg:h-[70vh]">
-          {/* O Canvas 3D do seu Master3DCanvas já renderiza aqui no fundo. Não precisamos colocar código, apenas deixar o espaço. */}
           <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-50">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white">Scroll para revelar</span>
             <ArrowDown aria-hidden="true" className="h-5 w-5 animate-bounce text-white" />
