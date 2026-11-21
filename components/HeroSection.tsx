@@ -46,7 +46,6 @@ export default function HeroSection() {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
-      {/* max-w-[1440px] virou max-w-360 */}
       <div className="relative z-10 mx-auto grid w-full max-w-360 items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
         
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
@@ -59,19 +58,37 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          <div id="hero-title" className="mb-6 flex flex-col items-center lg:items-start">
-            <DepthText smokeColor="#00FF66" depth={2} className="text-[clamp(3.5rem,7vw,6rem)]">
-              {/* font-[family-name...] virou font-(family-name:...) */}
-              <span className="font-(family-name:--font-great-vibes) text-[#00FF66] pr-2 drop-shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+          {/* AQUI ESTÁ A MÁGICA DA LOGO IDÊNTICA AO BANNER */}
+          <div id="hero-title" className="mb-10 flex flex-col items-center lg:items-start">
+            <DepthText smokeColor="#00FF66" depth={2.5} className="text-[clamp(3.5rem,7vw,6.5rem)]">
+              
+              {/* TattooGo Cursivo com a linha verde embaixo */}
+              <span className="relative inline-block pr-4 font-(family-name:--font-great-vibes) text-[#00FF66] drop-shadow-[0_0_20px_rgba(0,255,102,0.5)]">
                 TattooGo
+                {/* O traço neon (SVG) que acompanha a profundidade do DepthText */}
+                <svg 
+                  viewBox="0 0 100 10" 
+                  className="absolute -bottom-2 left-0 h-3 w-full text-[#00FF66] drop-shadow-[0_0_12px_rgba(0,255,102,0.9)]" 
+                  preserveAspectRatio="none"
+                >
+                  <path 
+                    d="M 2 5 Q 50 12 98 5" 
+                    stroke="currentColor" 
+                    strokeWidth="3.5" 
+                    fill="none" 
+                    strokeLinecap="round" 
+                  />
+                </svg>
               </span>
-              <span className="font-sans font-black tracking-tighter text-[#FF6600] drop-shadow-[0_0_20px_rgba(255,102,0,0.4)]">
+
+              {/* MK em Sans Serif negrito e laranja */}
+              <span className="font-sans font-black tracking-tighter text-[#FF6600] drop-shadow-[0_0_20px_rgba(255,102,0,0.5)]">
                 MK
               </span>
+
             </DepthText>
           </div>
 
-          {/* bg-gradient-to-r virou bg-linear-to-r */}
           <p
             ref={taglineRef}
             className="mt-4 bg-linear-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
@@ -79,7 +96,6 @@ export default function HeroSection() {
             A arte não é opcional.
           </p>
 
-          {/* max-w-[500px] virou max-w-125 */}
           <p
             ref={copyRef}
             className="mt-3 max-w-125 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-white/70"
@@ -88,7 +104,6 @@ export default function HeroSection() {
             busca à sessão, a arte continua sendo o centro.
           </p>
 
-          {/* sm:min-w-[218px] virou sm:min-w-54.5 */}
           <div ref={storesRef} className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
             <a
               href="#clients-title"
