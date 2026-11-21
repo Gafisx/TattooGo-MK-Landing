@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, Sparkles } from "@react-three/drei";
+import { useGLTF, Sparkles, useGLTF as useGLTFDRACO } from "@react-three/drei";
 import { Box3, Group, MathUtils, Vector3 } from "three";
-
 import { useScrollStore } from "@/components/scrollProgressStore";
 
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.2;
 
+// PREPARA O DRACO PARA LER O MODELO OTIMIZADO
+useGLTFDRACO.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
 useGLTF.preload(MODEL_PATH);
 
 export function MinimalMachineFallback() {
@@ -62,8 +63,6 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
 
       if (immersiveVisible) {
         // MODO TATUAGEM
-        // Move a máquina horizontalmente baseada no scroll da seção imersiva
-        // O range vai de -3.5 a 3.5 para cobrir o tamanho do texto na tela
         targetX = MathUtils.lerp(-3.5, 3.5, immersiveProgress);
         targetY = 0; 
         targetRotX = 0.6; 
@@ -72,9 +71,7 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
         needleSpeed = 150; 
       } else {
         // MODO FLUTUANTE (No Hero)
-        // Só aparece se estiver no topo da página
         if (progress > 0.2) {
-          // Se saiu do Hero, joga a máquina para baixo da tela (invisível)
           targetY = -10; 
         } else {
           targetY = 2 - (progress * 4);
