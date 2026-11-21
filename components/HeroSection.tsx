@@ -58,31 +58,32 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          {/* AQUI ESTÁ A MÁGICA DA LOGO IDÊNTICA AO BANNER */}
-          <div id="hero-title" className="mb-10 flex flex-col items-center lg:items-start">
-            <DepthText smokeColor="#00FF66" depth={2.5} className="text-[clamp(3.5rem,7vw,6.5rem)]">
+          {/* LOGO COM CAVEAT */}
+          <div id="hero-title" className="mb-12 flex flex-col items-center lg:items-start">
+            <DepthText smokeColor="#00FF66" depth={1.5} className="text-[clamp(3.5rem,7vw,6.5rem)]">
               
-              {/* TattooGo Cursivo com a linha verde embaixo */}
-              <span className="relative inline-block pr-4 font-(family-name:--font-great-vibes) text-[#00FF66] drop-shadow-[0_0_20px_rgba(0,255,102,0.5)]">
+              {/* TattooGo Cursivo (Caveat) */}
+              <span className="relative inline-block pr-4 font-(family-name:--font-caveat) font-bold text-[#00FF66] drop-shadow-[0_0_10px_rgba(0,255,102,0.3)]">
                 TattooGo
-                {/* O traço neon (SVG) que acompanha a profundidade do DepthText */}
+                
+                {/* O traço fino do app */}
                 <svg 
                   viewBox="0 0 100 10" 
-                  className="absolute -bottom-2 left-0 h-3 w-full text-[#00FF66] drop-shadow-[0_0_12px_rgba(0,255,102,0.9)]" 
+                  className="absolute -bottom-3 left-0 h-3 w-full text-[#00FF66] drop-shadow-[0_0_6px_rgba(0,255,102,0.8)]" 
                   preserveAspectRatio="none"
                 >
                   <path 
-                    d="M 2 5 Q 50 12 98 5" 
+                    d="M 2 8 Q 50 2 98 8" 
                     stroke="currentColor" 
-                    strokeWidth="3.5" 
+                    strokeWidth="1.5" 
                     fill="none" 
                     strokeLinecap="round" 
                   />
                 </svg>
               </span>
 
-              {/* MK em Sans Serif negrito e laranja */}
-              <span className="font-sans font-black tracking-tighter text-[#FF6600] drop-shadow-[0_0_20px_rgba(255,102,0,0.5)]">
+              {/* MK em Sans Serif, igual ao app */}
+              <span className="font-sans font-black tracking-tight text-[#FF6600] drop-shadow-[0_0_10px_rgba(255,102,0,0.3)]">
                 MK
               </span>
 
