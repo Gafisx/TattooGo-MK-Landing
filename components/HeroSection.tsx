@@ -41,97 +41,99 @@ export default function HeroSection() {
     <section
       ref={sectionRef}
       id="top"
-      className="gpu-accelerate relative isolate flex h-screen min-h-[800px] overflow-hidden bg-[#121212]/20"
+      className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-[#121212] py-20 lg:py-0"
       aria-labelledby="hero-title"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(18,18,18,0.98)_0%,rgba(18,18,18,0.88)_38%,rgba(18,18,18,0.06)_72%,rgba(18,18,18,0.16)_100%),radial-gradient(ellipse_at_76%_44%,rgba(255,102,0,0.2),transparent_28%),radial-gradient(ellipse_at_58%_88%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_84%_18%,rgba(73,119,255,0.12),transparent_25%),linear-gradient(180deg,rgba(18,18,18,0.08),rgba(18,18,18,0.28)_100%)]" />
+      {/* Fundo limpo, sem gradientes estranhos. Apenas um glow sutil no canto */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1600px] items-center gap-8 px-5 py-10 sm:px-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:px-16 lg:py-14 2xl:px-20">
-        <div className="gpu-accelerate relative z-20 max-w-[720px] pt-10 lg:pt-0">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
+        
+        {/* COLUNA ESQUERDA: Texto e Botões */}
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          
           <div
             ref={eyebrowRef}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FF9900]/25 bg-[#1A1A1A]/70 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#FF9900] backdrop-blur-md sm:text-xs"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FF9900]/30 bg-[#1A1A1A]/80 px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#FF9900] backdrop-blur-md"
           >
             <ShieldCheck aria-hidden="true" className="h-4 w-4" />
             Para quem vive de arte
           </div>
 
-          {/* NOVO TEXTO 3D (Substitui o H1) */}
-          <div id="hero-title" className="mb-6">
-            <DepthText text="TattooGo" fontSize="clamp(4rem, 8vw, 7.5rem)" smokeColor="#00FF66" />
-            <div className="-mt-4 sm:-mt-8">
-              <DepthText text="MK" fontSize="clamp(4rem, 8vw, 7.5rem)" smokeColor="#FF6600" />
-            </div>
+          {/* A LOGO RECRIADA COM AS FONTES DO APP */}
+          <div id="hero-title" className="mb-6 flex flex-col items-center lg:items-start">
+            <DepthText smokeColor="#00FF66" depth={2} className="text-[clamp(3.5rem,7vw,6rem)]">
+              <span className="font-[family-name:var(--font-great-vibes)] text-[#00FF66] pr-2 drop-shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+                TattooGo
+              </span>
+              <span className="font-sans font-black tracking-tighter text-[#FF6600] drop-shadow-[0_0_20px_rgba(255,102,0,0.4)]">
+                MK
+              </span>
+            </DepthText>
           </div>
 
           <p
             ref={taglineRef}
-            className="mt-6 bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
+            className="mt-4 bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-[clamp(1.25rem,2.1vw,2rem)] font-semibold tracking-[-0.035em] text-transparent"
           >
             A arte não é opcional.
           </p>
 
           <p
             ref={copyRef}
-            className="mt-3 max-w-[590px] text-[clamp(1.05rem,1.45vw,1.35rem)] leading-[1.65] text-white/72 sm:mt-4"
+            className="mt-3 max-w-[500px] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-white/70"
           >
             Encontre artistas, compare traços e reserve com clareza. Da primeira
             busca à sessão, a arte continua sendo o centro.
           </p>
 
-          <div ref={storesRef} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <div ref={storesRef} className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
             <a
               href="#clients-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none sm:min-w-[218px]"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#FF6600]/70 hover:bg-[#1A1A1A] sm:min-w-[218px]"
             >
               <MapPin aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF9900]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
                   Encontre seu artista
                 </span>
-                <span className="text-[1.05rem] font-semibold leading-tight">
+                <span className="text-[1.05rem] font-semibold leading-tight text-white">
                   Para clientes
                 </span>
               </span>
-              <ArrowRight aria-hidden="true" className="h-4 w-4 opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 opacity-45 transition-transform group-hover:translate-x-1 group-hover:opacity-100" />
             </a>
 
             <a
               href="#artists-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/70 px-5 text-[#E0E0E0] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none sm:min-w-[218px]"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#00FF66]/60 hover:bg-[#1A1A1A] sm:min-w-[218px]"
             >
               <Palette aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF6600]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
                   Mostre seu trabalho
                 </span>
-                <span className="text-[1.05rem] font-semibold leading-tight">
+                <span className="text-[1.05rem] font-semibold leading-tight text-white">
                   Para tatuadores
                 </span>
               </span>
-              <ArrowRight aria-hidden="true" className="h-4 w-4 text-[#FF9900] opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 text-[#FF9900] opacity-45 transition-transform group-hover:translate-x-1 group-hover:opacity-100" />
             </a>
           </div>
         </div>
 
-        <div className="gpu-accelerate relative h-[22vh] min-h-[180px] w-full sm:h-[32vh] sm:min-h-[220px] lg:h-[72vh] lg:min-h-[540px]">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-end justify-center p-7">
-            <ArrowDown aria-hidden="true" className="scroll-cue h-6 w-6 text-white/70" />
+        {/* COLUNA DIREITA: Espaço para a Máquina 3D (que vem do Canvas de fundo) */}
+        <div className="relative hidden h-[50vh] w-full lg:block lg:h-[70vh]">
+          {/* O Canvas 3D do seu Master3DCanvas já renderiza aqui no fundo. Não precisamos colocar código, apenas deixar o espaço. */}
+          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-50">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white">Scroll para revelar</span>
+            <ArrowDown aria-hidden="true" className="h-5 w-5 animate-bounce text-white" />
           </div>
-          <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>
-      </div>
-
-      <div className="pointer-events-none absolute right-5 top-6 z-20 flex flex-col items-end gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-white/55 sm:right-10 sm:top-10 sm:text-[10px]">
-        <span className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#00FF66] shadow-[0_0_10px_#00FF66]" />
-          SCROLL: 3D ACTIVE
-        </span>
-        <span className="text-[#FF9900]/75">SCROLL TO REVEAL</span>
       </div>
     </section>
   );

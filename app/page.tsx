@@ -1,43 +1,44 @@
-import HeroSection from "@/components/HeroSection";
-import DualSidedSection from "@/components/DualSidedSection";
-import SecurityAndFooter from "@/components/SecurityAndFooter";
-import ImmersiveExperience from "@/components/ImmersiveExperience";
-import Deferred3DCanvas from "@/components/Deferred3DCanvas";
-import SplitJourneySection from "@/components/SplitJourneySection";
-import { ArtistsCarouselSection } from "@/components/ArtistsCarousel3D";
-import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
-import WaitlistSection from "@/components/WaitlistSection";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { Geist, Geist_Mono, Great_Vibes } from "next/font/google"; // <-- IMPORT AQUI
+import SmoothScroll from "@/components/SmoothScroll";
+import "./globals.css";
 
-export default function Home() {
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// NOVA FONTE PARA A LOGO
+const greatVibes = Great_Vibes({
+  weight: "400",
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  // ... (mantenha o resto do seu metadata)
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
-    <ProceduralAudioProvider>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#FF9900] focus:px-4 focus:py-3 focus:font-semibold focus:text-[#121212] focus:outline-2 focus:outline-offset-2 focus:outline-white"
-      >
-        Pular para o conteúdo
-      </a>
-      <Deferred3DCanvas />
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className="relative min-h-screen outline-none"
-      >
-        <div className="relative z-10">
-          <HeroSection />
-          <ImmersiveExperience />
-          <SplitJourneySection />
-          <ArtistsCarouselSection />
-          <DualSidedSection />
-          
-          {/* O WRAPPER COM O ID AQUI */}
-          <div id="waitlist">
-            <WaitlistSection /> 
-          </div>
-          
-          <SecurityAndFooter />
-        </div>
-      </main>
-    </ProceduralAudioProvider>
+    <html
+      lang="pt-BR"
+      className={`${geistSans.variable} ${geistMono.variable} ${greatVibes.variable} h-full`} // <-- VARIÁVEL AQUI
+    >
+      <body className="min-h-full bg-[#121212] text-white antialiased overflow-x-hidden">
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
+    </html>
   );
 }
