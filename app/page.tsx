@@ -6,7 +6,7 @@ import Deferred3DCanvas from "@/components/Deferred3DCanvas";
 import SplitJourneySection from "@/components/SplitJourneySection";
 import { ArtistsCarouselSection } from "@/components/ArtistsCarousel3D";
 import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
-import WaitlistSection from "@/components/WaitlistSection"; // <-- NOVO IMPORT AQUI
+import WaitlistSection from "@/components/WaitlistSection";
 
 export default function Home() {
   return (
@@ -30,8 +30,10 @@ export default function Home() {
           <ArtistsCarouselSection />
           <DualSidedSection />
           
-          {/* NOVA SEÇÃO AQUI */}
-          <WaitlistSection /> 
+          {/* O WRAPPER COM O ID AQUI */}
+          <div id="waitlist">
+            <WaitlistSection /> 
+          </div>
           
           <SecurityAndFooter />
         </div>
