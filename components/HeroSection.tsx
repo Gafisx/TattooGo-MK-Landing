@@ -1,74 +1,35 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import {
-  ArrowDown,
-  ArrowRight,
-  MapPin,
-  Palette,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, MapPin, Palette, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
+import DepthText from "./DepthText";
+import { useProceduralAudio } from "@/components/useProceduralAudio";
 
 export default function HeroSection() {
+  const { playHoverClick } = useProceduralAudio();
   const sectionRef = useRef<HTMLElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
   const copyRef = useRef<HTMLParagraphElement>(null);
   const storesRef = useRef<HTMLDivElement>(null);
-  const inkStrokeRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const context = gsap.context(() => {
       if (reduceMotion) return;
 
-      const introTargets = [
-        eyebrowRef.current,
-        titleRef.current,
-        taglineRef.current,
-        copyRef.current,
-        storesRef.current,
-      ].filter((target) => target !== null);
+      const introTargets = [eyebrowRef.current, taglineRef.current, copyRef.current, storesRef.current].filter(Boolean);
 
-      gsap.set(introTargets, {
-        autoAlpha: 0,
-        y: 24,
-        force3D: true,
-        willChange: "transform, opacity",
-      });
-      gsap.set(inkStrokeRef.current, {
-        scaleX: 0,
-        transformOrigin: "left center",
-        force3D: true,
-        willChange: "transform",
-      });
-
-      gsap
-        .timeline({ defaults: { ease: "power3.out" } })
+      gsap.set(introTargets, { autoAlpha: 0, y: 24, force3D: true });
+      
+      gsap.timeline({ defaults: { ease: "power3.out" } })
         .to(eyebrowRef.current, { autoAlpha: 1, y: 0, duration: 0.55 })
-        .to(
-          titleRef.current,
-          { autoAlpha: 1, y: 0, duration: 0.8 },
-          "-=0.28",
-        )
-        .to(
-          inkStrokeRef.current,
-          { scaleX: 1, duration: 0.75, ease: "power2.inOut" },
-          "-=0.36",
-        )
-        .to(
-          taglineRef.current,
-          { autoAlpha: 1, y: 0, duration: 0.55 },
-          "-=0.5",
-        )
+        .to(taglineRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, "-=0.2")
         .to(copyRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, "-=0.38")
         .to(storesRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, "-=0.35");
     }, section);
@@ -95,24 +56,13 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          <h1
-            ref={titleRef}
-            id="hero-title"
-            className="text-[clamp(3.25rem,7.4vw,8.25rem)] font-semibold leading-none tracking-tighter text-white"
-          >
-            <span className="block bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent [filter:drop-shadow(0_0_26px_rgba(255,102,0,0.2))]">
-              TattooGo
-            </span>
-            <span className="mt-2 block bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent [filter:drop-shadow(0_0_26px_rgba(255,102,0,0.24))]">
-              MK
-            </span>
-          </h1>
-
-          <div
-            ref={inkStrokeRef}
-            aria-hidden="true"
-            className="gpu-accelerate mt-7 h-[2px] w-[min(42vw,280px)] origin-left rounded-full bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] shadow-[0_0_18px_rgba(255,102,0,0.65)] sm:mt-8"
-          />
+          {/* NOVO TEXTO 3D (Substitui o H1) */}
+          <div id="hero-title" className="mb-6">
+            <DepthText text="TattooGo" fontSize="clamp(4rem, 8vw, 7.5rem)" smokeColor="#00FF66" />
+            <div className="-mt-4 sm:-mt-8">
+              <DepthText text="MK" fontSize="clamp(4rem, 8vw, 7.5rem)" smokeColor="#FF6600" />
+            </div>
+          </div>
 
           <p
             ref={taglineRef}
@@ -129,18 +79,14 @@ export default function HeroSection() {
             busca à sessão, a arte continua sendo o centro.
           </p>
 
-          <div
-            ref={storesRef}
-            className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
-          >
+          <div ref={storesRef} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
             <a
               href="#clients-title"
+              onMouseEnter={playHoverClick}
+              onFocus={playHoverClick}
               className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#FF6600]/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none sm:min-w-[218px]"
             >
-              <MapPin
-                aria-hidden="true"
-                className="h-7 w-7 shrink-0 text-[#FF9900]"
-              />
+              <MapPin aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF9900]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
                   Encontre seu artista
@@ -149,20 +95,16 @@ export default function HeroSection() {
                   Para clientes
                 </span>
               </span>
-              <ArrowRight
-                aria-hidden="true"
-                className="h-4 w-4 opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
-              />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
             </a>
 
             <a
               href="#artists-title"
+              onMouseEnter={playHoverClick}
+              onFocus={playHoverClick}
               className="hero-store-button cta-microphysics group gpu-accelerate relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/20 bg-[#1A1A1A]/70 px-5 text-[#E0E0E0] backdrop-blur-xl transition-[transform,border-color,box-shadow] duration-500 hover:border-[#00FF66]/60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] motion-reduce:transition-none sm:min-w-[218px]"
             >
-              <Palette
-                aria-hidden="true"
-                className="h-7 w-7 shrink-0 text-[#FF6600]"
-              />
+              <Palette aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF6600]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
                   Mostre seu trabalho
@@ -171,23 +113,14 @@ export default function HeroSection() {
                   Para tatuadores
                 </span>
               </span>
-              <ArrowRight
-                aria-hidden="true"
-                className="h-4 w-4 text-[#FF9900] opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100"
-              />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 text-[#FF9900] opacity-45 transition-[transform,opacity] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
             </a>
           </div>
         </div>
 
         <div className="gpu-accelerate relative h-[22vh] min-h-[180px] w-full sm:h-[32vh] sm:min-h-[220px] lg:h-[72vh] lg:min-h-[540px]">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-end justify-center p-7"
-          >
-            <ArrowDown
-              aria-hidden="true"
-              className="scroll-cue h-6 w-6 text-white/70"
-            />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-end justify-center p-7">
+            <ArrowDown aria-hidden="true" className="scroll-cue h-6 w-6 text-white/70" />
           </div>
           <div className="pointer-events-none absolute bottom-[8%] right-[4%] h-28 w-28 rounded-full bg-[#FF6600]/15 blur-3xl sm:h-44 sm:w-44" />
         </div>
@@ -200,8 +133,6 @@ export default function HeroSection() {
         </span>
         <span className="text-[#FF9900]/75">SCROLL TO REVEAL</span>
       </div>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF6600]/50 to-[#00FF66]/35" />
     </section>
   );
 }
