@@ -111,25 +111,26 @@ export default function SecurityAndFooter() {
     <section
       ref={sectionRef}
       id="security"
-      className="relative isolate overflow-hidden bg-[#121212]/58 pt-24 sm:pt-32 lg:pt-40"
+      // CORREÇÃO 1: bg-[#121212]/58 virou bg-[#121212] (Fundo 100% opaco)
+      className="relative isolate overflow-hidden bg-[#121212] pt-24 sm:pt-32 lg:pt-40"
       aria-labelledby="security-title"
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_78%_24%,rgba(255,102,0,0.14),transparent_30%),radial-gradient(ellipse_at_14%_66%,rgba(255,153,0,0.08),transparent_30%),radial-gradient(ellipse_at_50%_70%,rgba(0,255,102,0.05),transparent_36%),radial-gradient(ellipse_at_92%_55%,rgba(73,119,255,0.06),transparent_30%)]" />
 
       <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-5 pb-24 sm:px-10 sm:pb-32 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 lg:px-16 lg:pb-40">
         <div ref={shieldRef} className="gpu-accelerate relative mx-auto aspect-square w-full max-w-[620px] [perspective:1200px]">
-          <div data-shield-aura aria-hidden="true" className="gpu-accelerate pointer-events-none absolute inset-[5%] rounded-[2.5rem] bg-gradient-to-br from-[#FF6600]/30 via-[#FF9900]/10 to-[#00FF66]/30 opacity-60 blur-[75px]" />
-          <div data-shield-card className="gpu-accelerate-child absolute inset-[8%] isolate overflow-hidden rounded-[2.5rem] border border-white/20 bg-[#1A1A1A]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl [transform-style:preserve-3d]">
+          <div data-shield-aura aria-hidden="true" className="gpu-accelerate pointer-events-none absolute inset-[5%] rounded-[2.5rem] bg-linear-to-br from-[#FF6600]/30 via-[#FF9900]/10 to-[#00FF66]/30 opacity-60 blur-[75px]" />
+          <div data-shield-card className="gpu-accelerate-child absolute inset-[8%] isolate overflow-hidden rounded-[2.5rem] border border-white/20 bg-[#1A1A1A]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
             <div className="pointer-events-none absolute -left-[12%] top-[8%] h-[55%] w-[65%] rounded-full bg-[#FF6600]/15 blur-[80px]" />
             <div className="pointer-events-none absolute -bottom-[14%] right-[-8%] h-[58%] w-[62%] rounded-full bg-[#00FF66]/10 blur-[90px]" />
             <div className="pointer-events-none absolute right-[8%] top-[12%] h-[36%] w-[42%] rounded-full bg-[#4977FF]/[0.09] blur-[70px]" />
-            <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/20 bg-gradient-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
+            <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/20 bg-linear-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
 
             <div role="img" aria-label="Escudo TattooGo MK simbolizando a proteção dos pagamentos entre cliente e tatuador" className="gpu-accelerate absolute inset-[16%] flex items-center justify-center text-[#FF9900] drop-shadow-[0_0_32px_rgba(255,102,0,0.3)] [transform:translate3d(0,0,24px)]">
               <ShieldCheck aria-hidden="true" className="size-full" />
             </div>
 
-            <div data-shield-reveal aria-hidden="true" className="gpu-accelerate-child pointer-events-none absolute inset-3 z-[1] rounded-[2rem] bg-[linear-gradient(160deg,rgba(18,18,18,0.92)_0%,rgba(255,102,0,0.2)_42%,rgba(0,255,102,0.22)_100%)] motion-reduce:scale-y-0" />
+            <div data-shield-reveal aria-hidden="true" className="gpu-accelerate-child pointer-events-none absolute inset-3 z-1 rounded-[2rem] bg-[linear-gradient(160deg,rgba(18,18,18,0.92)_0%,rgba(255,102,0,0.2)_42%,rgba(0,255,102,0.22)_100%)] motion-reduce:scale-y-0" />
 
             <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/20 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#00FF66]">Secure enclave</p>
@@ -144,7 +145,7 @@ export default function SecurityAndFooter() {
           </p>
           <h2 id="security-title" className="max-w-2xl text-[clamp(2.6rem,5vw,5.25rem)] font-semibold leading-[0.91] tracking-[-0.065em] text-white">
             Regras claras
-            <span className="block bg-gradient-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-transparent">
               para cada pagamento.
             </span>
           </h2>
@@ -174,8 +175,8 @@ export default function SecurityAndFooter() {
         </div>
       </div>
 
-      {/* CTA FINAL - SEM BORDAS (TRAÇOS) */}
-      <div className="relative isolate overflow-hidden bg-[#171717]/90">
+      {/* CTA FINAL */}
+      <div className="relative isolate overflow-hidden bg-[#171717]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_8%_50%,rgba(255,102,0,0.16),transparent_36%),radial-gradient(ellipse_at_86%_70%,rgba(0,255,102,0.09),transparent_34%),radial-gradient(ellipse_at_68%_0%,rgba(73,119,255,0.08),transparent_30%)]" />
         
         <div className="relative z-10 mx-auto flex flex-col lg:flex-row max-w-[1440px] items-center justify-between gap-12 px-5 py-16 sm:px-10 sm:py-24 lg:px-16 lg:py-32">
@@ -185,7 +186,7 @@ export default function SecurityAndFooter() {
             </p>
             <h2 className="text-[clamp(2.35rem,4.7vw,4.8rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white">
               Encontre seu artista.
-              <span className="block bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
                 Ou seus próximos clientes.
               </span>
             </h2>
@@ -194,13 +195,12 @@ export default function SecurityAndFooter() {
             </p>
           </div>
 
-          {/* O SLING BUTTON AQUI */}
           <div className="shrink-0 flex items-center justify-center">
             <SlingButton 
               label="Arraste e solte" 
               onSend={() => {
-                // Aqui você pode rolar a tela para a WaitlistSection ou abrir um modal
-                document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" });
+                // CORREÇÃO 5: Usa hash router nativo que o Lenis intercepta, em vez de scrollIntoView
+                window.location.hash = "#waitlist";
               }} 
             />
           </div>
@@ -211,7 +211,7 @@ export default function SecurityAndFooter() {
         <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-8 sm:px-10 md:flex-row md:items-center md:justify-between lg:px-16">
           <a href="#top" className="gpu-accelerate-child inline-flex w-fit flex-col rounded-sm text-white transition-colors duration-200 hover:text-[#FF9900] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]">
             <span className="text-lg font-semibold tracking-[-0.04em]">
-              <span className="bg-gradient-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
                 TattooGo MK
               </span>
             </span>
@@ -223,6 +223,7 @@ export default function SecurityAndFooter() {
           <nav aria-label="Links institucionais">
             <ul className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/55">
               <li><a className="footer-nav-link" href="#top">Início</a></li>
+              {/* Estes links agora funcionam, pois adicionamos os IDs no DualSidedSection */}
               <li><a className="footer-nav-link" href="#clients-title">Para clientes</a></li>
               <li><a className="footer-nav-link" href="#artists-title">Para tatuadores</a></li>
               <li><a className="footer-nav-link" href="#security">Segurança</a></li>
