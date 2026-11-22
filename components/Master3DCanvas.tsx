@@ -4,13 +4,11 @@ import {
   Component,
   Suspense,
   useEffect,
-  useCallback,
-  useRef,
   useState,
   type ErrorInfo,
   type ReactNode,
 } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 
 import TattooMachineModel, { MinimalMachineFallback } from "@/components/TattooMachineModel";
@@ -35,7 +33,6 @@ function supportsWebGL(): boolean {
 }
 
 export default function Master3DCanvas() {
-  const artistsCarouselVisible = useScrollStore((s) => s.artistsCarouselVisible);
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [webGLAvailable] = useState(() => typeof document !== "undefined" ? supportsWebGL() : false);
@@ -73,12 +70,11 @@ export default function Master3DCanvas() {
             <ScrollProgressBridge reducedMotion={reducedMotion} />
             <ArtistsCarousel3D reducedMotion={reducedMotion} />
             
-            {!artistsCarouselVisible && (
-              <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
-                {/* Apenas a máquina, sem o pathRef do braço */}
-                <TattooMachineModel reducedMotion={reducedMotion} />
-              </WebGLErrorBoundary>
-            )}
+            {/* AQUI: Removemos a condicional. A máquina fica sempre montada */}
+            <WebGLErrorBoundary fallback={<MinimalMachineFallback />}>
+              <TattooMachineModel reducedMotion={reducedMotion} />
+            </WebGLErrorBoundary>
+            
           </Suspense>
         </Canvas>
       </WebGLErrorBoundary>

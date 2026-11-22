@@ -10,8 +10,8 @@ const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.2;
 
-// PREPARA O DRACO PARA LER O MODELO OTIMIZADO
-useGLTFDRACO.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+// CORREÇÃO 1: Aponta para a pasta local do Draco (public/draco) para burlar o CSP
+useGLTFDRACO.setDecoderPath('/draco/');
 useGLTF.preload(MODEL_PATH);
 
 export function MinimalMachineFallback() {
@@ -31,6 +31,9 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
   
   const { scene } = useGLTF(MODEL_PATH);
   const invalidate = useThree((s) => s.invalidate);
+  
+  // CORREÇÃO 2: Mede o tamanho real da tela para calcular a distância no mobile
+  const { viewport } = useThree(); 
 
   const fittedModel = useMemo(() => {
     const inst = scene.clone(true);
@@ -63,16 +66,21 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
 
       if (immersiveVisible) {
         // MODO TATUAGEM
-        targetX = MathUtils.lerp(-3.5, 3.5, immersiveProgress);
+        // CORREÇÃO 3: Usa o viewport.width para ir de ponta a ponta na tela do celular
+        const maxX = viewport.width * 0.4; // 40% da tela para cada lado
+        targetX = MathUtils.lerp(-maxX, maxX, immersiveProgress);
+        
         targetY = 0; 
         targetRotX = 0.6; 
         targetRotY = -Math.PI / 2; 
         targetRotZ = 0;
         needleSpeed = 150; 
       } else {
-        // MODO FLUTUANTE (No Hero)
-        if (progress > 0.2) {
-          targetY = -10; 
+        // MODO FLUTUANTE
+        // Se estiver na área do carrossel ou longe do Hero, manda a máquina para baixo (invisível)
+        const storeState = useScrollStore.getState();
+        if (progress > 0.2 || storeState.artistsCarouselVisible) {
+          targetY = -15; // Fica bem escondida
         } else {
           targetY = 2 - (progress * 4);
         }
