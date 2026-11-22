@@ -3,7 +3,11 @@
 import { useLayoutEffect, useRef } from "react";
 import { ArrowDown, ArrowRight, MapPin, Palette, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
+import { View } from "@react-three/drei";
+import { useReducedMotion } from "motion/react";
 import DepthText from "./DepthText";
+import TattooMachineModel from "./TattooMachineModel";
+import StudioLighting from "./StudioLighting";
 import { useProceduralAudio } from "@/components/useProceduralAudio";
 
 export default function HeroSection() {
@@ -13,15 +17,19 @@ export default function HeroSection() {
   const taglineRef = useRef<HTMLParagraphElement>(null);
   const copyRef = useRef<HTMLParagraphElement>(null);
   const storesRef = useRef<HTMLDivElement>(null);
+  
+  // Ref para o View do Drei
+  const viewRef = useRef<HTMLDivElement>(null);
+  
+  // Hook para verificar se o usuário prefere movimento reduzido
+  const reducedMotion = useReducedMotion() ?? false;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const context = gsap.context(() => {
-      if (reduceMotion) return;
+      if (reducedMotion) return;
 
       const introTargets = [eyebrowRef.current, taglineRef.current, copyRef.current, storesRef.current].filter(Boolean);
 
@@ -35,17 +43,15 @@ export default function HeroSection() {
     }, section);
 
     return () => context.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <section
       ref={sectionRef}
       id="top"
-      // AQUI ESTÁ A MUDANÇA: bg-[#121212] virou bg-transparent
       className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-transparent py-20 lg:py-0"
       aria-labelledby="hero-title"
     >
-      {/* Gradiente radial translúcido para manter o clima premium sem esconder o 3D */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-360 items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
@@ -141,8 +147,19 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="relative hidden h-[50vh] w-full lg:block lg:h-[70vh]">
-          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-50">
+        {/* COLUNA DIREITA: Agora abriga o 3D via View */}
+        <div 
+          ref={viewRef} 
+          className="relative hidden h-[50vh] w-full lg:block lg:h-[70vh]" 
+          aria-hidden="true"
+        >
+          {/* O View recorta a cena 3D global para este container exato */}
+          <View track={viewRef} className="absolute inset-0">
+            <StudioLighting />
+            <TattooMachineModel reducedMotion={reducedMotion} />
+          </View>
+
+          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-50 pointer-events-none">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white">Scroll para revelar</span>
             <ArrowDown aria-hidden="true" className="h-5 w-5 animate-bounce text-white" />
           </div>
