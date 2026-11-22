@@ -41,9 +41,11 @@ export default function HeroSection() {
     <section
       ref={sectionRef}
       id="top"
-      className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-[#121212] py-20 lg:py-0"
+      // AQUI ESTÁ A MUDANÇA: bg-[#121212] virou bg-transparent
+      className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-transparent py-20 lg:py-0"
       aria-labelledby="hero-title"
     >
+      {/* Gradiente radial translúcido para manter o clima premium sem esconder o 3D */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-360 items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
@@ -58,15 +60,11 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          {/* LOGO COM CAVEAT */}
           <div id="hero-title" className="mb-12 flex flex-col items-center lg:items-start">
             <DepthText smokeColor="#00FF66" depth={1.5} className="text-[clamp(3.5rem,7vw,6.5rem)]">
               
-              {/* TattooGo Cursivo (Caveat) */}
               <span className="relative inline-block pr-4 font-(family-name:--font-caveat) font-bold text-[#00FF66] drop-shadow-[0_0_10px_rgba(0,255,102,0.3)]">
                 TattooGo
-                
-                {/* O traço fino do app */}
                 <svg 
                   viewBox="0 0 100 10" 
                   className="absolute -bottom-3 left-0 h-3 w-full text-[#00FF66] drop-shadow-[0_0_6px_rgba(0,255,102,0.8)]" 
@@ -82,7 +80,6 @@ export default function HeroSection() {
                 </svg>
               </span>
 
-              {/* MK em Sans Serif, igual ao app */}
               <span className="font-sans font-black tracking-tight text-[#FF6600] drop-shadow-[0_0_10px_rgba(255,102,0,0.3)]">
                 MK
               </span>
