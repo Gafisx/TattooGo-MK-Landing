@@ -139,6 +139,19 @@ html.lenis body {
   color: #ff9900;
 }
 
+/* =========================================
+   CLASSES PARA CORRIGIR O 3D DO FLIPCARD 
+   (Tailwind v4 removeu essas classes nativas)
+   ========================================= */
+.preserve-3d {
+  transform-style: preserve-3d !important;
+}
+
+.backface-hidden {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scroll-cue {
     animation: none;
