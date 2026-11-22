@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import { BadgeCheck, CalendarDays, MapPin, ShieldCheck, WalletCards } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useLayoutEffect } from "react";
 import FlipCard from "./FlipCard";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -44,7 +43,6 @@ function BenefitList({ items, tone = "orange" }: { items: typeof clientBenefits;
 export default function DualSidedSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Animação de entrada de cada linha
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -61,7 +59,8 @@ export default function DualSidedSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative isolate overflow-hidden bg-[#121212]/58 py-24 sm:py-32 lg:py-40" aria-labelledby="ecosystem-title">
+    // CORREÇÃO 1: bg-[#121212]/58 virou bg-[#121212] (fundo 100% opaco)
+    <section ref={sectionRef} className="relative isolate overflow-hidden bg-[#121212] py-24 sm:py-32 lg:py-40" aria-labelledby="ecosystem-title">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_14%_22%,rgba(255,102,0,0.12),transparent_32%),radial-gradient(ellipse_at_88%_76%,rgba(255,153,0,0.1),transparent_34%)]" />
 
       <div className="mx-auto max-w-[1440px] px-5 sm:px-10 lg:px-16">
@@ -88,14 +87,15 @@ export default function DualSidedSection() {
               <BenefitList items={clientBenefits} />
             </div>
 
-            {/* CARD INTERATIVO CLIENTE */}
             <div className="order-2 lg:order-1 flex justify-center">
               <FlipCard
                 height="480px"
                 width="min(100%, 360px)"
+                aria-label="Cartão interativo para clientes"
                 front={
                   <div className="relative w-full h-full flex flex-col p-6 items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#121212]/90 z-10" />
+                    {/* CORREÇÃO 2: bg-gradient-to-b virou bg-linear-to-b */}
+                    <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#121212]/90 z-10" />
                     <Image src="/assets/images/cliente.webp" alt="App para clientes" fill className="object-cover opacity-60" />
                     <span className="relative z-20 text-sm font-semibold text-white bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                       Toque para explorar
@@ -103,13 +103,20 @@ export default function DualSidedSection() {
                   </div>
                 }
                 back={
-                  <div className="w-full h-full flex flex-col p-8 items-center justify-center text-center">
+                  // CORREÇÃO 3: padding de p-8 para p-10 para respirar melhor
+                  <div className="w-full h-full flex flex-col p-10 items-center justify-center text-center">
                     <MapPin className="h-12 w-12 text-[#FF9900] mb-6" />
-                    <h4 className="text-2xl font-bold text-white mb-2">Encontre seu Artista</h4>
-                    <p className="text-white/60">Navegue pelo mapa, filtre por estilo e agende na hora.</p>
-                    <div className="mt-8 rounded-full bg-[#FF6600] px-6 py-2 text-sm font-semibold text-[#121212]">
+                    <h4 className="text-2xl font-bold text-white mb-3">Encontre seu Artista</h4>
+                    <p className="text-white/60 leading-relaxed">Navegue pelo mapa, filtre por estilo e agende na hora.</p>
+                    
+                    {/* CORREÇÃO 4: div virou button com acessibilidade */}
+                    <button 
+                      type="button"
+                      aria-label="Baixar o aplicativo para clientes"
+                      className="mt-8 rounded-full bg-[#FF6600] px-8 py-3 text-sm font-semibold text-[#121212] shadow-lg shadow-[#FF6600]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]"
+                    >
                       Baixar o App
-                    </div>
+                    </button>
                   </div>
                 }
               />
@@ -129,14 +136,14 @@ export default function DualSidedSection() {
               <BenefitList items={artistBenefits} tone="green" />
             </div>
 
-            {/* CARD INTERATIVO TATUADOR */}
             <div className="order-2 flex justify-center">
               <FlipCard
                 height="480px"
                 width="min(100%, 360px)"
+                aria-label="Cartão interativo para tatuadores"
                 front={
                   <div className="relative w-full h-full flex flex-col p-6 items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#121212]/90 z-10" />
+                    <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#121212]/90 z-10" />
                     <Image src="/assets/images/tatuador.webp" alt="App para tatuadores" fill className="object-cover opacity-60" />
                     <span className="relative z-20 text-sm font-semibold text-white bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                       Toque para explorar
@@ -144,13 +151,18 @@ export default function DualSidedSection() {
                   </div>
                 }
                 back={
-                  <div className="w-full h-full flex flex-col p-8 items-center justify-center text-center">
+                  <div className="w-full h-full flex flex-col p-10 items-center justify-center text-center">
                     <WalletCards className="h-12 w-12 text-[#00FF66] mb-6" />
-                    <h4 className="text-2xl font-bold text-white mb-2">Gestão Completa</h4>
-                    <p className="text-white/60">Seu portfólio, finanças e agenda em um só painel.</p>
-                    <div className="mt-8 rounded-full bg-[#00FF66] px-6 py-2 text-sm font-semibold text-[#101713]">
+                    <h4 className="text-2xl font-bold text-white mb-3">Gestão Completa</h4>
+                    <p className="text-white/60 leading-relaxed">Seu portfólio, finanças e agenda em um só painel.</p>
+                    
+                    <button 
+                      type="button"
+                      aria-label="Seja um parceiro tatuador"
+                      className="mt-8 rounded-full bg-[#00FF66] px-8 py-3 text-sm font-semibold text-[#101713] shadow-lg shadow-[#00FF66]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66]"
+                    >
                       Seja Parceiro
-                    </div>
+                    </button>
                   </div>
                 }
               />
