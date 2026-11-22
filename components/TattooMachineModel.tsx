@@ -10,19 +10,13 @@ const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.2;
 
-// CORREÇÃO 1: Aponta para a pasta local do Draco (public/draco) para burlar o CSP
+// Aponta para a pasta local do Draco (public/draco)
 useGLTFDRACO.setDecoderPath('/draco/');
 useGLTF.preload(MODEL_PATH);
 
+// Fallback invisível: se o 3D falhar, o site não mostra o bloco preto
 export function MinimalMachineFallback() {
-  return (
-    <group scale={0.82}>
-      <mesh castShadow position={[0, 0, 0]} rotation={[0, 0, -0.22]}>
-        <capsuleGeometry args={[0.34, 1.7, 8, 24]} />
-        <meshStandardMaterial color="#303338" metalness={0.94} roughness={0.2} />
-      </mesh>
-    </group>
-  );
+  return null;
 }
 
 export default function TattooMachineModel({ reducedMotion }: { reducedMotion: boolean }) {
@@ -32,7 +26,7 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
   const { scene } = useGLTF(MODEL_PATH);
   const invalidate = useThree((s) => s.invalidate);
   
-  // CORREÇÃO 2: Mede o tamanho real da tela para calcular a distância no mobile
+  // Lê o viewport dinâmico do View onde o componente está inserido
   const { viewport } = useThree(); 
 
   const fittedModel = useMemo(() => {
@@ -42,13 +36,14 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     const size = bounds.getSize(new Vector3());
     const center = bounds.getCenter(new Vector3());
     inst.position.sub(center);
-    return { scene: inst, scale: 2 / Math.max(size.x, size.y, size.z, 0.001) };
+    // ESCALA REFINADA: diminui de 2 para 0.8 para parecer uma ferramenta real
+    return { scene: inst, scale: 0.8 / Math.max(size.x, size.y, size.z, 0.001) };
   }, [scene]);
 
   useEffect(() => {
     if (reducedMotion) return;
     return useScrollStore.subscribe((s, p) => { 
-      if (s.progress !== p.progress || s.immersiveProgress !== p.immersiveProgress || s.immersiveVisible !== p.immersiveVisible) {
+      if (s.immersiveProgress !== p.immersiveProgress || s.immersiveVisible !== p.immersiveVisible) {
         invalidate(); 
       }
     });
@@ -59,38 +54,30 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     if (!machine) return;
 
     const store = useScrollStore.getState();
-    const { progress, immersiveVisible, immersiveProgress } = store;
+    const { immersiveVisible, immersiveProgress } = store;
 
     if (!reducedMotion) {
       let targetX, targetY, targetRotX, targetRotY, targetRotZ, needleSpeed;
 
       if (immersiveVisible) {
-        // MODO TATUAGEM
-        // CORREÇÃO 3: Usa o viewport.width para ir de ponta a ponta na tela do celular
-        const maxX = viewport.width * 0.4; // 40% da tela para cada lado
-        targetX = MathUtils.lerp(-maxX, maxX, immersiveProgress);
+        // --- MODO TATUAGEM (Na seção Imersiva) ---
+        // A máquina desliza da esquerda para a direita dentro do View
+        targetX = MathUtils.lerp(-viewport.width * 0.4, viewport.width * 0.4, immersiveProgress);
         
-        targetY = 0; 
-        targetRotX = 0.6; 
-        targetRotY = -Math.PI / 2; 
-        targetRotZ = 0;
+        // Posiciona a máquina ACIMA do texto e ajusta o ângulo da agulha
+        targetY = 1.5; 
+        targetRotX = 0.8; // Inclina para frente
+        targetRotY = 0;   // De frente para a tela
+        targetRotZ = -Math.PI / 6; // Leve inclinação para parecer natural
         needleSpeed = 150; 
       } else {
-        // MODO FLUTUANTE
-        // Se estiver na área do carrossel ou longe do Hero, manda a máquina para baixo (invisível)
-        const storeState = useScrollStore.getState();
-        if (progress > 0.2 || storeState.artistsCarouselVisible) {
-          targetY = -15; // Fica bem escondida
-        } else {
-          targetY = 2 - (progress * 4);
-        }
-        
-        targetX = Math.sin(progress * Math.PI * 2) * 1.5;
-        const hover = Math.sin(state.clock.elapsedTime * 3) * 0.05;
-        targetY += hover;
+        // --- MODO FLUTUANTE (No Hero) ---
+        // Fica no centro do View, com uma leve flutuação
+        targetX = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
+        targetY = Math.sin(state.clock.elapsedTime * 1.5) * 0.1;
         targetRotX = 0.2;
-        targetRotY = 0;
-        targetRotZ = targetX * 0.3;
+        targetRotY = 0.3; 
+        targetRotZ = -Math.PI / 4;
         needleSpeed = 80;
       }
 
@@ -103,7 +90,7 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
       if (needleRef.current) {
         const isTattooing = immersiveVisible;
         const vibration = isTattooing 
-          ? Math.sin(state.clock.elapsedTime * needleSpeed) * 0.05 
+          ? Math.sin(state.clock.elapsedTime * needleSpeed) * 0.03 
           : 0;
         needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
       }
@@ -115,29 +102,28 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
   const isTattooing = useScrollStore((s) => s.immersiveVisible);
 
   return (
-    <>
-      <group ref={machineRef} scale={fittedModel.scale}>
-        <primitive object={fittedModel.scene} dispose={null} />
-        <group ref={needleRef} position={[0, NEEDLE_BASE_Y, 0]}>
-          <mesh castShadow>
-            <cylinderGeometry args={[0.02, 0.006, NEEDLE_LENGTH, 8]} />
-            <meshPhysicalMaterial color="#d5d3cf" metalness={0.92} roughness={0.18} />
-          </mesh>
-          
-          <group position={[0, -NEEDLE_LENGTH / 2, 0]}>
-            {isTattooing && (
-              <Sparkles 
-                count={25} 
-                scale={0.6} 
-                size={2} 
-                speed={0.5} 
-                color="#FF6600" 
-                opacity={0.9} 
-              />
-            )}
-          </group>
+    <group ref={machineRef} scale={fittedModel.scale} position={[0, 0, 0]}>
+      <primitive object={fittedModel.scene} dispose={null} />
+      
+      <group ref={needleRef} position={[0, NEEDLE_BASE_Y, 0]}>
+        <mesh castShadow>
+          <cylinderGeometry args={[0.02, 0.006, NEEDLE_LENGTH, 8]} />
+          <meshPhysicalMaterial color="#d5d3cf" metalness={0.92} roughness={0.18} />
+        </mesh>
+        
+        <group position={[0, -NEEDLE_LENGTH / 2, 0]}>
+          {isTattooing && (
+            <Sparkles 
+              count={20} 
+              scale={0.4} 
+              size={1.5} 
+              speed={0.4} 
+              color="#FF6600" 
+              opacity={0.8} 
+            />
+          )}
         </group>
       </group>
-    </>
+    </group>
   );
 }
