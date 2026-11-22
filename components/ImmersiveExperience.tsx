@@ -12,6 +12,7 @@ export default function ImmersiveExperience() {
   const svgRef = useRef<SVGSVGElement>(null);
   const needleLineRef = useRef<HTMLDivElement>(null);
   
+  // Otimização: Seletores individuais para evitar re-renderizações no React
   const setImmersiveProgress = useScrollStore((state) => state.setImmersiveProgress);
   const setImmersiveVisible = useScrollStore((state) => state.setImmersiveVisible);
 
@@ -24,6 +25,7 @@ export default function ImmersiveExperience() {
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    // Reseta o estado ao montar
     setImmersiveProgress(0);
     setImmersiveVisible(false);
 
@@ -52,20 +54,20 @@ export default function ImmersiveExperience() {
           onEnterBack: () => setImmersiveVisible(true),
           onLeaveBack: () => setImmersiveVisible(false),
           onUpdate: (self) => {
-            // A MÁGICA ACONTECE AQUI: O SVG e a Máquina 3D leem o mesmo progresso (0 a 1)
+            // Sincroniza o progresso (0 a 1) com a Máquina 3D no Canvas
             setImmersiveProgress(self.progress);
           }
         },
       });
 
-      // O SVG "revela" a tinta
+      // Revela o texto do SVG (Tatuagem acontecendo)
       tl.to(svg, {
         clipPath: "inset(0 0% 0 0)",
         duration: 1,
         ease: "none",
       }, 0);
 
-      // A linha da agulha (DOM) acompanha o movimento
+      // Move a linha da agulha junto com a revelação
       tl.to(needleLine, {
         left: "100%",
         opacity: 1,
@@ -73,7 +75,7 @@ export default function ImmersiveExperience() {
         ease: "none",
       }, 0);
       
-      // Fade out no final
+      // Fade out na linha no final
       tl.to(needleLine, {
         opacity: 0,
         duration: 0.1,
@@ -91,9 +93,11 @@ export default function ImmersiveExperience() {
   return (
     <section
       ref={sectionRef}
-      className="relative isolate flex h-screen min-h-[600px] flex-col items-center justify-center overflow-hidden bg-[#121212]"
+      // AQUI ESTÁ A MUDANÇA: bg-[#121212] virou bg-transparent
+      className="relative isolate flex h-screen min-h-[600px] flex-col items-center justify-center overflow-hidden bg-transparent"
     >
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,102,0,0.08),transparent_50%)]" />
+      {/* Um brilho muito sutil, sem bloquear a visão do 3D */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,102,0,0.05),transparent_60%)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-[1440px] px-5 text-center">
         <p className="mb-8 text-sm font-semibold uppercase tracking-[0.3em] text-[#00FF66]">
@@ -102,10 +106,10 @@ export default function ImmersiveExperience() {
         
         <div className="relative inline-block w-full max-w-5xl">
           
-          {/* Acessibilidade e SEO: O texto real fica escondido para humanos, mas visível para leitores de tela e Google */}
+          {/* O texto real escondido para leitores de tela e Google (SEO) */}
           <h2 className="sr-only">A arte não é opcional.</h2>
 
-          {/* O SVG que a máquina vai tatuar */}
+          {/* O SVG que será preenchido pela agulha */}
           <svg
             ref={svgRef}
             viewBox="0 0 1000 150"
@@ -118,7 +122,6 @@ export default function ImmersiveExperience() {
                 <stop offset="100%" stopColor="#00FF66" />
               </linearGradient>
             </defs>
-            {/* A frase em formato de vetor, centralizada no viewBox */}
             <text
               x="50%"
               y="50%"
@@ -132,7 +135,7 @@ export default function ImmersiveExperience() {
             </text>
           </svg>
 
-          {/* Linha da Agulha (DOM) - Representa a máquina no eixo X */}
+          {/* A linha de luz que simula a agulha no DOM */}
           <div
             ref={needleLineRef}
             aria-hidden="true"
