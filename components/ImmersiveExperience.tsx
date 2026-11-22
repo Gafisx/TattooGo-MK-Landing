@@ -3,7 +3,11 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { View } from "@react-three/drei";
+import { useReducedMotion } from "motion/react";
 import { useScrollStore } from "@/components/scrollProgressStore";
+import TattooMachineModel from "./TattooMachineModel";
+import StudioLighting from "./StudioLighting";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,7 +16,10 @@ export default function ImmersiveExperience() {
   const svgRef = useRef<SVGSVGElement>(null);
   const needleLineRef = useRef<HTMLDivElement>(null);
   
-  // Otimização: Seletores individuais para evitar re-renderizações no React
+  // Ref para o View do Drei (ancorar a máquina 3D ao texto)
+  const viewRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion() ?? false;
+  
   const setImmersiveProgress = useScrollStore((state) => state.setImmersiveProgress);
   const setImmersiveVisible = useScrollStore((state) => state.setImmersiveVisible);
 
@@ -23,14 +30,11 @@ export default function ImmersiveExperience() {
     
     if (!section || !svg || !needleLine) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // Reseta o estado ao montar
     setImmersiveProgress(0);
     setImmersiveVisible(false);
 
     const context = gsap.context(() => {
-      if (reduceMotion) {
+      if (reducedMotion) {
         gsap.set(svg, { clipPath: "inset(0 0% 0 0)" });
         gsap.set(needleLine, { opacity: 0 });
         return;
@@ -38,7 +42,8 @@ export default function ImmersiveExperience() {
 
       // Esconde o SVG e a linha da agulha no início
       gsap.set(svg, { clipPath: "inset(0 100% 0 0)" });
-      gsap.set(needleLine, { left: "0%", opacity: 0 });
+      // Usamos xPercent (-100%) para posicionar a linha no início sem usar a propriedade left
+      gsap.set(needleLine, { xPercent: 0, opacity: 0 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -54,7 +59,7 @@ export default function ImmersiveExperience() {
           onEnterBack: () => setImmersiveVisible(true),
           onLeaveBack: () => setImmersiveVisible(false),
           onUpdate: (self) => {
-            // Sincroniza o progresso (0 a 1) com a Máquina 3D no Canvas
+            // O Zustand sincroniza a Máquina 3D
             setImmersiveProgress(self.progress);
           }
         },
@@ -67,9 +72,10 @@ export default function ImmersiveExperience() {
         ease: "none",
       }, 0);
 
-      // Move a linha da agulha junto com a revelação
+      // Move a linha da agulha usando translateX (GPU accelerated)
+      // xPercent vai de 0% até o tamanho total do container
       tl.to(needleLine, {
-        left: "100%",
+        xPercent: 100,
         opacity: 1,
         duration: 1,
         ease: "none",
@@ -88,24 +94,29 @@ export default function ImmersiveExperience() {
       context.revert();
       setImmersiveVisible(false);
     };
-  }, [setImmersiveProgress, setImmersiveVisible]);
+  }, [setImmersiveProgress, setImmersiveVisible, reducedMotion]);
 
   return (
     <section
       ref={sectionRef}
-      // AQUI ESTÁ A MUDANÇA: bg-[#121212] virou bg-transparent
       className="relative isolate flex h-screen min-h-[600px] flex-col items-center justify-center overflow-hidden bg-transparent"
     >
-      {/* Um brilho muito sutil, sem bloquear a visão do 3D */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,102,0,0.05),transparent_60%)]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-5 text-center">
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-5 text-center">
         <p className="mb-8 text-sm font-semibold uppercase tracking-[0.3em] text-[#00FF66]">
           A experiência imersiva
         </p>
         
-        <div className="relative inline-block w-full max-w-5xl">
+        {/* CONTAINER ONDE A MÁQUINA 3D VAI VIVER */}
+        <div ref={viewRef} className="relative inline-block w-full">
           
+          {/* O View recorta a máquina e as luzes para existirem APENAS dentro deste container */}
+          <View track={viewRef} className="absolute inset-0 z-0 pointer-events-none">
+            <StudioLighting />
+            <TattooMachineModel reducedMotion={reducedMotion} />
+          </View>
+
           {/* O texto real escondido para leitores de tela e Google (SEO) */}
           <h2 className="sr-only">A arte não é opcional.</h2>
 
@@ -113,7 +124,7 @@ export default function ImmersiveExperience() {
           <svg
             ref={svgRef}
             viewBox="0 0 1000 150"
-            className="w-full h-auto overflow-visible"
+            className="relative z-10 w-full h-auto overflow-visible"
             aria-hidden="true"
           >
             <defs>
@@ -135,16 +146,21 @@ export default function ImmersiveExperience() {
             </text>
           </svg>
 
-          {/* A linha de luz que simula a agulha no DOM */}
+          {/* A Linha de Luz da Agulha (Agora com translateX em vez de left) */}
           <div
             ref={needleLineRef}
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 bottom-0 z-20 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_20px_5px_#00FF66]"
-            style={{ mixBlendMode: "screen" }}
-          />
+            className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 flex w-0.5 -translate-x-1/2 items-center justify-center"
+          >
+            {/* Núcleo branco */}
+            <div className="h-full w-[2px] bg-white" />
+            {/* Aura Verde Neon (Desfocada) */}
+            <div className="absolute inset-y-0 w-6 bg-[#00FF66]/50 blur-md" />
+            <div className="absolute inset-y-0 w-2 bg-[#00FF66] blur-sm" />
+          </div>
         </div>
 
-        <p className="mx-auto mt-12 max-w-xl text-[clamp(1rem,1.4vw,1.25rem)] text-white/60">
+        <p className="relative z-10 mx-auto mt-12 max-w-xl text-[clamp(1rem,1.4vw,1.25rem)] text-white/60">
           Role a página e veja a tinta ganhar vida. A mesma paixão que o tatuador coloca no estúdio, traduzida para a sua tela.
         </p>
       </div>
