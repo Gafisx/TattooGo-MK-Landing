@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     "next-env.d.ts",
+    // Bundles vendorizados do Draco (gerados por terceiros, servidos em /draco).
+    "public/draco/**",
   ]),
 ]);
 

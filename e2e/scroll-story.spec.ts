@@ -1,13 +1,22 @@
 import { expect, test } from "@playwright/test";
 
-test("scroll percorre a história até as jornadas de cliente e tatuador", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("heading", { name: /Cada traço/i }).scrollIntoViewIfNeeded();
-  await expect(page.getByRole("heading", { name: /Cada traço/i })).toBeInViewport();
+// A seção é pinada por ScrollTrigger e o Lenis intercepta o scroll nativo, o que
+// torna `scrollIntoView` não determinístico. Em movimento reduzido o app desliga
+// o Lenis e os pins, preservando a mesma ordem de conteúdo da história.
+test.use({ reducedMotion: "reduce" });
 
-  const journeysHeading = page.getByRole("heading", {
-    name: /Feito para quem cria e para quem sente/i,
+test("a história leva às jornadas de cliente e tatuador", async ({ page }) => {
+  await page.goto("/");
+
+  const clientHeading = page.getByRole("heading", {
+    name: /Encontre quem entende o que você quer marcar/i,
   });
-  await journeysHeading.scrollIntoViewIfNeeded();
-  await expect(journeysHeading).toBeInViewport();
+  await clientHeading.scrollIntoViewIfNeeded();
+  await expect(clientHeading).toBeInViewport();
+
+  const artistHeading = page.getByRole("heading", {
+    name: /Menos operação\. Mais tempo no traço/i,
+  });
+  await artistHeading.scrollIntoViewIfNeeded();
+  await expect(artistHeading).toBeInViewport();
 });

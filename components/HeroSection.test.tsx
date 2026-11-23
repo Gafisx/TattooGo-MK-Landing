@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import HeroSection from "./HeroSection";
@@ -17,7 +18,9 @@ vi.mock("gsap", () => ({
 
 // Mock do Drei (View e StudioLighting não podem rodar sem Canvas)
 vi.mock("@react-three/drei", () => ({
-  View: ({ children }: any) => <div data-testid="three-view">{children}</div>,
+  View: ({ children }: { children?: ReactNode }) => (
+    <div data-testid="three-view">{children}</div>
+  ),
 }));
 
 // Mock do Modelo 3D

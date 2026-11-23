@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import ImmersiveExperience from "./ImmersiveExperience";
@@ -15,7 +16,9 @@ vi.mock("gsap", () => ({
 }));
 vi.mock("gsap/ScrollTrigger", () => ({ ScrollTrigger: {} }));
 vi.mock("@react-three/drei", () => ({
-  View: ({ children }: any) => <div data-testid="three-view">{children}</div>,
+  View: ({ children }: { children?: ReactNode }) => (
+    <div data-testid="three-view">{children}</div>
+  ),
 }));
 vi.mock("./TattooMachineModel", () => ({
   default: () => <div data-testid="tattoo-machine" />,

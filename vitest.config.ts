@@ -37,6 +37,8 @@ export default defineConfig({
         "components/ProceduralAudioProvider.tsx",
         "components/SmoothScroll.tsx",
         "components/SplitJourneySection.tsx",
+        // Módulo apenas de tipos: não gera código em runtime para instrumentar.
+        "lib/refs.ts",
       ],
       thresholds: {
         lines: 80,

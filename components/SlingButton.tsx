@@ -75,8 +75,8 @@ export default function SlingButton({
     const dx = e.clientX - g.x;
     const dy = e.clientY - g.y;
     
-    let rx = dx;
-    let ry = dy;
+    const rx = dx;
+    const ry = dy;
     
     const raw = Math.hypot(rx, ry);
     if (raw < 0.01) return;

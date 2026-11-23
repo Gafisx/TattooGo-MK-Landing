@@ -8,6 +8,7 @@ import { useReducedMotion } from "motion/react";
 import { useScrollStore } from "@/components/scrollProgressStore";
 import TattooMachineModel from "./TattooMachineModel";
 import StudioLighting from "./StudioLighting";
+import type { TrackRef } from "@/lib/refs";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,8 +17,9 @@ export default function ImmersiveExperience() {
   const svgRef = useRef<SVGSVGElement>(null);
   const needleLineRef = useRef<HTMLDivElement>(null);
   
-  // Ref para o View do Drei (ancorar a máquina 3D ao texto)
+  // Ref para o View do Drei (ancorar a máquina 3D ao texto; `track` espera RefObject<HTMLElement>)
   const viewRef = useRef<HTMLDivElement>(null);
+  const trackRef = viewRef as TrackRef;
   const reducedMotion = useReducedMotion() ?? false;
   
   const setImmersiveProgress = useScrollStore((state) => state.setImmersiveProgress);
@@ -112,7 +114,7 @@ export default function ImmersiveExperience() {
         <div ref={viewRef} className="relative inline-block w-full">
           
           {/* O View recorta a máquina e as luzes para existirem APENAS dentro deste container */}
-          <View track={viewRef} className="absolute inset-0 z-0 pointer-events-none">
+          <View track={trackRef} className="absolute inset-0 z-0 pointer-events-none">
             <StudioLighting />
             <TattooMachineModel reducedMotion={reducedMotion} />
           </View>

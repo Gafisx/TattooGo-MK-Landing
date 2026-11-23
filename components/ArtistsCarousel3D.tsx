@@ -8,17 +8,12 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-import {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import {
   DoubleSide,
   LinearFilter,
@@ -45,7 +40,6 @@ const artists = [
 ];
 
 const CARD_COUNT = artists.length;
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const CAMERA_DISTANCE = 9;
 const CAROUSEL_CENTER_Y = -2.3;
 const ARTIST_TEXTURE_PATHS = artists.map(
@@ -108,20 +102,6 @@ function SolidColorCarousel() {
       })}
     </group>
   );
-}
-
-function subscribeToReducedMotion(onChange: () => void) {
-  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
-  mediaQuery.addEventListener("change", onChange);
-  return () => mediaQuery.removeEventListener("change", onChange);
-}
-
-function getReducedMotionSnapshot() {
-  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
 }
 
 function CarouselScene() {
@@ -276,11 +256,7 @@ export function ArtistsCarouselSection() {
     startProgress: number;
     width: number;
   } | null>(null);
-  const reducedMotion = useSyncExternalStore(
-    subscribeToReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
+  const reducedMotion = usePrefersReducedMotion();
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {

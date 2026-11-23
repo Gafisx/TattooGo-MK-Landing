@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 const MAX_LAYERS = 20; // Reduzi as camadas para a fumaça ficar mais limpa
 const INTRO_MS = 1200;
@@ -33,7 +33,6 @@ export default function DepthText({
   const stageRef = useRef<HTMLDivElement>(null);
   const rotationRef = useRef({ x: -5, y: 5 });
   const introRef = useRef(0);
-  const [introDone, setIntroDone] = useState(false);
 
   const safeLayers = clamp(layers, 2, MAX_LAYERS);
   const safeDepth = clamp(depth, 0, 12);
@@ -59,10 +58,7 @@ export default function DepthText({
     if (!root || !stage) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setIntroDone(true);
-      return;
-    }
+    if (reduceMotion) return;
 
     let frameId = 0;
     let lastTime = 0;
@@ -75,7 +71,6 @@ export default function DepthText({
 
       if (introRef.current < 1) {
         introRef.current = Math.min(1, introRef.current + delta / INTRO_MS);
-        if (introRef.current >= 1) setIntroDone(true);
       }
 
       const elapsed = (now - startTime) / 1000;

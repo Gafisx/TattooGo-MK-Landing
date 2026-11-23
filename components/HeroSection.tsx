@@ -9,6 +9,7 @@ import DepthText from "./DepthText";
 import TattooMachineModel from "./TattooMachineModel";
 import StudioLighting from "./StudioLighting";
 import { useProceduralAudio } from "@/components/useProceduralAudio";
+import type { TrackRef } from "@/lib/refs";
 
 export default function HeroSection() {
   const { playHoverClick } = useProceduralAudio();
@@ -18,8 +19,9 @@ export default function HeroSection() {
   const copyRef = useRef<HTMLParagraphElement>(null);
   const storesRef = useRef<HTMLDivElement>(null);
   
-  // Ref para o View do Drei
+  // Ref para o View do Drei (o `track` espera RefObject<HTMLElement>)
   const viewRef = useRef<HTMLDivElement>(null);
+  const trackRef = viewRef as TrackRef;
   
   // Hook para verificar se o usuário prefere movimento reduzido
   const reducedMotion = useReducedMotion() ?? false;
@@ -66,7 +68,7 @@ export default function HeroSection() {
             Para quem vive de arte
           </div>
 
-          <div id="hero-title" className="mb-12 flex flex-col items-center lg:items-start">
+          <h1 id="hero-title" className="mb-12 flex flex-col items-center lg:items-start">
             <DepthText smokeColor="#00FF66" depth={1.5} className="text-[clamp(3.5rem,7vw,6.5rem)]">
               
               <span className="relative inline-block pr-4 font-(family-name:--font-caveat) font-bold text-[#00FF66] drop-shadow-[0_0_10px_rgba(0,255,102,0.3)]">
@@ -91,7 +93,7 @@ export default function HeroSection() {
               </span>
 
             </DepthText>
-          </div>
+          </h1>
 
           <p
             ref={taglineRef}
@@ -154,7 +156,7 @@ export default function HeroSection() {
           aria-hidden="true"
         >
           {/* O View recorta a cena 3D global para este container exato */}
-          <View track={viewRef} className="absolute inset-0">
+          <View track={trackRef} className="absolute inset-0">
             <StudioLighting />
             <TattooMachineModel reducedMotion={reducedMotion} />
           </View>

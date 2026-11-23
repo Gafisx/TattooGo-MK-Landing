@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import DualSidedSection from "./DualSidedSection";
@@ -23,7 +24,9 @@ vi.mock("gsap/ScrollTrigger", () => ({ ScrollTrigger: {} }));
 // 2. Mock do Framer Motion
 vi.mock("motion/react", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: ComponentProps<"div">) => (
+      <div {...props}>{children}</div>
+    ),
   },
   useMotionValue: () => ({ set: vi.fn(), get: vi.fn(), jump: vi.fn() }),
   useSpring: () => ({ set: vi.fn(), get: vi.fn() }),
@@ -35,7 +38,9 @@ vi.mock("motion/react", () => ({
 
 // 3. Mock do Next/Image
 vi.mock("next/image", () => ({
-  default: ({ alt, ...props }: any) => <img alt={alt} {...props} />,
+  default: ({ alt, src, className }: ComponentProps<"img">) => (
+    <img alt={alt} src={src} className={className} />
+  ),
 }));
 
 describe("DualSidedSection", () => {

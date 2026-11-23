@@ -10,7 +10,11 @@ import { setPrefersReducedMotion } from "@/tests/setup/mocks/matchMedia";
 describe("Acessibilidade dos componentes-chave", () => {
   it("HeroSection não possui violações automatizadas", async () => {
     setPrefersReducedMotion(true);
-    const { container } = render(<HeroSection />);
+    const { container } = render(
+      <ProceduralAudioProvider>
+        <HeroSection />
+      </ProceduralAudioProvider>,
+    );
     expect((await axe(container)).violations).toEqual([]);
   });
 
