@@ -149,6 +149,8 @@ export default function SlingButton({
 
       <motion.button
         ref={padRef}
+        type="button"
+        aria-label={label}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={(e) => release(e, false)}
@@ -157,7 +159,7 @@ export default function SlingButton({
         style={{ width: size, height: size, transform: padT }}
         className={`relative z-10 flex items-center justify-center rounded-full bg-[#F5F5F5] text-[#18181B] shadow-lg transition-transform ${held ? "cursor-grabbing scale-95" : "cursor-grab hover:scale-105"} ${armed ? "ring-4 ring-[#00FF66] shadow-[0_0_24px_#00FF66]" : ""}`}
       >
-        <ArrowUp size={size * 0.4} strokeWidth={2.5} />
+        <ArrowUp aria-hidden="true" size={size * 0.4} strokeWidth={2.5} />
       </motion.button>
       
       <span className="mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-[#FF9900]">

@@ -112,7 +112,6 @@ export default function DualSidedSection() {
                     {/* CORREÇÃO 4: div virou button com acessibilidade */}
                     <button 
                       type="button"
-                      aria-label="Baixar o aplicativo para clientes"
                       className="mt-8 rounded-full bg-[#FF6600] px-8 py-3 text-sm font-semibold text-[#121212] shadow-lg shadow-[#FF6600]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]"
                     >
                       Baixar o App
@@ -158,7 +157,6 @@ export default function DualSidedSection() {
                     
                     <button 
                       type="button"
-                      aria-label="Seja um parceiro tatuador"
                       className="mt-8 rounded-full bg-[#00FF66] px-8 py-3 text-sm font-semibold text-[#101713] shadow-lg shadow-[#00FF66]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66]"
                     >
                       Seja Parceiro

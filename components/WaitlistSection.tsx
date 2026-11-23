@@ -86,7 +86,7 @@ export default function WaitlistSection() {
               }`}
             >
               <AnimatePresence mode="wait">
-                {status === "idle" && (
+                {(status === "idle" || status === "error") && (
                   <motion.span key="idle" className="flex items-center gap-2">
                     <Bell className="h-5 w-5" /> Notificar-me
                   </motion.span>

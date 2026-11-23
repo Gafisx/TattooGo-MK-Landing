@@ -5,18 +5,28 @@ import { expect, test } from "@playwright/test";
 // o Lenis e os pins, preservando a mesma ordem de conteúdo da história.
 test.use({ reducedMotion: "reduce" });
 
+// `scrollIntoViewIfNeeded` espera estabilidade de layout de um cartão animado;
+// rolar direto no DOM e deixar a asserção web-first conferir o viewport é
+// determinístico e mantém o mesmo objetivo do teste.
+async function reveal(locator: import("@playwright/test").Locator) {
+  await locator.evaluate((element) => {
+    element.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await expect(locator).toBeInViewport();
+}
+
 test("a história leva às jornadas de cliente e tatuador", async ({ page }) => {
   await page.goto("/");
 
-  const clientHeading = page.getByRole("heading", {
-    name: /Encontre quem entende o que você quer marcar/i,
-  });
-  await clientHeading.scrollIntoViewIfNeeded();
-  await expect(clientHeading).toBeInViewport();
+  await reveal(
+    page.getByRole("heading", {
+      name: /Encontre quem entende o que você quer marcar/i,
+    }),
+  );
 
-  const artistHeading = page.getByRole("heading", {
-    name: /Menos operação\. Mais tempo no traço/i,
-  });
-  await artistHeading.scrollIntoViewIfNeeded();
-  await expect(artistHeading).toBeInViewport();
+  await reveal(
+    page.getByRole("heading", {
+      name: /Menos operação\. Mais tempo no traço/i,
+    }),
+  );
 });

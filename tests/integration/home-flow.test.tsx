@@ -26,6 +26,11 @@ vi.mock("@/components/SecurityAndFooter", () => ({
   default: () => <footer>Segurança</footer>,
 }));
 
+// A home completa monta o Hero com 16 camadas de DepthText, todas as seções e o
+// provider de áudio. Sob instrumentação de cobertura esse render passa dos 5s
+// padrão do Vitest, então o limite é explícito em vez de depender da máquina.
+const HOME_RENDER_TIMEOUT = 20_000;
+
 describe("Fluxo integrado da home", () => {
   beforeEach(() => {
     useScrollStore.setState({ progress: 0, artistsCarouselVisible: false });
@@ -45,7 +50,7 @@ describe("Fluxo integrado da home", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Ativar áudio" }));
-  });
+  }, HOME_RENDER_TIMEOUT);
 
   it("desliga o áudio e usa fallback estático em movimento reduzido", () => {
     setPrefersReducedMotion(true);
@@ -53,11 +58,11 @@ describe("Fluxo integrado da home", () => {
     render(<Home />);
     fireEvent.click(screen.getByRole("button", { name: "Ativar áudio" }));
     expect(AudioContextConstructor).not.toHaveBeenCalled();
-  });
+  }, HOME_RENDER_TIMEOUT);
 
   it("propaga progresso do scroll para o estado compartilhado", () => {
     render(<Home />);
     useScrollStore.getState().setProgress(0.75);
     expect(useScrollStore.getState().progress).toBe(0.75);
-  });
+  }, HOME_RENDER_TIMEOUT);
 });
