@@ -202,6 +202,26 @@ describe("SlingButton", () => {
     expect(options.velocity).toBeCloseTo(3333.33, 1);
   });
 
+  it("dispara onSend na ativação por teclado e leitor de tela", () => {
+    const { button, onSend } = setup();
+
+    // `detail: 0` é o clique sintético de teclado/leitor de tela.
+    fireEvent.click(button, { detail: 0 });
+    expect(onSend).toHaveBeenCalledTimes(1);
+
+    // Clique de ponteiro é ignorado aqui: o gesto de arrasto já dispara.
+    fireEvent.click(button, { detail: 1 });
+    expect(onSend).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignora a ativação por teclado quando desabilitado", () => {
+    const { button, onSend } = setup({ disabled: true });
+
+    fireEvent.click(button, { detail: 0 });
+
+    expect(onSend).not.toHaveBeenCalled();
+  });
+
   it("limita a velocidade do gesto e da mão", () => {
     motion.reduce = false;
     const { button, onSend } = setup();

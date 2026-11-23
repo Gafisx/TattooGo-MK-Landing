@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { animate, motion, useMotionValue, useTransform, useMotionTemplate, useReducedMotion } from "motion/react";
 import { ArrowUp } from "lucide-react";
 
@@ -8,9 +8,6 @@ const FINGER_MAX = 3000;
 const HAND_MAX = 6000;
 const CANCEL = 0.5;
 const POWER_CAP = 1.5;
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-const rubberband = (o: number, dim: number, c = 0.55) => (o * dim * c) / (dim + c * Math.abs(o));
 
 type SlingButtonProps = {
   onSend: () => void;
@@ -32,7 +29,6 @@ export default function SlingButton({
   const reduce = useReducedMotion();
   const R = maxPull;
   const wellR = size / 2 + 4 + 3;
-  const padR = size / 2 - 3 / 2;
   const H = wellR + 3 + 2;
 
   const [held, setHeld] = useState(false);
@@ -156,6 +152,12 @@ export default function SlingButton({
         onPointerUp={(e) => release(e, false)}
         onPointerCancel={(e) => release(e, true)}
         onLostPointerCapture={(e) => release(e, true)}
+        // `detail === 0` identifica ativação por teclado/leitor de tela: sem
+        // isso o botão só responderia ao gesto de arrasto.
+        onClick={(e) => {
+          if (e.detail !== 0 || disabled) return;
+          onSend();
+        }}
         style={{ width: size, height: size, transform: padT }}
         className={`relative z-10 flex items-center justify-center rounded-full bg-[#F5F5F5] text-[#18181B] shadow-lg transition-transform ${held ? "cursor-grabbing scale-95" : "cursor-grab hover:scale-105"} ${armed ? "ring-4 ring-[#00FF66] shadow-[0_0_24px_#00FF66]" : ""}`}
       >

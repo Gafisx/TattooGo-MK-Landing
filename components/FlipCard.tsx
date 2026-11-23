@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useSpring, useTransform, useMotionTemplate } from "motion/react";
 
 const SLOP = { fine: 4, coarse: 8 };
@@ -17,12 +17,18 @@ type FlipCardProps = {
   width?: string;
   height?: string;
   className?: string;
+  "aria-label"?: string;
 };
 
-export default function FlipCard({ front, back, width = "100%", height = "500px", className = "" }: FlipCardProps) {
+export default function FlipCard({
+  front,
+  back,
+  width = "100%",
+  height = "500px",
+  className = "",
+  "aria-label": ariaLabel,
+}: FlipCardProps) {
   const reduce = useReducedMotion();
-  const [flipped, setFlipped] = useState(false);
-  const [dragging, setDragging] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const grip = useRef<{ id: number; x: number; y: number; base: number; moved: boolean; slop: number; hist: { t: number; v: number }[] } | null>(null);
 
@@ -34,19 +40,14 @@ export default function FlipCard({ front, back, width = "100%", height = "500px"
   const gx = useMotionValue(50);
   const gy = useMotionValue(50);
 
-  const sumX = useTransform([turn, tiltX], ([t, x]) => (t as number) + (x as number));
   const sumY = useTransform([turn, tiltY], ([t, y]) => (t as number) + (y as number));
   const turnY = useMotionTemplate`perspective(1100px) scale(${lift}) rotateX(${tiltX}deg) rotateY(${sumY}deg)`;
-  const facing = useTransform(turn, (t) => Math.abs(Math.cos((t * Math.PI) / 180)));
-  const shade = useTransform(facing, (f) => 0.1 + 0.9 * f * f);
-  
   const gxPct = useMotionTemplate`${gx}%`;
   const gyPct = useMotionTemplate`${gy}%`;
 
   const settle = (to: number, velocity: number) => {
     if (reduce) turn.jump(to);
     else animate(turn, to, { type: "spring", stiffness: 170, damping: 20, velocity, restDelta: 0.05 });
-    setFlipped(Math.abs(Math.round(to / 180)) % 2 === 1);
   };
 
   const flip = () => {
@@ -71,7 +72,6 @@ export default function FlipCard({ front, back, width = "100%", height = "500px"
       if (!g.moved) {
         if (Math.abs(d) < g.slop || reduce) return;
         g.moved = true;
-        setDragging(true);
         tiltX.set(0); tiltY.set(0); sheen.set(0);
       }
       const deg = g.base + (d / (rootRef.current?.offsetWidth || 300)) * 180;
@@ -97,7 +97,6 @@ export default function FlipCard({ front, back, width = "100%", height = "500px"
     if (!g || g.id !== e.pointerId) return;
     grip.current = null;
     try { if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
-    setDragging(false);
     
     if (e.pointerType === "touch" || !rootRef.current?.matches(":hover")) {
       tiltX.set(0); tiltY.set(0); sheen.set(0); lift.set(1);
@@ -125,6 +124,9 @@ export default function FlipCard({ front, back, width = "100%", height = "500px"
       ref={rootRef}
       className={`relative cursor-pointer group ${className}`}
       style={{ width, height, perspective: "1200px" }}
+      // O cartão é um contêiner interativo nomeado; os botões internos seguem acessíveis.
+      role={ariaLabel ? "group" : undefined}
+      aria-label={ariaLabel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={(e) => release(e, false)}

@@ -36,13 +36,6 @@ vi.mock("motion/react", () => ({
   useReducedMotion: () => false,
 }));
 
-// 3. Mock do Next/Image
-vi.mock("next/image", () => ({
-  default: ({ alt, src, className }: ComponentProps<"img">) => (
-    <img alt={alt} src={src} className={className} />
-  ),
-}));
-
 describe("DualSidedSection", () => {
   beforeAll(() => {
     // Mock do matchMedia para não bugar no ambiente de teste

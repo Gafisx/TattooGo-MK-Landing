@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Bell, CheckCircle2, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion"; // Se tiver instalado, senão use CSS puro
+import { motion, AnimatePresence } from "motion/react";
 import { waitlistSchema } from "@/lib/validations/waitlist";
 
 export default function WaitlistSection() {
@@ -54,11 +54,22 @@ export default function WaitlistSection() {
         </p>
 
         <div className="mt-10 mx-auto max-w-lg rounded-[2rem] border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl shadow-2xl shadow-black/50">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* `noValidate`: a validação do Zod é a única fonte de verdade, com
+              mensagem em português e anunciada por `role="alert"`. Sem isso o
+              navegador bloqueia o envio e o erro customizado nunca aparece. */}
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             
             <div className="relative">
+              <label htmlFor="waitlist-email" className="sr-only">
+                Seu melhor e-mail
+              </label>
               <input
+                id="waitlist-email"
+                name="email"
                 type="email"
+                autoComplete="email"
+                aria-invalid={status === "error"}
+                aria-describedby={status === "error" ? "waitlist-error" : undefined}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -71,7 +82,11 @@ export default function WaitlistSection() {
             </div>
 
             {status === "error" && (
-              <p className="text-sm font-medium text-[#FF6600] text-left px-2 animate-pulse">
+              <p
+                id="waitlist-error"
+                role="alert"
+                className="text-sm font-medium text-[#FF6600] text-left px-2 animate-pulse"
+              >
                 {errorMessage}
               </p>
             )}

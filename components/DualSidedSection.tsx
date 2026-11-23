@@ -68,7 +68,7 @@ export default function DualSidedSection() {
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-[#FF9900] sm:text-sm">
             A mesma plataforma. Dois lados da arte.
           </p>
-          <h2 className="text-[clamp(2.5rem,5.6vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.065em] text-white">
+          <h2 id="ecosystem-title" className="text-[clamp(2.5rem,5.6vw,5.5rem)] font-semibold leading-[0.95] tracking-[-0.065em] text-white">
             Para quem tatua.<span className="block text-white/55">Para quem escolhe o traço.</span>
           </h2>
         </header>
@@ -78,7 +78,8 @@ export default function DualSidedSection() {
           <article className="dual-row grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
             <div className="order-1 lg:order-2">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-[#FF9900]">Para clientes</p>
-              <h3 className="max-w-xl text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white">
+              {/* Alvo dos CTAs "Para clientes" espalhados pelo hero, jornadas e rodapé. */}
+              <h3 id="clients-title" className="max-w-xl scroll-mt-24 text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white">
                 Encontre o traço que fala por você.
               </h3>
               <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
@@ -96,7 +97,13 @@ export default function DualSidedSection() {
                   <div className="relative w-full h-full flex flex-col p-6 items-center justify-center">
                     {/* CORREÇÃO 2: bg-gradient-to-b virou bg-linear-to-b */}
                     <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#121212]/90 z-10" />
-                    <Image src="/assets/images/cliente.webp" alt="App para clientes" fill className="object-cover opacity-60" />
+                    <Image
+                      src="/assets/images/cliente.webp"
+                      alt="App para clientes"
+                      fill
+                      sizes="(min-width: 640px) 360px, 90vw"
+                      className="object-cover opacity-60"
+                    />
                     <span className="relative z-20 text-sm font-semibold text-white bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                       Toque para explorar
                     </span>
@@ -126,7 +133,8 @@ export default function DualSidedSection() {
           <article className="dual-row grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
             <div className="order-1">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-[#00FF66]">Para tatuadores</p>
-              <h3 className="max-w-xl text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white">
+              {/* Alvo dos CTAs "Para tatuadores" espalhados pelo hero, jornadas e rodapé. */}
+              <h3 id="artists-title" className="max-w-xl scroll-mt-24 text-[clamp(2.4rem,4.4vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-white">
                 Seu trabalho merece alcance. Sua agenda, controle.
               </h3>
               <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
@@ -143,7 +151,13 @@ export default function DualSidedSection() {
                 front={
                   <div className="relative w-full h-full flex flex-col p-6 items-center justify-center">
                     <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#121212]/90 z-10" />
-                    <Image src="/assets/images/tatuador.webp" alt="App para tatuadores" fill className="object-cover opacity-60" />
+                    <Image
+                      src="/assets/images/tatuador.webp"
+                      alt="App para tatuadores"
+                      fill
+                      sizes="(min-width: 640px) 360px, 90vw"
+                      className="object-cover opacity-60"
+                    />
                     <span className="relative z-20 text-sm font-semibold text-white bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
                       Toque para explorar
                     </span>

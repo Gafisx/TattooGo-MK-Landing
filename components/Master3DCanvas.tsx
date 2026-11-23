@@ -13,7 +13,6 @@ import { View, Preload, PerformanceMonitor } from "@react-three/drei";
 
 import StudioLighting from "@/components/StudioLighting";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
-import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 // Fix vazamento de contexto WebGL: Testa e destrói imediatamente
 function supportsWebGL(): boolean {
@@ -39,7 +38,6 @@ class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: Reac
 export default function Master3DCanvas() {
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
   const [webGLAvailable] = useState(() => typeof document !== "undefined" ? supportsWebGL() : false);
-  const reducedMotion = usePrefersReducedMotion();
 
   if (!webGLAvailable) return <ReducedMotionFallback />;
 
