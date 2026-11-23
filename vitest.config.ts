@@ -39,7 +39,6 @@ export default defineConfig({
         "components/SplitJourneySection.tsx",
         // Módulos apenas de tipos: não geram código em runtime para instrumentar.
         "lib/refs.ts",
-        "components/tattooPath.ts",
       ],
       thresholds: {
         lines: 80,
