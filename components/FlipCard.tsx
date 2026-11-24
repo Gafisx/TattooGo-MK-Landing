@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useSpring, useTransform, useMotionTemplate } from "motion/react";
 
 const SLOP = { fine: 4, coarse: 8 };
@@ -29,7 +29,18 @@ export default function FlipCard({
   "aria-label": ariaLabel,
 }: FlipCardProps) {
   const reduce = useReducedMotion();
+  // `useReducedMotion` devolve `null` no servidor: o HTML sai sempre com o
+  // transform do rotor. Só depois de montar o cliente reduzido pode neutralizá-lo
+  // (`none`), senão o primeiro render diverge do HTML do servidor na hidratação.
+  // O neutralize é feito imperativamente no efeito, pois o motion pode reaplicar
+  // o template `turnY` no nó do DOM mesmo quando o `style` prop delega o valor.
+  useEffect(() => {
+    if (reduce && rotorRef.current) {
+      rotorRef.current.style.transform = "none";
+    }
+  }, [reduce]);
   const rootRef = useRef<HTMLDivElement>(null);
+  const rotorRef = useRef<HTMLDivElement>(null);
   const grip = useRef<{ id: number; x: number; y: number; base: number; moved: boolean; slop: number; hist: { t: number; v: number }[] } | null>(null);
 
   const turn = useMotionValue(0);
@@ -134,7 +145,11 @@ export default function FlipCard({
       onPointerEnter={() => !reduce && lift.set(1.03)}
       onPointerLeave={() => { if (!grip.current) { lift.set(1); tiltX.set(0); tiltY.set(0); sheen.set(0); } }}
     >
-      <motion.div className="w-full h-full relative preserve-3d" style={reduce ? undefined : { transform: turnY }}>
+      <motion.div
+        ref={rotorRef}
+        className="w-full h-full relative preserve-3d"
+        style={{ transform: turnY }}
+      >
         
         {/* FRENTE */}
         <div className="absolute inset-0 backface-hidden overflow-hidden rounded-[2rem] border border-white/20 bg-[#171717]/50 backdrop-blur-xl">
