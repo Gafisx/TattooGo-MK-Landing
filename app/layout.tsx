@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Caveat } from "next/font/google"; // <-- AQUI
 import SmoothScroll from "@/components/SmoothScroll";
+import TattooMenu from "@/components/TattooMenu";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     >
       <body className="min-h-full bg-[#121212] text-white antialiased overflow-x-hidden">
         <SmoothScroll>{children}</SmoothScroll>
+        <TattooMenu />
       </body>
     </html>
   );
