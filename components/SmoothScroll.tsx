@@ -61,8 +61,12 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       const id = href.slice(1);
       const element = document.getElementById(id);
       if (!element) return;
+      // Se o Lenis não estiver ativo (ex.: prefers-reduced-motion), deixa o
+      // navegador executar o scroll nativo da âncora, sem preventDefault.
+      const lenis = lenisRef.current;
+      if (!lenis) return;
       event.preventDefault();
-      lenisRef.current?.scrollTo(element, { offset: 0 });
+      lenis.scrollTo(element, { offset: 0 });
       // Atualiza a URL sem disparar scroll nativo.
       if (window.history && window.history.pushState) {
         window.history.pushState(null, "", href);
