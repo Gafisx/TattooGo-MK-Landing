@@ -19,9 +19,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev -- -p 3000",
+    // A home monta a cena 3D e ~4,5 MB de assets; no `next dev` cada render
+    // levava 8–50s e os testes interativos estouravam o timeout esperando a
+    // página estabilizar. O build de produção responde em milissegundos e é o
+    // bundle que o usuário recebe.
+    command: "npm run build && npm run start -- -p 3000",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 });
