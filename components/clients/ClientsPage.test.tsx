@@ -50,19 +50,24 @@ function makeMotionElement(tag: string) {
   return Component;
 }
 
-vi.mock("motion/react", () => ({
-  motion: new Proxy(
-    {} as Record<string, ReturnType<typeof makeMotionElement>>,
-    {
-      get: (_target, tag: string) => makeMotionElement(tag),
-    },
-  ),
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
-  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
-  useTransform: () => 0,
-  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
-  useSpring: () => ({ get: () => 0 }),
-}));
+vi.mock("motion/react", () => {
+  const cache: Record<string, ReturnType<typeof makeMotionElement>> = {};
+  return {
+    motion: new Proxy(cache, {
+      get: (target, tag: string) => {
+        if (!target[tag]) {
+          target[tag] = makeMotionElement(tag);
+        }
+        return target[tag];
+      },
+    }),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+    useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+    useTransform: () => 0,
+    useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
+    useSpring: () => ({ get: () => 0 }),
+  };
+});
 
 // ── Imports after mocks ────────────────────────────────────────────────────
 import ClientesPage from "@/app/clientes/page";
