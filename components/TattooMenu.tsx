@@ -67,12 +67,12 @@ export default function TattooMenu() {
                     stiffness: 400,
                     damping: 20,
                   }}
-                  className="group relative flex items-center justify-center h-12 w-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white shadow-lg hover:bg-white/20 hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600] transition-all"
+                  className="group relative flex items-center justify-center h-12 w-12 rounded-full bg-slate-800/40 backdrop-blur-xl border border-slate-400/20 text-white shadow-lg hover:bg-slate-700/50 hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600] transition-all"
                   aria-label={item.label}
                 >
-                  <Icon className="h-5 w-5 text-white/80 group-hover:text-[#FF6600] transition-colors" />
+                  <Icon className="h-5 w-5 text-slate-300 group-hover:text-[#FF6600] transition-colors" />
 
-                  <span className="absolute right-16 whitespace-nowrap rounded-lg bg-[#1A1A1A] px-3 py-1.5 text-xs font-medium text-white opacity-0 shadow-xl border border-white/10 transition-all group-hover:opacity-100 group-hover:-translate-x-1 pointer-events-none">
+                  <span className="absolute right-16 whitespace-nowrap rounded-lg bg-slate-800/90 px-3 py-1.5 text-xs font-medium text-slate-200 opacity-0 shadow-xl border border-slate-600/50 transition-all group-hover:opacity-100 group-hover:-translate-x-1 pointer-events-none">
                     {item.label}
                   </span>
                 </motion.button>
@@ -86,7 +86,7 @@ export default function TattooMenu() {
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-        className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1A1A1A]/80 backdrop-blur-2xl border border-white/20 text-white shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-[#1A1A1A] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600] transition-colors"
+        className="group flex h-16 w-16 items-center justify-center rounded-full bg-slate-800/40 backdrop-blur-2xl border border-slate-300/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:bg-slate-700/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600] transition-colors"
         whileTap={{ scale: 0.92 }}
         animate={{ rotate: isOpen ? 90 : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -94,7 +94,7 @@ export default function TattooMenu() {
         {isOpen ? (
           <X className="h-7 w-7 text-[#FF6600]" />
         ) : (
-          <PenTool className="h-7 w-7 text-[#00FF66]" />
+          <PenTool className="h-7 w-7 text-slate-200 group-hover:text-[#00FF66] transition-colors" />
         )}
       </motion.button>
     </div>
