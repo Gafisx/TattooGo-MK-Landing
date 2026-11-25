@@ -9,6 +9,8 @@ import { useScrollStore } from "@/components/scrollProgressStore";
 const MODEL_PATH = "/assets/models/tattoo-machine.glb";
 const NEEDLE_BASE_Y = -0.94;
 const NEEDLE_LENGTH = 0.2;
+const POSITION_EPSILON = 0.001;
+const HERO_ROTATION = { x: 0.2, y: 0.3, z: -Math.PI / 4 } as const;
 
 // Aponta para a pasta local do Draco (public/draco)
 useGLTFDRACO.setDecoderPath('/draco/');
@@ -51,52 +53,41 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
 
   useFrame((state, delta) => {
     const machine = machineRef.current;
-    if (!machine) return;
+    if (!machine || reducedMotion) return;
 
-    const store = useScrollStore.getState();
-    const { immersiveVisible, immersiveProgress } = store;
+    const { immersiveVisible, immersiveProgress } = useScrollStore.getState();
 
-    if (!reducedMotion) {
-      let targetX, targetY, targetRotX, targetRotY, targetRotZ, needleSpeed;
+    const targetX = immersiveVisible
+      ? MathUtils.lerp(-viewport.width * 0.4, viewport.width * 0.4, immersiveProgress)
+      : 0;
+    const targetY = immersiveVisible ? 1.5 : 0;
+    const targetRotX = immersiveVisible ? 0.8 : HERO_ROTATION.x;
+    const targetRotY = immersiveVisible ? 0 : HERO_ROTATION.y;
+    const targetRotZ = immersiveVisible ? -Math.PI / 6 : HERO_ROTATION.z;
 
-      if (immersiveVisible) {
-        // --- MODO TATUAGEM (Na seção Imersiva) ---
-        // A máquina desliza da esquerda para a direita dentro do View
-        targetX = MathUtils.lerp(-viewport.width * 0.4, viewport.width * 0.4, immersiveProgress);
-        
-        // Posiciona a máquina ACIMA do texto e ajusta o ângulo da agulha
-        targetY = 1.5; 
-        targetRotX = 0.8; // Inclina para frente
-        targetRotY = 0;   // De frente para a tela
-        targetRotZ = -Math.PI / 6; // Leve inclinação para parecer natural
-        needleSpeed = 150; 
-      } else {
-        // --- MODO FLUTUANTE (No Hero) ---
-        // Fica no centro do View, com uma leve flutuação
-        targetX = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
-        targetY = Math.sin(state.clock.elapsedTime * 1.5) * 0.1;
-        targetRotX = 0.2;
-        targetRotY = 0.3; 
-        targetRotZ = -Math.PI / 4;
-        needleSpeed = 80;
-      }
+    machine.position.x = MathUtils.damp(machine.position.x, targetX, 8, delta);
+    machine.position.y = MathUtils.damp(machine.position.y, targetY, 8, delta);
+    machine.rotation.x = MathUtils.damp(machine.rotation.x, targetRotX, 8, delta);
+    machine.rotation.y = MathUtils.damp(machine.rotation.y, targetRotY, 8, delta);
+    machine.rotation.z = MathUtils.damp(machine.rotation.z, targetRotZ, 8, delta);
 
-      machine.position.x = MathUtils.damp(machine.position.x, targetX, 8, delta);
-      machine.position.y = MathUtils.damp(machine.position.y, targetY, 8, delta);
-      machine.rotation.x = MathUtils.damp(machine.rotation.x, targetRotX, 8, delta);
-      machine.rotation.y = MathUtils.damp(machine.rotation.y, targetRotY, 8, delta);
-      machine.rotation.z = MathUtils.damp(machine.rotation.z, targetRotZ, 8, delta);
-
-      if (needleRef.current) {
-        const isTattooing = immersiveVisible;
-        const vibration = isTattooing 
-          ? Math.sin(state.clock.elapsedTime * needleSpeed) * 0.03 
-          : 0;
-        needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
-      }
+    if (needleRef.current) {
+      const vibration = immersiveVisible
+        ? Math.sin(state.clock.elapsedTime * 150) * 0.03
+        : 0;
+      needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
     }
 
-    invalidate();
+    const needsMoreFrames =
+      Math.abs(targetX - machine.position.x) > POSITION_EPSILON ||
+      Math.abs(targetY - machine.position.y) > POSITION_EPSILON ||
+      Math.abs(targetRotX - machine.rotation.x) > POSITION_EPSILON ||
+      Math.abs(targetRotY - machine.rotation.y) > POSITION_EPSILON ||
+      Math.abs(targetRotZ - machine.rotation.z) > POSITION_EPSILON;
+
+    if (needsMoreFrames) {
+      invalidate();
+    }
   });
 
   const isTattooing = useScrollStore((s) => s.immersiveVisible);

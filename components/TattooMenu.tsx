@@ -40,7 +40,7 @@ export default function TattooMenu() {
   return (
     <div
       ref={menuRef}
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+      className="fixed bottom-24 sm:bottom-6 right-6 z-50 flex flex-col items-end gap-3"
     >
       <AnimatePresence>
         {isOpen && (
