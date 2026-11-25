@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
 import TattooMenu from "./TattooMenu";
 
 describe("TattooMenu", () => {

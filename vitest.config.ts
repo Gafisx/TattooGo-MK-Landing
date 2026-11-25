@@ -13,11 +13,12 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: ["./vitest.setup.ts"],
     onUnhandledError(error) {
-      const message = String(
-        (error as { message?: unknown })?.message ?? error ?? "",
-      );
+      const err = error as { name?: unknown; message?: unknown } | null | undefined;
+      const name = String(err?.name ?? "");
+      const message = String(err?.message ?? error ?? "");
       // Ruído pré-existente de ambiente (Node/happy-dom), não regressão de código.
       if (
+        name === "AbortError" ||
         message.includes("Worker is not defined") ||
         message.includes("AbortError") ||
         message.includes("Failed to read response body") ||
