@@ -143,4 +143,38 @@ describe("TatuadoresPage", () => {
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Pagamento liberado")).toBeInTheDocument();
   });
+
+  test("FuseButton supports keyboard hold with Space/Enter", () => {
+    vi.useFakeTimers();
+    const onComplete = vi.fn();
+
+    render(
+      <FuseButton
+        label="Segure para liberar pagamento"
+        completedLabel="Pagamento liberado"
+        durationMs={1000}
+        onComplete={onComplete}
+      />,
+    );
+
+    const btn = screen.getByRole("button", {
+      name: /segure para liberar pagamento/i,
+    });
+
+    fireEvent.keyDown(btn, { key: " " });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    fireEvent.keyUp(btn, { key: " " });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(onComplete).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(btn, { key: "Enter" });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
 });

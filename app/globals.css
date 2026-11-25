@@ -189,4 +189,60 @@ html.lenis body {
     transform: none;
     box-shadow: none;
   }
+
+  ::view-transition-old(.nav-forward),
+  ::view-transition-new(.nav-forward),
+  ::view-transition-old(.nav-back),
+  ::view-transition-new(.nav-back) {
+    animation: none;
+  }
+}
+
+/* =========================================
+   VIEW TRANSITIONS DIRECCIONAIS (Next 16 / React 19.3)
+   ========================================= */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -48px;
+  animation:
+    150ms ease-in both vt-fade reverse,
+    360ms ease-in-out both vt-slide reverse;
+}
+
+::view-transition-new(.nav-forward) {
+  --slide-offset: 48px;
+  animation:
+    210ms ease-out 150ms both vt-fade,
+    360ms ease-in-out both vt-slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 48px;
+  animation:
+    150ms ease-in both vt-fade reverse,
+    360ms ease-in-out both vt-slide reverse;
+}
+
+::view-transition-new(.nav-back) {
+  --slide-offset: -48px;
+  animation:
+    210ms ease-out 150ms both vt-fade,
+    360ms ease-in-out both vt-slide;
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
 }

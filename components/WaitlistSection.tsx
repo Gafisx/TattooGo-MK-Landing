@@ -3,42 +3,57 @@
 import { useState } from "react";
 import { Bell, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { waitlistSchema } from "@/lib/validations/waitlist";
+import { waitlistSchema, type WaitlistRole } from "@/lib/validations/waitlist";
 
 export default function WaitlistSection() {
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState<WaitlistRole>("cliente");
+  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
-    
-    // 1. Validação com Zod (Zero Chutes)
-    const validation = waitlistSchema.safeParse({ email });
-    
+
+    const validation = waitlistSchema.safeParse({ email, role, website });
+
     if (!validation.success) {
       setStatus("error");
-      setErrorMessage(validation.error.issues[0].message); // Pega o primeiro erro
+      setErrorMessage(validation.error.issues[0].message);
       return;
     }
 
-    // 2. Estado de Loading (Feedback visual imediato)
     setStatus("loading");
 
     try {
-      // MOCK: Aqui futuramente entrará a chamada para o seu Backend no Render
-      // await fetch('https://seu-backend.onrender.com/api/waitlist', { method: 'POST', body: JSON.stringify(validation.data) })
-      
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simula a rede
-      
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validation.data),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (!response.ok) {
+        setStatus("error");
+        setErrorMessage(
+          payload?.error ?? "Ocorreu um erro. Tente novamente mais tarde.",
+        );
+        return;
+      }
+
       setStatus("success");
-      setEmail(""); // Limpa o campo
+      setEmail("");
     } catch {
       setStatus("error");
       setErrorMessage("Ocorreu um erro. Tente novamente mais tarde.");
     }
   };
+
+  const isDisabled = status === "loading" || status === "success";
 
   return (
     <section className="relative overflow-hidden bg-[#121212] py-24 sm:py-32">
@@ -58,7 +73,47 @@ export default function WaitlistSection() {
               mensagem em português e anunciada por `role="alert"`. Sem isso o
               navegador bloqueia o envio e o erro customizado nunca aparece. */}
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-            
+            <fieldset disabled={isDisabled} className="grid grid-cols-2 gap-2">
+              <legend className="sr-only">Perfil na lista VIP</legend>
+              {(
+                [
+                  { value: "cliente", label: "Sou Cliente" },
+                  { value: "tatuador", label: "Sou Tatuador" },
+                ] as const
+              ).map((option) => {
+                const selected = role === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setRole(option.value)}
+                    className={`rounded-xl border px-3 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF9900] ${
+                      selected
+                        ? "border-[#FF9900]/70 bg-[#FF6600]/15 text-[#FF9900]"
+                        : "border-white/10 bg-[#1A1A1A]/40 text-white/65 hover:border-white/25 hover:text-white"
+                    } disabled:opacity-50`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </fieldset>
+
+            {/* Campo honeypot invisível para filtros automáticos anti-spam */}
+            <div aria-hidden="true" className="hidden">
+              <label htmlFor="waitlist-website">Website</label>
+              <input
+                id="waitlist-website"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+            </div>
+
             <div className="relative">
               <label htmlFor="waitlist-email" className="sr-only">
                 Seu melhor e-mail
@@ -73,10 +128,10 @@ export default function WaitlistSection() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (status === "error") setStatus("idle"); // Limpa o erro ao digitar
+                  if (status === "error") setStatus("idle");
                 }}
                 placeholder="Seu melhor e-mail"
-                disabled={status === "loading" || status === "success"}
+                disabled={isDisabled}
                 className="w-full rounded-xl border border-white/15 bg-[#1A1A1A]/60 px-5 py-4 text-white placeholder-white/40 outline-none transition-all focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66]/50 disabled:opacity-50"
               />
             </div>
@@ -85,7 +140,7 @@ export default function WaitlistSection() {
               <p
                 id="waitlist-error"
                 role="alert"
-                className="text-sm font-medium text-[#FF6600] text-left px-2 animate-pulse"
+                className="text-sm font-medium text-[#FF6600] text-left px-2 motion-safe:animate-pulse"
               >
                 {errorMessage}
               </p>
@@ -93,10 +148,10 @@ export default function WaitlistSection() {
 
             <button
               type="submit"
-              disabled={status === "loading" || status === "success"}
+              disabled={isDisabled}
               className={`group relative flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-semibold text-[#121212] transition-all duration-300 ${
-                status === "success" 
-                  ? "bg-[#00FF66] cursor-default" 
+                status === "success"
+                  ? "bg-[#00FF66] cursor-default"
                   : "bg-[#FF9900] hover:bg-[#FF6600] hover:scale-[1.02]"
               }`}
             >

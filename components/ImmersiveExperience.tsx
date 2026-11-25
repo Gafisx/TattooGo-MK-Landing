@@ -111,54 +111,56 @@ export default function ImmersiveExperience() {
         </p>
         
         {/* CONTAINER ONDE A MÁQUINA 3D VAI VIVER */}
-        <div ref={viewRef} className="relative inline-block w-full">
+        <div ref={viewRef} className="relative w-full py-12 sm:py-16">
           
           {/* O View recorta a máquina e as luzes para existirem APENAS dentro deste container */}
           <View track={trackRef} className="absolute inset-0 z-0 pointer-events-none">
             <StudioLighting />
-            <TattooMachineModel reducedMotion={reducedMotion} />
+            <TattooMachineModel reducedMotion={reducedMotion} mode="immersive" />
           </View>
 
-          {/* O texto real escondido para leitores de tela e Google (SEO) */}
-          <h2 className="sr-only">A arte não é opcional.</h2>
+          <div className="relative inline-block w-full">
+            {/* O texto real escondido para leitores de tela e Google (SEO) */}
+            <h2 className="sr-only">A arte não é opcional.</h2>
 
-          {/* O SVG que será preenchido pela agulha */}
-          <svg
-            ref={svgRef}
-            viewBox="0 0 1000 150"
-            className="relative z-10 w-full h-auto overflow-visible"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="inkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#FF9900" />
-                <stop offset="100%" stopColor="#00FF66" />
-              </linearGradient>
-            </defs>
-            <text
-              x="50%"
-              y="50%"
-              dominantBaseline="middle"
-              textAnchor="middle"
-              fill="url(#inkGradient)"
-              className="font-sans font-black tracking-tighter"
-              style={{ fontSize: "90px" }}
+            {/* O SVG que será preenchido pela agulha */}
+            <svg
+              ref={svgRef}
+              viewBox="0 0 1000 150"
+              className="relative z-10 w-full h-auto overflow-visible"
+              aria-hidden="true"
             >
-              A ARTE NÃO É OPCIONAL.
-            </text>
-          </svg>
+              <defs>
+                <linearGradient id="inkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FF9900" />
+                  <stop offset="100%" stopColor="#00FF66" />
+                </linearGradient>
+              </defs>
+              <text
+                x="50%"
+                y="50%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fill="url(#inkGradient)"
+                className="font-sans font-black tracking-tighter"
+                style={{ fontSize: "90px" }}
+              >
+                A ARTE NÃO É OPCIONAL.
+              </text>
+            </svg>
 
-          {/* A Linha de Luz da Agulha (Agora com translateX em vez de left) */}
-          <div
-            ref={needleLineRef}
-            aria-hidden="true"
-            className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 flex w-0.5 -translate-x-1/2 items-center justify-center"
-          >
-            {/* Núcleo branco */}
-            <div className="h-full w-[2px] bg-white" />
-            {/* Aura Verde Neon (Desfocada) */}
-            <div className="absolute inset-y-0 w-6 bg-[#00FF66]/50 blur-md" />
-            <div className="absolute inset-y-0 w-2 bg-[#00FF66] blur-sm" />
+            {/* A Linha de Luz da Agulha (Agora com translateX em vez de left) */}
+            <div
+              ref={needleLineRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 flex w-0.5 -translate-x-1/2 items-center justify-center"
+            >
+              {/* Núcleo branco */}
+              <div className="h-full w-[2px] bg-white" />
+              {/* Aura Verde Neon (Desfocada) */}
+              <div className="absolute inset-y-0 w-6 bg-[#00FF66]/50 blur-md" />
+              <div className="absolute inset-y-0 w-2 bg-[#00FF66] blur-sm" />
+            </div>
           </div>
         </div>
 

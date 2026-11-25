@@ -89,14 +89,14 @@ describe("ClientesPage", () => {
     ).toBeInTheDocument();
   });
 
-  test("ClientsHero renders the main heading and CTA buttons", () => {
+  test("ClientsHero renders the main heading and CTA links", () => {
     render(<ClientsHero />);
     expect(
       screen.getByRole("heading", { level: 1, name: /sua próxima obra-prima começa aqui\./i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /encontrar tatuadores/i }),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: /encontrar tatuadores/i }),
+    ).toHaveAttribute("href", "/#waitlist");
     expect(
       screen.getByRole("link", { name: /ver estilos/i }),
     ).toHaveAttribute("href", "#estilos");

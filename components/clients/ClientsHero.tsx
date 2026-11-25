@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 
 export default function ClientsHero() {
@@ -72,12 +73,13 @@ export default function ClientsHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 1.1 }}
         >
-          <button
-            type="button"
-            className="rounded-full bg-[#FF6600] px-8 py-4 font-semibold text-white transition-all hover:bg-[#e55500] hover:shadow-[0_0_30px_rgba(255,102,0,0.4)]"
+          <Link
+            href="/#waitlist"
+            transitionTypes={["nav-back"]}
+            className="rounded-full bg-[#FF6600] px-8 py-4 font-semibold text-white transition-all hover:bg-[#e55500] hover:shadow-[0_0_30px_rgba(255,102,0,0.4)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900]"
           >
             Encontrar Tatuadores
-          </button>
+          </Link>
           <a
             href="#estilos"
             className="rounded-full border border-white/20 px-8 py-4 font-semibold text-white/80 transition-all hover:border-[#FF6600] hover:text-[#FF6600]"

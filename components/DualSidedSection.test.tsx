@@ -71,6 +71,14 @@ describe("DualSidedSection", () => {
 
     expect(screen.getByText(/Encontre seu Artista/i)).toBeInTheDocument();
     expect(screen.getByText(/Gestão Completa/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Baixar o App/i })).toHaveAttribute(
+      "href",
+      "/download",
+    );
+    expect(screen.getByRole("link", { name: /Seja Parceiro/i })).toHaveAttribute(
+      "href",
+      "/tatuadores",
+    );
   });
 
   it("deve renderizar as listas de benefícios corretamente", () => {

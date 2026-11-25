@@ -48,7 +48,6 @@ export default defineConfig({
         "components/StudioLighting.tsx",
         "components/TattooMachineModel.tsx",
         "components/DualSidedSection.tsx",
-        "components/InteractiveTattooArm.tsx",
         "components/ProceduralAudioProvider.tsx",
         "components/SmoothScroll.tsx",
         "components/SplitJourneySection.tsx",

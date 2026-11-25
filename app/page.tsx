@@ -7,39 +7,42 @@ import SplitJourneySection from "@/components/SplitJourneySection";
 import { ArtistsCarouselSection } from "@/components/ArtistsCarousel3D";
 import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
 import WaitlistSection from "@/components/WaitlistSection";
+import PageTransition from "@/components/PageTransition";
 
 export default function Home() {
   return (
-    <ProceduralAudioProvider>
-      {/* O atalho precisa estar dentro de um landmark para não virar conteúdo solto. */}
-      <header>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-lg focus:bg-[#FF9900] focus:px-4 focus:py-3 focus:font-semibold focus:text-[#121212] focus:outline-2 focus:outline-offset-2 focus:outline-white"
+    <PageTransition>
+      <ProceduralAudioProvider>
+        {/* O atalho precisa estar dentro de um landmark para não virar conteúdo solto. */}
+        <header>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-lg focus:bg-[#FF9900] focus:px-4 focus:py-3 focus:font-semibold focus:text-[#121212] focus:outline-2 focus:outline-offset-2 focus:outline-white"
+          >
+            Pular para o conteúdo
+          </a>
+        </header>
+        <Deferred3DCanvas />
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="relative min-h-screen outline-none"
         >
-          Pular para o conteúdo
-        </a>
-      </header>
-      <Deferred3DCanvas />
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className="relative min-h-screen outline-none"
-      >
-        <div className="relative z-10">
-          <HeroSection />
-          <ImmersiveExperience />
-          <SplitJourneySection />
-          <ArtistsCarouselSection />
-          <DualSidedSection />
-          
-          <div id="waitlist">
-            <WaitlistSection /> 
+          <div className="relative z-10">
+            <HeroSection />
+            <ImmersiveExperience />
+            <SplitJourneySection />
+            <ArtistsCarouselSection />
+            <DualSidedSection />
+            
+            <div id="waitlist">
+              <WaitlistSection /> 
+            </div>
+            
+            <SecurityAndFooter />
           </div>
-          
-          <SecurityAndFooter />
-        </div>
-      </main>
-    </ProceduralAudioProvider>
+        </main>
+      </ProceduralAudioProvider>
+    </PageTransition>
   );
 }

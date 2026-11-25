@@ -256,4 +256,18 @@ describe("FlipCard", () => {
     fireEvent.pointerUp(root, { ...pointer(), clientX: 250 });
     expect(motion.animate).not.toHaveBeenCalled();
   });
+
+  it("gira pelo teclado com Enter/Espaço e não vira ao clicar em link interno", async () => {
+    const { root, stage } = setup({
+      back: <a href="/download">Baixar o App</a>,
+    });
+
+    const link = screen.getByRole("link", { name: "Baixar o App" });
+    fireEvent.pointerDown(link, pointer());
+    fireEvent.pointerUp(link, pointer());
+    expect(motion.animate).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(root, { key: "Enter" });
+    await waitFor(() => expect(rotateY(stage)).toBe(180));
+  });
 });

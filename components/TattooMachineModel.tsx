@@ -21,9 +21,18 @@ export function MinimalMachineFallback() {
   return null;
 }
 
-export default function TattooMachineModel({ reducedMotion }: { reducedMotion: boolean }) {
+type TattooMachineModelProps = {
+  reducedMotion: boolean;
+  mode?: "hero" | "immersive";
+};
+
+export default function TattooMachineModel({
+  reducedMotion,
+  mode = "hero",
+}: TattooMachineModelProps) {
   const machineRef = useRef<Group>(null);
   const needleRef = useRef<Group>(null);
+  const isImmersiveMode = mode === "immersive";
   
   const { scene } = useGLTF(MODEL_PATH);
   const invalidate = useThree((s) => s.invalidate);
@@ -43,27 +52,29 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
   }, [scene]);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || !isImmersiveMode) return;
+    invalidate();
     return useScrollStore.subscribe((s, p) => { 
       if (s.immersiveProgress !== p.immersiveProgress || s.immersiveVisible !== p.immersiveVisible) {
         invalidate(); 
       }
     });
-  }, [invalidate, reducedMotion]);
+  }, [invalidate, isImmersiveMode, reducedMotion]);
 
   useFrame((state, delta) => {
     const machine = machineRef.current;
     if (!machine || reducedMotion) return;
 
     const { immersiveVisible, immersiveProgress } = useScrollStore.getState();
+    const activeTattooing = isImmersiveMode && immersiveVisible;
 
-    const targetX = immersiveVisible
+    const targetX = activeTattooing
       ? MathUtils.lerp(-viewport.width * 0.4, viewport.width * 0.4, immersiveProgress)
       : 0;
-    const targetY = immersiveVisible ? 1.5 : 0;
-    const targetRotX = immersiveVisible ? 0.8 : HERO_ROTATION.x;
-    const targetRotY = immersiveVisible ? 0 : HERO_ROTATION.y;
-    const targetRotZ = immersiveVisible ? -Math.PI / 6 : HERO_ROTATION.z;
+    const targetY = activeTattooing ? 0.55 : 0;
+    const targetRotX = activeTattooing ? 0.8 : HERO_ROTATION.x;
+    const targetRotY = activeTattooing ? 0 : HERO_ROTATION.y;
+    const targetRotZ = activeTattooing ? -Math.PI / 6 : HERO_ROTATION.z;
 
     machine.position.x = MathUtils.damp(machine.position.x, targetX, 8, delta);
     machine.position.y = MathUtils.damp(machine.position.y, targetY, 8, delta);
@@ -72,13 +83,14 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     machine.rotation.z = MathUtils.damp(machine.rotation.z, targetRotZ, 8, delta);
 
     if (needleRef.current) {
-      const vibration = immersiveVisible
+      const vibration = activeTattooing
         ? Math.sin(state.clock.elapsedTime * 150) * 0.03
         : 0;
       needleRef.current.position.y = NEEDLE_BASE_Y + vibration;
     }
 
     const needsMoreFrames =
+      activeTattooing ||
       Math.abs(targetX - machine.position.x) > POSITION_EPSILON ||
       Math.abs(targetY - machine.position.y) > POSITION_EPSILON ||
       Math.abs(targetRotX - machine.rotation.x) > POSITION_EPSILON ||
@@ -90,7 +102,7 @@ export default function TattooMachineModel({ reducedMotion }: { reducedMotion: b
     }
   });
 
-  const isTattooing = useScrollStore((s) => s.immersiveVisible);
+  const isTattooing = useScrollStore((s) => isImmersiveMode && s.immersiveVisible);
 
   return (
     <group ref={machineRef} scale={fittedModel.scale} position={[0, 0, 0]}>

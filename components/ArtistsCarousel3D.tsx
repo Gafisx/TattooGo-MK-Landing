@@ -54,8 +54,6 @@ function getCarouselLayout(viewportWidth: number) {
   return { radius, cardWidth, cardHeight: cardWidth * 1.385 };
 }
 
-useTexture.preload(ARTIST_TEXTURE_PATHS);
-
 class CarouselTextureErrorBoundary extends Component<
   { children: ReactNode; fallback: ReactNode },
   { failed: boolean }
@@ -143,18 +141,17 @@ function CarouselScene() {
   const materialsRef = useRef(materials);
   const { invalidate, viewport } = useThree();
 
-  useEffect(
-    () =>
-      useScrollStore.subscribe((state, previousState) => {
-        if (
-          state.artistsCarouselProgress !==
-          previousState.artistsCarouselProgress
-        ) {
-          invalidate();
-        }
-      }),
-    [invalidate],
-  );
+  useEffect(() => {
+    invalidate();
+    return useScrollStore.subscribe((state, previousState) => {
+      if (
+        state.artistsCarouselProgress !==
+        previousState.artistsCarouselProgress
+      ) {
+        invalidate();
+      }
+    });
+  }, [invalidate]);
 
   useEffect(
     () => () => {
@@ -318,9 +315,15 @@ export function ArtistsCarouselSection() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!reducedMotion) {
+      useTexture.preload(ARTIST_TEXTURE_PATHS);
+    }
+  }, [reducedMotion]);
+
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    if (!section || reducedMotion) return;
 
     const context = gsap.context(() => {
       const progress = { value: 0 };
@@ -346,7 +349,7 @@ export function ArtistsCarouselSection() {
     }, section);
 
     return () => context.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <section

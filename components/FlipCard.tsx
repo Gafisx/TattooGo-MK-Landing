@@ -68,12 +68,23 @@ export default function FlipCard({
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0 || grip.current) return;
+    if ((e.target as HTMLElement | null)?.closest("a, button, input, textarea, select")) {
+      return;
+    }
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
     grip.current = {
       id: e.pointerId, x: e.clientX, y: e.clientY, base: turn.get(), moved: false,
       slop: e.pointerType === "touch" ? SLOP.coarse : SLOP.fine, hist: []
     };
     if (!reduce) lift.set(1.03);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      flip();
+    }
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -138,6 +149,8 @@ export default function FlipCard({
       // O cartão é um contêiner interativo nomeado; os botões internos seguem acessíveis.
       role={ariaLabel ? "group" : undefined}
       aria-label={ariaLabel}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={(e) => release(e, false)}

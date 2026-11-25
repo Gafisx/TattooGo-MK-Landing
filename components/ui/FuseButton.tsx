@@ -82,6 +82,21 @@ export default function FuseButton({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === " " || e.key === "Enter") {
+      if (e.repeat) return;
+      e.preventDefault();
+      startHold();
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      cancelHold();
+    }
+  };
+
   return (
     <motion.button
       type="button"
@@ -90,6 +105,8 @@ export default function FuseButton({
       onPointerUp={cancelHold}
       onPointerLeave={cancelHold}
       onPointerCancel={cancelHold}
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
       onBlur={cancelHold}
       whileTap={completed || disabled ? undefined : { scale: 0.985 }}
       aria-pressed={isHolding || completed}

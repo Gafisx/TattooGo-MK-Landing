@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import TattooMenu from "@/components/TattooMenu";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,9 +49,11 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       suppressHydrationWarning
     >
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SmoothScroll>{children}</SmoothScroll>
-          <TattooMenu />
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+          <ProceduralAudioProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+            <TattooMenu />
+          </ProceduralAudioProvider>
         </ThemeProvider>
       </body>
     </html>

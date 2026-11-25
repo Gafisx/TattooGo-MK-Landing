@@ -11,8 +11,10 @@ import { Canvas } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 import { View, Preload, PerformanceMonitor } from "@react-three/drei";
 
-import StudioLighting from "@/components/StudioLighting";
+import ArtistsCarousel3D from "@/components/ArtistsCarousel3D";
 import ReducedMotionFallback from "@/components/ReducedMotionFallback";
+import ScrollProgressBridge from "@/components/ScrollProgressBridge";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 // Fix vazamento de contexto WebGL: Testa e destrói imediatamente
 function supportsWebGL(): boolean {
@@ -38,8 +40,9 @@ class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: Reac
 export default function Master3DCanvas() {
   const [dpr, setDpr] = useState<[number, number]>([1, 2]);
   const [webGLAvailable] = useState(() => typeof document !== "undefined" ? supportsWebGL() : false);
+  const reducedMotion = usePrefersReducedMotion();
 
-  if (!webGLAvailable) return <ReducedMotionFallback />;
+  if (reducedMotion || !webGLAvailable) return <ReducedMotionFallback />;
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#121212]">
@@ -62,9 +65,11 @@ export default function Master3DCanvas() {
           {/* Monitor de performance: se cair o FPS, baixa o DPR automaticamente */}
           <PerformanceMonitor onDecline={() => setDpr([1, 1])} />
 
+          <ScrollProgressBridge reducedMotion={reducedMotion} />
+
           <Suspense fallback={null}>
-            <StudioLighting />
-            
+            <ArtistsCarousel3D reducedMotion={reducedMotion} />
+
             {/* O View.Port permite que componentes em outras partes do DOM se conectem a este Canvas */}
             <View.Port />
             

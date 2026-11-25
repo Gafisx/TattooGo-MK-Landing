@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -47,6 +48,18 @@ function updateMachineSound(
 }
 
 export function ProceduralAudioProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const parentContext = useContext(ProceduralAudioContext);
+  if (parentContext) {
+    return <>{children}</>;
+  }
+  return <ProceduralAudioProviderRoot>{children}</ProceduralAudioProviderRoot>;
+}
+
+function ProceduralAudioProviderRoot({
   children,
 }: {
   children: ReactNode;

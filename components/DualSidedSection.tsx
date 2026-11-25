@@ -2,6 +2,7 @@
 
 import { useRef, useLayoutEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { BadgeCheck, CalendarDays, MapPin, ShieldCheck, WalletCards } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -116,13 +117,13 @@ export default function DualSidedSection() {
                     <h4 className="text-2xl font-bold text-white mb-3">Encontre seu Artista</h4>
                     <p className="text-white/60 leading-relaxed">Navegue pelo mapa, filtre por estilo e agende na hora.</p>
                     
-                    {/* CORREÇÃO 4: div virou button com acessibilidade */}
-                    <button 
-                      type="button"
-                      className="mt-8 rounded-full bg-[#FF6600] px-8 py-3 text-sm font-semibold text-[#121212] shadow-lg shadow-[#FF6600]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]"
+                    <Link
+                      href="/download"
+                      transitionTypes={["nav-forward"]}
+                      className="mt-8 inline-flex items-center justify-center rounded-full bg-[#FF6600] px-8 py-3 text-sm font-semibold text-[#121212] shadow-lg shadow-[#FF6600]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]"
                     >
                       Baixar o App
-                    </button>
+                    </Link>
                   </div>
                 }
               />
@@ -169,12 +170,13 @@ export default function DualSidedSection() {
                     <h4 className="text-2xl font-bold text-white mb-3">Gestão Completa</h4>
                     <p className="text-white/60 leading-relaxed">Seu portfólio, finanças e agenda em um só painel.</p>
                     
-                    <button 
-                      type="button"
-                      className="mt-8 rounded-full bg-[#00FF66] px-8 py-3 text-sm font-semibold text-[#101713] shadow-lg shadow-[#00FF66]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66]"
+                    <Link
+                      href="/tatuadores"
+                      transitionTypes={["nav-forward"]}
+                      className="mt-8 inline-flex items-center justify-center rounded-full bg-[#00FF66] px-8 py-3 text-sm font-semibold text-[#101713] shadow-lg shadow-[#00FF66]/20 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66]"
                     >
                       Seja Parceiro
-                    </button>
+                    </Link>
                   </div>
                 }
               />
