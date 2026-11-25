@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Caveat } from "next/font/google"; // <-- AQUI
+import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import TattooMenu from "@/components/TattooMenu";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,11 +44,14 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} h-full`} // <-- AQUI
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} h-full`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-[#121212] text-white antialiased overflow-x-hidden">
-        <SmoothScroll>{children}</SmoothScroll>
-        <TattooMenu />
+      <body className="min-h-full bg-[var(--background)] text-[var(--foreground)] antialiased overflow-x-hidden transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <SmoothScroll>{children}</SmoothScroll>
+          <TattooMenu />
+        </ThemeProvider>
       </body>
     </html>
   );

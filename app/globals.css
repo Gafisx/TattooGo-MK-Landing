@@ -1,15 +1,33 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================
+   TOKENS — Light (default) e Dark
+   ============================================ */
 :root {
-  --background: #121212;
-  --surface: #1a1a1a;
+  --background: #F8F9FA;
+  --surface: #EAEDF0;
   --deep-graphite: #121212;
-  --neon-orange: #ff6600;
-  --neon-green: #00ff66;
-  --amber-glow: #ff9900;
-  --cyber-blue: #4977ff;
-  --cyber-purple: #8d43ff;
-  --foreground: #ffffff;
+  --neon-orange: #FF6600;
+  --neon-green: #00FF66;
+  --amber-glow: #FF9900;
+  --cyber-blue: #4977FF;
+  --cyber-purple: #8D43FF;
+  --foreground: #121212;
+  --titanium: #64748B;
+}
+
+.dark {
+  --background: #121212;
+  --surface: #1A1A1A;
+  --deep-graphite: #121212;
+  --neon-orange: #FF6600;
+  --neon-green: #00FF66;
+  --amber-glow: #FF9900;
+  --cyber-blue: #4977FF;
+  --cyber-purple: #8D43FF;
+  --foreground: #FFFFFF;
+  --titanium: #94A3B8;
 }
 
 @theme inline {
@@ -22,6 +40,7 @@
   --color-cyber-blue: var(--cyber-blue);
   --color-cyber-purple: var(--cyber-purple);
   --color-foreground: var(--foreground);
+  --color-titanium: var(--titanium);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
