@@ -66,12 +66,14 @@ vi.mock("motion/react", () => {
     useTransform: () => 0,
     useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
     useSpring: () => ({ get: () => 0 }),
+    useReducedMotion: () => false,
   };
 });
 
 // ── Imports after mocks ────────────────────────────────────────────────────
 import ClientesPage from "@/app/clientes/page";
 import ClientsHero from "@/components/clients/ClientsHero";
+import ClientFeatures from "@/components/clients/ClientFeatures";
 import ClientStyles from "@/components/clients/ClientStyles";
 
 describe("ClientesPage", () => {
@@ -79,14 +81,36 @@ describe("ClientesPage", () => {
     vi.clearAllMocks();
   });
 
-  test("renders the full page without crashing", () => {
+  test("renders the full page with real PWA features and security shield", () => {
     render(<ClientesPage />);
     expect(
       screen.getByRole("heading", { name: /sua próxima obra-prima começa aqui\./i }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("heading", { name: /uma experiência que entende você\./i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Assistente de IA (TattooGo Studio)")).toBeInTheDocument();
+    expect(screen.getByText("Mapa Imersivo")).toBeInTheDocument();
+    expect(screen.getByText("Chat e Orçamentos")).toBeInTheDocument();
+    expect(
       screen.getByRole("heading", { name: /descubra seu estilo/i }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /seus dados e sua arte blindados/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Criptografia AES-256")).toBeInTheDocument();
+    expect(screen.getByText("Verificação de Identidade OTP")).toBeInTheDocument();
+    expect(screen.getByText("LGPD")).toBeInTheDocument();
+  });
+
+  test("ClientFeatures renders all client PWA topics", () => {
+    render(<ClientFeatures />);
+    expect(
+      screen.getByRole("heading", { name: /uma experiência que entende você\./i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Assistente de IA (TattooGo Studio)")).toBeInTheDocument();
+    expect(screen.getByText("Mapa Imersivo")).toBeInTheDocument();
+    expect(screen.getByText("Chat e Orçamentos")).toBeInTheDocument();
   });
 
   test("ClientsHero renders the main heading and CTA links", () => {

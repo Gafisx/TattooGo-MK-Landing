@@ -17,9 +17,9 @@ const clientBenefits = [
 ];
 
 const artistBenefits = [
+  { icon: BadgeCheck, title: "Portfólio verificado", description: "Destaque seu trabalho com selo de autenticidade e alcance no mapa." },
   { icon: CalendarDays, title: "Agenda sob controle", description: "Organize reservas, horários e confirmações em um só lugar." },
-  { icon: WalletCards, title: "Ganhos transparentes", description: "Acompanhe seus resultados e pagamentos com clareza." },
-  { icon: ShieldCheck, title: "Divisão automática", description: "Receba com mais previsibilidade e reduza o risco de calotes." },
+  { icon: WalletCards, title: "Ganhos transparentes", description: "Acompanhe seus resultados e sessões combinadas com clareza." },
 ];
 
 function BenefitList({ items, tone = "orange" }: { items: typeof clientBenefits; tone?: "orange" | "green" }) {
@@ -139,7 +139,7 @@ export default function DualSidedSection() {
                 Seu trabalho merece alcance. Sua agenda, controle.
               </h3>
               <p className="mt-5 max-w-xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
-                Apresente seu portfólio, organize horários e acompanhe os pagamentos. Vire o cartão e veja o poder na sua mão.
+                Apresente seu portfólio, organize horários e acompanhe suas sessões. Vire o cartão e veja o poder na sua mão.
               </p>
               <BenefitList items={artistBenefits} tone="green" />
             </div>
@@ -168,7 +168,7 @@ export default function DualSidedSection() {
                   <div className="w-full h-full flex flex-col p-10 items-center justify-center text-center">
                     <WalletCards className="h-12 w-12 text-[#00FF66] mb-6" />
                     <h4 className="text-2xl font-bold text-white mb-3">Gestão Completa</h4>
-                    <p className="text-white/60 leading-relaxed">Seu portfólio, finanças e agenda em um só painel.</p>
+                    <p className="text-white/60 leading-relaxed">Seu portfólio, orçamentos e agenda em um só painel.</p>
                     
                     <Link
                       href="/tatuadores"

@@ -1,7 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import { ArrowDown, ArrowRight, MapPin, Palette, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowDown, ArrowRight, Download, MapPin, Palette, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 import { View } from "@react-three/drei";
 import { useReducedMotion } from "motion/react";
@@ -111,6 +112,25 @@ export default function HeroSection() {
           </p>
 
           <div ref={storesRef} className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
+            <Link
+              href="/download"
+              transitionTypes={["nav-forward"]}
+              onMouseEnter={playHoverClick}
+              onFocus={playHoverClick}
+              className="hero-store-button group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-[#FF9900]/60 bg-[#FF9900] px-5 text-[#121212] shadow-[0_16px_40px_rgba(255,153,0,0.22)] transition-all duration-300 hover:bg-[#FF6600] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] sm:min-w-54.5"
+            >
+              <Download aria-hidden="true" className="h-6 w-6 shrink-0" />
+              <span className="flex min-w-0 flex-1 flex-col text-left">
+                <span className="text-[0.63rem] font-semibold uppercase tracking-normal text-[#121212]/80">
+                  PWA &amp; Mobile
+                </span>
+                <span className="text-[1.05rem] font-bold leading-tight text-[#121212]">
+                  Baixar o App
+                </span>
+              </span>
+              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+
             <a
               href="#clients-title"
               onMouseEnter={playHoverClick}

@@ -65,9 +65,8 @@ export default function ArtistsHero() {
             transition={{ duration: 0.7, delay: 0.25 }}
             className="mt-6 max-w-xl font-mono text-sm leading-relaxed text-slate-400 sm:text-base"
           >
-            Infraestrutura financeira com escrow automatizado, gestão de agenda
-            em tempo real e previsibilidade de caixa para estúdios e artistas
-            independentes.
+            Portfólio verificado, gestão de agenda em tempo real e recebimentos
+            transparentes para estúdios e artistas independentes.
           </motion.p>
 
           <motion.div
@@ -77,14 +76,14 @@ export default function ArtistsHero() {
             className="mt-10 flex flex-wrap items-center gap-4"
           >
             <a
-              href="#agenda-sem-caos"
+              href="#artist-features"
               className="rounded-xl bg-[#00FF66] px-7 py-3.5 text-sm font-bold text-[#121212] transition-all hover:bg-[#1aff78] hover:shadow-[0_0_28px_rgba(0,255,102,0.35)]"
             >
               Explorar Painel
             </a>
             <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-              <ShieldCheck className="h-4 w-4 text-[#00FF66]" />
-              <span>Liquidação protegida por custódia</span>
+              <ShieldCheck aria-hidden="true" className="h-4 w-4 text-[#00FF66]" />
+              <span>Dados protegidos com AES-256 e OTP</span>
             </div>
           </motion.div>
         </div>

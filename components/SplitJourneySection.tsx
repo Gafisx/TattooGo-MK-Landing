@@ -232,8 +232,8 @@ export default function SplitJourneySection() {
                 Menos operação. Mais tempo no traço.
               </h2>
               <p className="mt-5 max-w-md text-[clamp(0.875rem,1.1vw,1rem)] leading-relaxed">
-                Apresente seu portfólio, organize a agenda e acompanhe cada
-                pagamento sem perder o foco no estúdio.
+                Apresente seu portfólio, organize a agenda e responda orçamentos
+                sem perder o foco no estúdio.
               </p>
               <a
                 href="#artists-title"

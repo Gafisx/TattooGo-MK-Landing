@@ -1,5 +1,5 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createElement, forwardRef } from "react";
 import type { HTMLAttributes, ReactNode, Ref } from "react";
 
@@ -58,25 +58,21 @@ vi.mock("motion/react", () => {
       },
     }),
     AnimatePresence: ({ children }: { children: ReactNode }) => children,
+    useReducedMotion: () => false,
   };
 });
 
 // ── Imports after mocks ────────────────────────────────────────────────────
 import TatuadoresPage from "@/app/tatuadores/page";
 import ArtistsHero from "@/components/artists/ArtistsHero";
-import ArtistsDashboard from "@/components/artists/ArtistsDashboard";
-import FuseButton from "@/components/ui/FuseButton";
+import ArtistFeatures from "@/components/artists/ArtistFeatures";
 
 describe("TatuadoresPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  test("renders Hero and Dashboard on the /tatuadores page", () => {
+  test("renders Hero, ArtistFeatures and SecuritySection on /tatuadores without payment promises", () => {
     render(<TatuadoresPage />);
     expect(
       screen.getByRole("heading", {
@@ -85,96 +81,40 @@ describe("TatuadoresPage", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /agenda sem caos/i }),
+      screen.getByRole("heading", { name: /o controle total da sua arte\./i }),
     ).toBeInTheDocument();
+    expect(screen.getByText("Portfólio Verificado")).toBeInTheDocument();
+    expect(screen.getByText("Gestão de Agenda")).toBeInTheDocument();
+    expect(screen.getByText("Recebimentos Transparentes")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /seus dados e sua arte blindados/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Criptografia AES-256")).toBeInTheDocument();
+    expect(screen.getByText("Verificação de Identidade OTP")).toBeInTheDocument();
+    expect(screen.getByText("LGPD")).toBeInTheDocument();
+
+    expect(screen.queryByText(/escrow/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/split payment/i)).not.toBeInTheDocument();
   });
 
-  test("ArtistsHero renders floating dashboard metrics", () => {
+  test("ArtistsHero renders floating dashboard metrics and points to #artist-features", () => {
     render(<ArtistsHero />);
     expect(screen.getByText("Ganhos")).toBeInTheDocument();
     expect(screen.getByText("R$ 4.500")).toBeInTheDocument();
     expect(screen.getByText("Agendamentos")).toBeInTheDocument();
     expect(screen.getByText("12")).toBeInTheDocument();
-  });
-
-  test("ArtistsDashboard renders FuseButton inside Agenda Sem Caos", () => {
-    render(<ArtistsDashboard />);
     expect(
-      screen.getByRole("heading", { name: /agenda sem caos/i }),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: /explorar painel/i }),
+    ).toHaveAttribute("href", "#artist-features");
+  });
+
+  test("ArtistFeatures renders all three real artist topics", () => {
+    render(<ArtistFeatures />);
     expect(
-      screen.getByRole("button", { name: /segure para liberar pagamento/i }),
+      screen.getByRole("heading", { name: /o controle total da sua arte\./i }),
     ).toBeInTheDocument();
-  });
-
-  test("FuseButton cancels on early release and completes after 2 seconds hold", () => {
-    vi.useFakeTimers();
-    const onComplete = vi.fn();
-
-    render(
-      <FuseButton
-        label="Segure para liberar pagamento"
-        completedLabel="Pagamento liberado"
-        durationMs={2000}
-        onComplete={onComplete}
-      />,
-    );
-
-    const btn = screen.getByRole("button", {
-      name: /segure para liberar pagamento/i,
-    });
-
-    // Solta antes de completar 2s -> não deve completar
-    fireEvent.pointerDown(btn);
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    fireEvent.pointerUp(btn);
-    act(() => {
-      vi.advanceTimersByTime(1500);
-    });
-    expect(onComplete).not.toHaveBeenCalled();
-
-    // Segura pelos 2s completos -> deve concluir e chamar onComplete
-    fireEvent.pointerDown(btn);
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
-    expect(onComplete).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("Pagamento liberado")).toBeInTheDocument();
-  });
-
-  test("FuseButton supports keyboard hold with Space/Enter", () => {
-    vi.useFakeTimers();
-    const onComplete = vi.fn();
-
-    render(
-      <FuseButton
-        label="Segure para liberar pagamento"
-        completedLabel="Pagamento liberado"
-        durationMs={1000}
-        onComplete={onComplete}
-      />,
-    );
-
-    const btn = screen.getByRole("button", {
-      name: /segure para liberar pagamento/i,
-    });
-
-    fireEvent.keyDown(btn, { key: " " });
-    act(() => {
-      vi.advanceTimersByTime(500);
-    });
-    fireEvent.keyUp(btn, { key: " " });
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    expect(onComplete).not.toHaveBeenCalled();
-
-    fireEvent.keyDown(btn, { key: "Enter" });
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Portfólio Verificado")).toBeInTheDocument();
+    expect(screen.getByText("Gestão de Agenda")).toBeInTheDocument();
+    expect(screen.getByText("Recebimentos Transparentes")).toBeInTheDocument();
   });
 });

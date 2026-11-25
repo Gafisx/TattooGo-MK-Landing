@@ -65,8 +65,11 @@ describe("HeroSection", () => {
     expect(screen.getByTestId("three-view")).toBeInTheDocument();
     expect(screen.getByTestId("tattoo-machine")).toBeInTheDocument();
 
+    const btnBaixar = screen.getByRole("link", { name: /Baixar o App/i });
     const btnClientes = screen.getByRole("link", { name: /Para clientes/i });
     const btnTatuadores = screen.getByRole("link", { name: /Para tatuadores/i });
+    expect(btnBaixar).toBeInTheDocument();
+    expect(btnBaixar).toHaveAttribute("href", "/download");
     expect(btnClientes).toBeInTheDocument();
     expect(btnTatuadores).toBeInTheDocument();
   });

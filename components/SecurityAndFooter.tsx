@@ -4,8 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 import {
   Check,
   Fingerprint,
+  KeyRound,
   ShieldCheck,
-  WalletCards,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -14,10 +14,10 @@ import SlingButton from "./SlingButton";
 gsap.registerPlugin(ScrollTrigger);
 
 const securityPoints = [
-  { icon: Fingerprint, title: "Criptografia ponta a ponta", description: "Dados sensíveis protegidos durante a troca de informações.", status: "E2E PROTECTED" },
-  { icon: WalletCards, title: "Custódia acompanhada", description: "Acompanhe as condições da reserva até a liberação do saldo.", status: "RESERVATION-BASED" },
-  { icon: ShieldCheck, title: "Divisão automática", description: "A divisão do pagamento segue o que foi combinado na reserva.", status: "AUTO SPLIT" },
-  { icon: Check, title: "Perfis verificados", description: "Mais clareza sobre quem está do outro lado antes de fechar a reserva.", status: "TRUSTED PROFILES" },
+  { icon: Fingerprint, title: "Criptografia AES-256", description: "Dados sensíveis, conversas e referências protegidos durante toda a jornada.", status: "AES-256 PROTECTED" },
+  { icon: KeyRound, title: "Verificação de Identidade OTP", description: "Acesso validado por código único para garantir contas reais.", status: "OTP VERIFIED" },
+  { icon: ShieldCheck, title: "Conformidade LGPD", description: "Privacidade e controle transparente das suas informações pessoais.", status: "LGPD COMPLIANT" },
+  { icon: Check, title: "Perfis verificados", description: "Mais clareza sobre quem está do outro lado antes de fechar o orçamento.", status: "TRUSTED PROFILES" },
 ];
 
 export default function SecurityAndFooter() {
@@ -126,7 +126,7 @@ export default function SecurityAndFooter() {
             <div className="pointer-events-none absolute right-[8%] top-[12%] h-[36%] w-[42%] rounded-full bg-[#4977FF]/[0.09] blur-[70px]" />
             <div className="pointer-events-none absolute inset-3 rounded-[2rem] border border-white/20 bg-linear-to-br from-white/[0.06] via-transparent to-[#00FF66]/[0.03]" />
 
-            <div role="img" aria-label="Escudo TattooGo MK simbolizando a proteção dos pagamentos entre cliente e tatuador" className="gpu-accelerate absolute inset-[16%] flex items-center justify-center text-[#FF9900] drop-shadow-[0_0_32px_rgba(255,102,0,0.3)] [transform:translate3d(0,0,24px)]">
+            <div role="img" aria-label="Escudo TattooGo MK simbolizando a proteção de dados e arte entre cliente e tatuador" className="gpu-accelerate absolute inset-[16%] flex items-center justify-center text-[#FF9900] drop-shadow-[0_0_32px_rgba(255,102,0,0.3)] [transform:translate3d(0,0,24px)]">
               <ShieldCheck aria-hidden="true" className="size-full" />
             </div>
 
@@ -134,23 +134,23 @@ export default function SecurityAndFooter() {
 
             <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/20 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#00FF66]">Secure enclave</p>
-              <p className="mt-1 text-[11px] text-[#E0E0E0]">Reserva protegida</p>
+              <p className="mt-1 text-[11px] text-[#E0E0E0]">Dados blindados</p>
             </div>
           </div>
         </div>
 
         <div ref={copyRef} className="gpu-accelerate">
           <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FF9900] sm:text-sm">
-            Clareza em cada reserva
+            Segurança e privacidade
           </p>
           <h2 id="security-title" className="max-w-2xl text-[clamp(2.6rem,5vw,5.25rem)] font-semibold leading-[0.91] tracking-[-0.065em] text-white">
-            Regras claras
+            Seus dados e sua arte
             <span className="block bg-linear-to-r from-[#FF9900] via-[#FF6600] to-[#00FF66] bg-clip-text text-transparent">
-              para cada pagamento.
+              blindados no PWA.
             </span>
           </h2>
           <p className="mt-6 max-w-2xl text-[clamp(1rem,1.3vw,1.125rem)] leading-relaxed text-[#E0E0E0]">
-            Os dados são protegidos por criptografia. As condições da reserva orientam o pagamento e a liberação do saldo — visíveis para cliente e artista.
+            Criptografia AES-256, verificação de identidade OTP e conformidade com a LGPD protegem suas conversas, referências e portfólio do início ao fim.
           </p>
 
           <ul className="mt-8 space-y-5 sm:mt-10">
