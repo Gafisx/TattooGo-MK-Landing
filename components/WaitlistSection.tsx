@@ -61,14 +61,18 @@ export default function WaitlistSection() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,255,102,0.08),transparent_50%)]" />
       
       <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
+        <div className="flex items-center gap-2 justify-center mb-4">
+          <span className="h-2 w-2 rounded-full bg-[#00FF66] shadow-[0_0_10px_#00FF66] animate-pulse" aria-hidden="true" />
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-[#00FF66]">Lista VIP</span>
+        </div>
         <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
           A agulha está quase pronta.
         </h2>
-        <p className="mt-4 text-lg text-white/70">
+        <p className="mt-4 text-lg text-slate-300">
           Entre para a lista VIP e seja o primeiro a saber quando o TattooGo MK estiver disponível.
         </p>
 
-        <div className="mt-10 mx-auto max-w-lg rounded-[2rem] border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl shadow-2xl shadow-black/50">
+        <div className="mt-10 mx-auto max-w-lg rounded-[2rem] border border-white/10 bg-[#1A1A1A]/50 p-8 backdrop-blur-xl shadow-2xl shadow-black/50">
           {/* `noValidate`: a validação do Zod é a única fonte de verdade, com
               mensagem em português e anunciada por `role="alert"`. Sem isso o
               navegador bloqueia o envio e o erro customizado nunca aparece. */}
@@ -149,10 +153,10 @@ export default function WaitlistSection() {
             <button
               type="submit"
               disabled={isDisabled}
-              className={`group relative flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-semibold text-[#121212] transition-all duration-300 ${
+              className={`group relative flex items-center justify-center gap-2 rounded-xl px-6 py-4 font-semibold text-[#121212] transition-all duration-300 shadow-lg ${
                 status === "success"
-                  ? "bg-[#00FF66] cursor-default"
-                  : "bg-[#FF9900] hover:bg-[#FF6600] hover:scale-[1.02]"
+                  ? "bg-[#00FF66] cursor-default shadow-[0_0_28px_rgba(0,255,102,0.3)]"
+                  : "bg-[#FF9900] hover:bg-[#FF6600] hover:scale-[1.02] hover:shadow-[0_0_28px_rgba(255,102,0,0.35)]"
               }`}
             >
               <AnimatePresence mode="wait">

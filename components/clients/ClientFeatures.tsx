@@ -69,21 +69,22 @@ export default function ClientFeatures() {
               whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.5, delay: reducedMotion ? 0 : index * 0.08 }}
-              className="group relative overflow-hidden rounded-2xl border border-slate-300/20 bg-slate-800/40 p-7 shadow-xl backdrop-blur-2xl transition-colors hover:border-[#FF6600]/50"
+              className="group relative overflow-hidden rounded-2xl border border-slate-300/20 bg-slate-800/45 p-7 shadow-xl backdrop-blur-2xl transition-colors hover:border-[#FF6600]/60 hover:shadow-[0_0_28px_rgba(255,102,0,0.12)]"
             >
               <div className="mb-5 flex items-center justify-between">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#FF6600]/30 bg-[#FF6600]/15 text-[#FF9900]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#FF6600]/35 bg-[#FF6600]/18 text-[#FF9900] shadow-[0_0_18px_rgba(255,102,0,0.18)]">
                   <Icon aria-hidden="true" className="h-6 w-6" />
                 </span>
-                <span className="rounded-full border border-[#FF9900]/25 bg-[#FF9900]/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#FF9900]">
+                <span className="rounded-full border border-[#FF9900]/30 bg-[#FF9900]/12 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#FF9900] shadow-[0_0_10px_rgba(255,153,0,0.2)]">
                   {badge}
                 </span>
               </div>
 
               <h3 className="text-xl font-bold text-white">{title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-400">
+              <p className="mt-3 text-sm leading-relaxed text-slate-300 group-hover:text-slate-200">
                 {description}
               </p>
+              <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF6600]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.article>
           ))}
         </div>

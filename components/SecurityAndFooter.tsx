@@ -133,9 +133,9 @@ export default function SecurityAndFooter() {
 
             <div data-shield-reveal aria-hidden="true" className="gpu-accelerate-child pointer-events-none absolute inset-3 z-1 rounded-[2rem] bg-[linear-gradient(160deg,rgba(18,18,18,0.92)_0%,rgba(255,102,0,0.2)_42%,rgba(0,255,102,0.22)_100%)] motion-reduce:scale-y-0" />
 
-            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/20 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)]">
+            <div className="gpu-accelerate-child absolute left-7 top-7 z-10 rounded-xl border border-white/20 bg-[#121212]/65 px-3 py-2 backdrop-blur-lg [transform:translate3d(0,0,48px)] shadow-[0_0_18px_rgba(0,255,102,0.15)]">
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#00FF66]">Secure enclave</p>
-              <p className="mt-1 text-[11px] text-[#E0E0E0]">Dados blindados</p>
+              <p className="mt-1 text-[11px] text-slate-200">Dados blindados</p>
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function SecurityAndFooter() {
           <ul className="mt-8 space-y-5 sm:mt-10">
             {securityPoints.map(({ icon: Icon, title, description, status }) => (
               <li key={title} data-security-point className="flex items-start gap-4">
-                <span className="gpu-accelerate-child flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#00FF66]/20 bg-[#00FF66]/[0.06] text-[#FF9900]">
+                <span className="gpu-accelerate-child flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#00FF66]/25 bg-[#00FF66]/[0.08] text-[#FF9900] shadow-[0_0_18px_rgba(255,153,0,0.12)]">
                   <Icon aria-hidden="true" className="h-[18px] w-[18px]" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -219,7 +219,7 @@ export default function SecurityAndFooter() {
           </a>
 
           <nav aria-label="Links institucionais">
-            <ul className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/55">
+            <ul className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400">
               <li><a className="footer-nav-link" href="#top">Início</a></li>
               {/* Estes links agora funcionam, pois adicionamos os IDs no DualSidedSection */}
               <li><a className="footer-nav-link" href="#clients-title">Para clientes</a></li>
@@ -228,9 +228,9 @@ export default function SecurityAndFooter() {
             </ul>
           </nav>
 
-          <p className="text-xs leading-5 text-white/60 md:text-right">
+          <p className="text-xs leading-5 text-slate-400 md:text-right">
             © {new Date().getFullYear()} Gafisx Labs. TattooGo MK.
-            <span className="block text-[#FF9900]/85">Da ideia ao traço.</span>
+            <span className="block text-[#FF9900] font-semibold">Da ideia ao traço.</span>
           </p>
         </div>
       </footer>

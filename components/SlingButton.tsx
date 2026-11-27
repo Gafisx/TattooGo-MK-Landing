@@ -134,7 +134,7 @@ export default function SlingButton({
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[240px]" ref={rootRef}>
       <svg className="absolute pointer-events-none overflow-visible" width={H * 2} height={H * 2} viewBox={`${-H} ${-H} ${2 * H} ${2 * H}`}>
-        <circle cx={0} cy={0} r={wellR} fill="#1A1A1A" />
+        <circle cx={0} cy={0} r={wellR} fill="#1A1A1A" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
         <motion.circle 
           cx={0} cy={0} r={wellR} fill="none" stroke="#FF6600" strokeWidth={3}
           strokeDasharray="1" pathLength="1"
@@ -159,12 +159,13 @@ export default function SlingButton({
           onSend();
         }}
         style={{ width: size, height: size, transform: padT }}
-        className={`relative z-10 flex items-center justify-center rounded-full bg-[#F5F5F5] text-[#18181B] shadow-lg transition-transform ${held ? "cursor-grabbing scale-95" : "cursor-grab hover:scale-105"} ${armed ? "ring-4 ring-[#00FF66] shadow-[0_0_24px_#00FF66]" : ""}`}
+        className={`relative z-10 flex items-center justify-center rounded-full bg-[#1A1A1A] border border-white/20 shadow-lg transition-transform ${held ? "cursor-grabbing scale-95" : "cursor-grab hover:scale-105"} ${armed ? "border-[#00FF66]/70 ring-4 ring-[#00FF66]/40 shadow-[0_0_28px_#00FF66]" : "hover:border-white/35"}`}
       >
         <ArrowUp aria-hidden="true" size={size * 0.4} strokeWidth={2.5} />
       </motion.button>
       
-      <span className="mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-[#FF9900]">
+      <span className="mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-[#FF9900] flex items-center gap-2">
+        <span className="h-2 w-2 rounded-full bg-[#FF9900] shadow-[0_0_8px_#FF9900] inline-block" aria-hidden="true" />
         {label}
       </span>
     </div>

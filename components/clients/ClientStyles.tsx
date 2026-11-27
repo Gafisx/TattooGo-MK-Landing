@@ -14,8 +14,15 @@ export default function ClientStyles() {
   return (
     <section id="estilos" className="relative py-24 bg-[#121212] overflow-hidden">
       <div className="mx-auto max-w-5xl px-5 text-center mb-16">
+        <p className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-[#FF9900] mb-4">
+          Estilos · TattooGo Studio
+        </p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6600]/25 bg-[#FF6600]/8 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#FF9900] mb-6 shadow-[0_0_12px_rgba(255,102,0,0.12)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#FF6600] shadow-[0_0_8px_#FF6600]" aria-hidden="true" />
+          Estilos de tatuagem
+        </div>
         <h2 className="text-4xl md:text-6xl font-serif text-white mb-4">Descubra seu Estilo</h2>
-        <p className="text-white/60 text-lg">Explore as linguagens da tatuagem e encontre a arte que traduz quem você é.</p>
+        <p className="text-slate-300 text-lg">Explore as linguagens da tatuagem e encontre a arte que traduz quem você é.</p>
       </div>
       <AccordionGallery items={styles} />
     </section>
