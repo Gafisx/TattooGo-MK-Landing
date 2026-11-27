@@ -29,17 +29,17 @@ export default function SubpageShell({ children }: SubpageShellProps) {
         {children}
       </main>
 
-      <footer className="border-t border-white/10 bg-[#121212]">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-8 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-16">
+      <footer className="border-t border-white/10 bg-[#121212] shadow-[0_-4px_24px_rgba(0,0,0,0.5)]">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-8 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-16">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <TattooGoBrand size="sm" />
             <p>© {new Date().getFullYear()} Gafisx Labs.</p>
           </div>
           <div className="flex flex-wrap gap-6">
-            <Link href="/" transitionTypes={["nav-back"]} className="hover:text-[#FF9900]">
+            <Link href="/" transitionTypes={["nav-back"]} className="hover:text-[#FF9900] transition-colors duration-200">
               Voltar para a Home
             </Link>
-            <Link href="/#waitlist" transitionTypes={["nav-back"]} className="hover:text-[#FF9900]">
+            <Link href="/#waitlist" transitionTypes={["nav-back"]} className="hover:text-[#FF9900] transition-colors duration-200">
               Entrar na Lista VIP
             </Link>
           </div>

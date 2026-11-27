@@ -57,7 +57,7 @@ export default function HeroSection() {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,102,0,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(0,255,102,0.1),transparent_50%)]" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-360 items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
+      <div className="relative z-10 mx-auto grid w-full max-w-[360px] items-center gap-12 px-5 sm:px-10 lg:grid-cols-2 lg:gap-8 lg:px-16">
         
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           
@@ -105,7 +105,7 @@ export default function HeroSection() {
 
           <p
             ref={copyRef}
-            className="mt-3 max-w-125 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-white/70"
+            className="mt-3 max-w-[125px] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.65] text-slate-300"
           >
             Encontre artistas, compare traços e reserve com clareza. Da primeira
             busca à sessão, a arte continua sendo o centro.
@@ -117,7 +117,7 @@ export default function HeroSection() {
               transitionTypes={["nav-forward"]}
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="hero-store-button group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-[#FF9900]/60 bg-[#FF9900] px-5 text-[#121212] shadow-[0_16px_40px_rgba(255,153,0,0.22)] transition-all duration-300 hover:bg-[#FF6600] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] sm:min-w-54.5"
+              className="hero-store-button group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-[#FF9900]/60 bg-[#FF9900] px-5 text-[#121212] shadow-[0_16px_40px_rgba(255,153,0,0.22)] transition-all duration-300 hover:bg-[#FF6600] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] sm:min-w-[54.5px]"
             >
               <Download aria-hidden="true" className="h-6 w-6 shrink-0" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
@@ -135,7 +135,7 @@ export default function HeroSection() {
               href="#clients-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#FF6600]/70 hover:bg-[#1A1A1A] sm:min-w-54.5"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#FF6600]/70 hover:bg-[#1A1A1A] sm:min-w-[54.5px]"
             >
               <MapPin aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF9900]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
@@ -153,9 +153,9 @@ export default function HeroSection() {
               href="#artists-title"
               onMouseEnter={playHoverClick}
               onFocus={playHoverClick}
-              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#00FF66]/60 hover:bg-[#1A1A1A] sm:min-w-54.5"
+              className="group relative isolate flex min-h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A]/60 px-5 text-[#E0E0E0] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-[#00FF66]/60 hover:bg-[#1A1A1A] sm:min-w-[54.5px]"
             >
-              <Palette aria-hidden="true" className="h-7 w-7 shrink-0 text-[#FF6600]" />
+              <Palette aria-hidden="true" className="h-7 w-7 shrink-0 text-[#00FF66]" />
               <span className="flex min-w-0 flex-1 flex-col text-left">
                 <span className="text-[0.63rem] font-medium uppercase tracking-normal text-[#E0E0E0]/75">
                   Mostre seu trabalho
@@ -181,9 +181,12 @@ export default function HeroSection() {
             <TattooMachineModel reducedMotion={reducedMotion} mode="hero" />
           </View>
 
-          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-50 pointer-events-none">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white">Scroll para revelar</span>
-            <ArrowDown aria-hidden="true" className="h-5 w-5 animate-bounce text-white" />
+          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 opacity-60 pointer-events-none">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FF9900]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF9900] shadow-[0_0_8px_#FF9900] inline-block mr-1.5 animate-pulse" aria-hidden="true" />
+              Scroll para revelar
+            </span>
+            <ArrowDown aria-hidden="true" className="h-5 w-5 animate-bounce text-[#FF9900] drop-shadow-[0_0_8px_rgba(255,153,0,0.4)]" />
           </div>
         </div>
       </div>

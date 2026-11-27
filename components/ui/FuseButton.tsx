@@ -112,17 +112,16 @@ export default function FuseButton({
       aria-pressed={isHolding || completed}
       className={`relative w-full overflow-hidden rounded-xl border px-6 py-4 font-semibold select-none touch-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FF66] ${
         completed
-          ? "border-[#00FF66]/60 bg-[#00FF66]/15 text-[#00FF66] cursor-default"
-          : "border-slate-300/25 bg-slate-800/50 text-white hover:border-[#FF6600]/60 cursor-pointer"
+          ? "border-[#00FF66]/70 bg-[#00FF66]/18 text-[#00FF66] cursor-default shadow-[0_0_22px_rgba(0,255,102,0.22)]"
+          : "border-slate-300/30 bg-slate-800/55 text-white hover:border-[#FF6600]/70 hover:bg-slate-700/55 hover:shadow-[0_0_22px_rgba(255,102,0,0.18)] cursor-pointer"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
     >
-      {/* Barra de progresso laranja (ou verde quando concluído) */}
       <motion.span
         aria-hidden="true"
         className={`pointer-events-none absolute inset-y-0 left-0 ${
           completed
-            ? "bg-[#00FF66]/15"
-            : "bg-gradient-to-r from-[#FF6600]/35 via-[#FF6600]/45 to-[#FF6600]/60"
+            ? "bg-[#00FF66]/20 shadow-[0_0_14px_rgba(0,255,102,0.25)]"
+            : "bg-gradient-to-r from-[#FF6600]/35 via-[#FF6600]/50 to-[#FF6600]/70 shadow-[0_0_10px_rgba(255,102,0,0.2)]"
         }`}
         initial={{ width: "0%" }}
         animate={{ width: completed ? "100%" : `${progress}%` }}
@@ -136,7 +135,7 @@ export default function FuseButton({
       {!completed && (
         <motion.span
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-[#FF6600] shadow-[0_0_12px_#FF6600]"
+          className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-[#FF6600] shadow-[0_0_14px_#FF6600]"
           initial={{ width: "0%" }}
           animate={{ width: `${progress}%` }}
           transition={{
@@ -145,6 +144,16 @@ export default function FuseButton({
           }}
         />
       )}
+
+      {/* Indicador luminoso superior do fusível */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute top-0 right-0 h-0.5 w-1 rounded-full ${
+          completed
+            ? "bg-[#00FF66] shadow-[0_0_10px_#00FF66]"
+            : "bg-[#FF9900] shadow-[0_0_10px_#FF9900] group-hover/btn:bg-[#FF6600] group-hover/btn:shadow-[0_0_10px_#FF6600]"
+        }`}
+      />
 
       {/* Conteúdo do botão */}
       <span className="relative z-10 flex items-center justify-center gap-2.5 text-sm sm:text-base">
@@ -156,7 +165,7 @@ export default function FuseButton({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.75 }}
               transition={{ type: "spring", stiffness: 420, damping: 24 }}
-              className="flex items-center gap-2 text-[#00FF66]"
+              className="flex items-center gap-2 text-[#00FF66] drop-shadow-[0_0_8px_rgba(0,255,102,0.4)]"
             >
               <Check className="h-5 w-5 stroke-[2.5]" />
               <span>{completedLabel}</span>
@@ -167,7 +176,7 @@ export default function FuseButton({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2"
+              className="relative z-10 flex items-center gap-2"
             >
               <span>{label}</span>
             </motion.span>

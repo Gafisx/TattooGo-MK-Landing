@@ -87,10 +87,14 @@ export default function SecuritySection({ variant = "client" }: SecuritySectionP
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: reducedMotion ? 0 : index * 0.08 }}
-                className="flex items-start gap-4 rounded-2xl border border-slate-400/15 bg-slate-900/45 p-5 backdrop-blur-xl"
+                className={`flex items-start gap-4 rounded-2xl border backdrop-blur-xl p-5 transition-colors hover:shadow-lg hover:shadow-black/20 ${
+                  isArtist
+                    ? "border-[#00FF66]/20 bg-[#00FF66]/5"
+                    : "border-[#FF6600]/20 bg-[#FF6600]/5"
+                }`}
               >
                 <span
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${iconBox}`}
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${iconBox} shadow-[0_0_18px_rgba(255,153,0,0.12)]`}
                 >
                   <Icon aria-hidden="true" className="h-5 w-5" />
                 </span>
@@ -98,12 +102,12 @@ export default function SecuritySection({ variant = "client" }: SecuritySectionP
                   <div className="flex flex-wrap items-center gap-2.5">
                     <h3 className="text-base font-bold text-white">{title}</h3>
                     <span
-                      className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${badgeStyle}`}
+                      className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${badgeStyle} shadow-[0_0_10px_rgba(255,153,0,0.15)]`}
                     >
                       {badge}
                     </span>
                   </div>
-                  <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-300">
                     {description}
                   </p>
                 </div>
