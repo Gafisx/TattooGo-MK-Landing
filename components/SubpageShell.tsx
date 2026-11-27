@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import TattooGoBrand from "@/components/ui/TattooGoBrand";
 
 type SubpageShellProps = {
   children: ReactNode;
@@ -30,7 +31,10 @@ export default function SubpageShell({ children }: SubpageShellProps) {
 
       <footer className="border-t border-white/10 bg-[#121212]">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-8 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-16">
-          <p>© {new Date().getFullYear()} Gafisx Labs. TattooGo MK.</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <TattooGoBrand size="sm" />
+            <p>© {new Date().getFullYear()} Gafisx Labs.</p>
+          </div>
           <div className="flex flex-wrap gap-6">
             <Link href="/" transitionTypes={["nav-back"]} className="hover:text-[#FF9900]">
               Voltar para a Home

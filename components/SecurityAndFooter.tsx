@@ -10,6 +10,7 @@ import {
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SlingButton from "./SlingButton";
+import TattooGoBrand from "./ui/TattooGoBrand";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -210,11 +211,8 @@ export default function SecurityAndFooter() {
       <footer className="relative bg-[#121212]">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-8 sm:px-10 md:flex-row md:items-center md:justify-between lg:px-16">
           <a href="#top" className="gpu-accelerate-child inline-flex w-fit flex-col rounded-sm text-white transition-colors duration-200 hover:text-[#FF9900] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]">
-            <span className="text-lg font-semibold tracking-[-0.04em]">
-              <span className="bg-linear-to-r from-[#FF6600] via-[#FF9900] to-[#00FF66] bg-clip-text text-transparent">
-                TattooGo MK
-              </span>
-            </span>
+            {/* Padrão exato da logo da Home (verde neon + MK laranja), médio. */}
+            <TattooGoBrand size="md" />
             <span className="mt-1 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-white/45">
               Engineered by Gafisx Labs
             </span>

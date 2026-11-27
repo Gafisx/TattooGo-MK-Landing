@@ -24,6 +24,7 @@ import { useTopBarActionState } from "@/lib/topBarActionStore";
 import { TOP_BAR_PANEL_ID } from "@/lib/topBarActions";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { TOP_BAR_ICONS } from "./topBarIcons";
+import TattooGoBrand from "./TattooGoBrand";
 
 /** Evento consumido pelo Passo 2 (modais/gavetas/foco por layout). */
 export const TOP_BAR_ACTION_EVENT = "tattoogo:topbar-action";
@@ -185,15 +186,10 @@ export default function AppleTopBar() {
           href="/"
           transitionTypes={["nav-back"]}
           aria-label="TattooGo MK — ir para a página inicial"
-          className="group flex shrink-0 items-center gap-2 rounded-full px-1 py-1 text-sm font-bold tracking-tight text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tb-accent)]"
+          className="group flex shrink-0 items-center rounded-full px-1 py-1 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tb-accent)]"
         >
-          <span
-            aria-hidden="true"
-            className="tattoo-topbar__mark flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[11px] font-black tracking-tight text-[var(--tb-accent)]"
-          >
-            TG
-          </span>
-          <span className="hidden min-[390px]:inline">TattooGo</span>
+          {/* Mesma assinatura da logo da Home, apenas escalada para a barra. */}
+          <TattooGoBrand size="xs" decorative />
         </Link>
 
         <nav aria-label={config.ariaLabel} className="min-w-0 flex-1">
