@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { ContactShadows, Environment } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { Object3D, type SpotLight } from "three";
 
@@ -63,15 +63,6 @@ export default function StudioLighting() {
         intensity={20}
         color="#00FF66"
         distance={14}
-      />
-      <ContactShadows
-        position={[1.5, -2.2, -0.55]}
-        opacity={0.42}
-        scale={7}
-        blur={2.8}
-        far={5}
-        frames={1}
-        color="#121212"
       />
     </>
   );
