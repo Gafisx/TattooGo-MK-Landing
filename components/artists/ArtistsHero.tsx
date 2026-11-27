@@ -20,7 +20,10 @@ const DASHBOARD_METRICS = [
 
 export default function ArtistsHero() {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden bg-[#121212] px-6 py-28">
+    <section
+      id="artistas-top"
+      className="relative flex min-h-screen scroll-mt-24 items-center overflow-hidden bg-[#121212] px-6 py-28"
+    >
       {/* Glows sutis em Verde Neon (#00FF66) */}
       <div
         aria-hidden="true"

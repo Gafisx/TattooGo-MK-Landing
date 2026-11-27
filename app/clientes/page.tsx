@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ClientesPage() {
   return (
     <PageTransition>
-      <SubpageShell activeRoute="/clientes">
+      <SubpageShell>
         <ClientsHero />
         <ClientFeatures />
         <ClientStyles />

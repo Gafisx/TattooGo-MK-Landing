@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
+import AppleTopBar from "@/components/ui/AppleTopBar";
 import TattooMenu from "@/components/TattooMenu";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
           <ProceduralAudioProvider>
             <SmoothScroll>{children}</SmoothScroll>
+            <AppleTopBar />
             <TattooMenu />
           </ProceduralAudioProvider>
         </ThemeProvider>

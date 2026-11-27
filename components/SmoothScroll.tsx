@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { registerScrollSmoother } from "@/lib/contextualScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,6 +36,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       });
       lenis.on("scroll", ScrollTrigger.update);
       lenisRef.current = lenis;
+      // A barra superior delega a rolagem programática ao Lenis (fonte única).
+      registerScrollSmoother(lenis);
       gsap.ticker.add(update);
       gsap.ticker.lagSmoothing(0);
     };
@@ -43,6 +46,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       gsap.ticker.remove(update);
       lenisRef.current?.destroy();
       lenisRef.current = null;
+      registerScrollSmoother(null);
       ScrollTrigger.refresh();
     };
 

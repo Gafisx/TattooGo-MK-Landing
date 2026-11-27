@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function TatuadoresPage() {
   return (
     <PageTransition>
-      <SubpageShell activeRoute="/tatuadores">
+      <SubpageShell>
         <ArtistsHero />
         <ArtistFeatures />
         <SecuritySection variant="artist" />

@@ -15,7 +15,8 @@ export default function ClientsHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#121212]"
+      id="clientes-top"
+      className="relative flex min-h-screen scroll-mt-24 items-center justify-center overflow-hidden bg-[#121212]"
     >
       {/* Background image with fade-in and scroll parallax */}
       <motion.div

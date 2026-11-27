@@ -13,8 +13,11 @@ export const metadata: Metadata = {
 export default function DownloadPage() {
   return (
     <PageTransition>
-      <SubpageShell activeRoute="/download">
-        <section className="flex min-h-[calc(100vh-140px)] items-center justify-center bg-[#121212] py-16">
+      <SubpageShell>
+        <section
+          id="download-top"
+          className="flex min-h-[calc(100vh-140px)] scroll-mt-24 items-center justify-center bg-[#121212] py-16"
+        >
           <div className="flex flex-col items-center gap-6 rounded-2xl bg-slate-800/40 backdrop-blur-2xl border border-slate-300/30 px-10 py-14 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-center max-w-sm w-full mx-4">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-700/50 border border-slate-400/20">
               <Lock aria-hidden="true" className="h-9 w-9 text-slate-300" />
