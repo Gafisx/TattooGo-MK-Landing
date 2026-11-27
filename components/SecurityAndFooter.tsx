@@ -207,7 +207,7 @@ export default function SecurityAndFooter() {
         </div>
       </div>
 
-      <footer className="relative bg-[#121212]">
+      <footer id="legal" className="relative scroll-mt-24 bg-[#121212]">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-8 sm:px-10 md:flex-row md:items-center md:justify-between lg:px-16">
           <a href="#top" className="gpu-accelerate-child inline-flex w-fit flex-col rounded-sm text-white transition-colors duration-200 hover:text-[#FF9900] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]">
             <span className="text-lg font-semibold tracking-[-0.04em]">

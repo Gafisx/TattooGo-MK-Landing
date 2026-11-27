@@ -41,3 +41,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+visual-check/
+e2e-run.log
+e2e-run2.log
