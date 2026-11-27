@@ -2,16 +2,31 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
+const rootDir = import.meta.dirname;
+
+// Avisos de deprecação emitidos por dependências que ainda não migraram.
+// `@react-three/fiber` 9.8.2 (última versão publicada) instancia `THREE.Clock`,
+// que o three 0.187 marcou como obsoleto em favor de `THREE.Timer`. O texto é
+// comparado por igualdade para não encobrir avisos legítimos do projeto.
+const THIRD_PARTY_DEPRECATIONS = [
+  "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+];
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname),
+      "@": path.resolve(rootDir),
     },
   },
   test: {
     environment: "happy-dom",
     setupFiles: ["./vitest.setup.ts"],
+    onConsoleLog(log) {
+      if (THIRD_PARTY_DEPRECATIONS.some((message) => log.includes(message))) {
+        return false;
+      }
+    },
     onUnhandledError(error) {
       const err = error as { name?: unknown; message?: unknown } | null | undefined;
       const name = String(err?.name ?? "");

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import Home from "@/app/page";
@@ -38,7 +38,7 @@ describe("Fluxo integrado da home", () => {
     vi.stubGlobal("IntersectionObserver", ControlledIntersectionObserver);
   });
 
-  it("carrega a home com o canvas cliente e mantém o áudio mudo antes do gesto", () => {
+  it("carrega a home com o canvas cliente e mantém o áudio mudo antes do gesto", async () => {
     installFakeAudioContext();
     render(<Home />);
 
@@ -49,7 +49,11 @@ describe("Fluxo integrado da home", () => {
       "false",
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Ativar áudio" }));
+    // A ativação do áudio é assíncrona (`AudioContext.resume`), então o clique
+    // precisa ser aguardado dentro de `act` para não vazar o `setState`.
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Ativar áudio" }));
+    });
   }, HOME_RENDER_TIMEOUT);
 
   it("desliga o áudio e usa fallback estático em movimento reduzido", () => {
