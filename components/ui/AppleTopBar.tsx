@@ -20,6 +20,8 @@ import {
   type TopBarItem,
 } from "@/lib/topBarConfig";
 import { TOP_BAR_SCROLL_OFFSET, scrollToSection } from "@/lib/contextualScroll";
+import { useTopBarActionState } from "@/lib/topBarActionStore";
+import { TOP_BAR_PANEL_ID } from "@/lib/topBarActions";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { TOP_BAR_ICONS } from "./topBarIcons";
 
@@ -65,6 +67,8 @@ export default function AppleTopBar() {
 
   // Guardamos a rota junto da seção para que a troca de layout nunca herde um
   // destaque antigo sem precisar de setState dentro de efeito.
+  const openAction = useTopBarActionState();
+
   const [activeSection, setActiveSection] = useState<{
     pathname: string;
     sectionId: string | null;
@@ -136,11 +140,15 @@ export default function AppleTopBar() {
 
   const handleAction = useCallback(
     (item: TopBarActionItem) => {
-      window.dispatchEvent(
-        new CustomEvent<TopBarActionDetail>(TOP_BAR_ACTION_EVENT, {
-          detail: { actionId: item.actionId, context: config.context },
-        }),
-      );
+      // Evento cancelável: a camada de ações (`TopBarActionSheet`) chama
+      // `preventDefault()` quando abre um painel real. Sem camada montada, o
+      // fallback determinístico abaixo continua valendo.
+      const event = new CustomEvent<TopBarActionDetail>(TOP_BAR_ACTION_EVENT, {
+        detail: { actionId: item.actionId, context: config.context },
+        cancelable: true,
+      });
+      const handled = !window.dispatchEvent(event);
+      if (handled) return;
 
       if (item.actionId === "open-feedback") {
         const waitlistInput = document.getElementById(WAITLIST_INPUT_ID);
@@ -193,6 +201,10 @@ export default function AppleTopBar() {
             {config.items.map((item) => {
               const Icon = TOP_BAR_ICONS[item.icon];
               const isActive = isTopBarItemActive(item, pathname, activeSectionId);
+              const isExpanded =
+                item.kind === "action" &&
+                openAction?.actionId === item.actionId &&
+                openAction.context === config.context;
 
               const itemClassName = [
                 "tattoo-topbar__item group relative flex h-9 shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border px-2.5 text-[11px] font-semibold tracking-tight sm:px-3 sm:text-xs",
@@ -253,6 +265,8 @@ export default function AppleTopBar() {
                       aria-label={item.label}
                       data-state={isActive ? "active" : "idle"}
                       aria-haspopup="dialog"
+                      aria-expanded={isExpanded}
+                      aria-controls={isExpanded ? TOP_BAR_PANEL_ID : undefined}
                       className={itemClassName}
                     >
                       {content}

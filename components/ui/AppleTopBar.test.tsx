@@ -47,6 +47,11 @@ vi.mock("@/lib/contextualScroll", async (importOriginal) => {
 
 import AppleTopBar, { TOP_BAR_ACTION_EVENT } from "@/components/ui/AppleTopBar";
 import { scrollToSection } from "@/lib/contextualScroll";
+import {
+  closeTopBarAction,
+  openTopBarAction,
+  resetTopBarActionStoreForTests,
+} from "@/lib/topBarActionStore";
 
 type ObserverCallback = ConstructorParameters<typeof IntersectionObserver>[0];
 
@@ -102,6 +107,7 @@ describe("AppleTopBar", () => {
     vi.mocked(scrollToSection).mockClear();
     vi.mocked(scrollToSection).mockReturnValue(true);
     MockIntersectionObserver.last = null;
+    resetTopBarActionStoreForTests();
     vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
   });
 
@@ -164,6 +170,33 @@ describe("AppleTopBar", () => {
     expect(mocks.push).not.toHaveBeenCalled();
 
     window.removeEventListener(TOP_BAR_ACTION_EVENT, listener);
+  });
+
+  test("ação tratada pela camada de painéis não executa o fallback de rota", () => {
+    const cancel = (event: Event) => event.preventDefault();
+    window.addEventListener(TOP_BAR_ACTION_EVENT, cancel);
+    renderBar();
+
+    fireEvent.click(screen.getByRole("button", { name: "Feedback" }));
+
+    expect(mocks.push).not.toHaveBeenCalled();
+    window.removeEventListener(TOP_BAR_ACTION_EVENT, cancel);
+  });
+
+  test("aria-expanded reflete o painel aberto sem marcar o item como ativo", () => {
+    renderBar();
+    const feedback = screen.getByRole("button", { name: "Feedback" });
+
+    expect(feedback).toHaveAttribute("aria-expanded", "false");
+
+    act(() => openTopBarAction("open-feedback", "landing"));
+    expect(feedback).toHaveAttribute("aria-expanded", "true");
+    expect(feedback).toHaveAttribute("aria-controls", "topbar-action-sheet");
+    expect(feedback).toHaveAttribute("data-state", "idle");
+
+    act(() => closeTopBarAction());
+    expect(feedback).toHaveAttribute("aria-expanded", "false");
+    expect(feedback).not.toHaveAttribute("aria-controls");
   });
 
   test("layout de tatuadores troca accent e conjunto de itens", () => {

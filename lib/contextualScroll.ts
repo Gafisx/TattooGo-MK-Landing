@@ -22,6 +22,9 @@ export type ScrollSmootherOptions = {
 
 export type ScrollSmoother = {
   scrollTo: (target: HTMLElement | number, options?: ScrollSmootherOptions) => void;
+  /** Opcionais: permitem congelar a rolagem sob um diálogo sem perder a posição. */
+  stop?: () => void;
+  start?: () => void;
 };
 
 export type ScrollToSectionOptions = {

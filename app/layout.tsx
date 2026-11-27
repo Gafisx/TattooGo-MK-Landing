@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import AppleTopBar from "@/components/ui/AppleTopBar";
+import TopBarActionSheet from "@/components/topbar/TopBarActionSheet";
 import TattooMenu from "@/components/TattooMenu";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ProceduralAudioProvider } from "@/components/ProceduralAudioProvider";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           <ProceduralAudioProvider>
             <SmoothScroll>{children}</SmoothScroll>
             <AppleTopBar />
+            <TopBarActionSheet />
             <TattooMenu />
           </ProceduralAudioProvider>
         </ThemeProvider>
