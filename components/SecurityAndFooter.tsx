@@ -209,7 +209,13 @@ export default function SecurityAndFooter() {
       </div>
 
       <footer className="relative bg-[#121212]">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-8 sm:px-10 md:flex-row md:items-center md:justify-between lg:px-16">
+        {/*
+          Mobile/tablet: o respiro inferior reserva a zona segura dos controles
+          flutuantes (áudio à esquerda, TattooMenu à direita), então nem a marca
+          nem o copyright ficam sob eles. Em `lg` as laterais também reservam
+          essa faixa, mantendo o rodapé alinhado ao padrão do `SubpageShell`.
+        */}
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 pt-8 pb-[calc(env(safe-area-inset-bottom,0px)+var(--tattoo-float-safe-bottom))] sm:px-10 sm:pb-[calc(env(safe-area-inset-bottom,0px)+7rem)] md:flex-row md:items-center md:justify-between lg:py-8 lg:pl-24 lg:pr-32">
           <a href="#top" className="gpu-accelerate-child inline-flex w-fit flex-col rounded-sm text-white transition-colors duration-200 hover:text-[#FF9900] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6600]">
             {/* Padrão exato da logo da Home (verde neon + MK laranja), médio. */}
             <TattooGoBrand size="md" />
