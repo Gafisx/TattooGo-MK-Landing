@@ -310,7 +310,7 @@ function ProceduralAudioProviderRoot({
         aria-label={muted ? "Ativar áudio" : "Silenciar áudio"}
         aria-pressed={!muted}
         onClick={() => void toggleMuted()}
-        className={`fixed bottom-5 left-5 z-[100] inline-flex size-12 cursor-pointer items-center justify-center rounded-full border bg-[#121212]/85 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[background-color,border-color,box-shadow,color,transform] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none ${
+        className={`fixed bottom-[var(--tattoo-float-control-offset)] left-5 z-[100] inline-flex size-12 cursor-pointer items-center justify-center rounded-full border bg-[#121212]/85 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[background-color,border-color,box-shadow,color,transform] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF9900] motion-reduce:transition-none ${
           muted
             ? "border-white/15 text-white/70 hover:border-white/30 hover:text-white"
             : "border-[#FF6600]/50 text-[#FF9900] shadow-[0_0_24px_rgba(255,102,0,0.2)] hover:border-[#FF6600]/75 hover:text-[#FF6600]"

@@ -242,7 +242,9 @@ export default function ImmersiveExperience() {
 
   // Mobile: o respiro inferior reserva a zona segura dos controles
   // flutuantes (áudio e TattooMenu), mantendo a frase e o parágrafo acima
-  // deles. Desktop preserva o ritmo py-20.
+  // deles. Abaixo de 360px o parágrafo sobe (mt-6) porque a coluna de texto
+  // ocupa quase toda a largura e encostaria no gatilho do menu, que fica
+  // ancorado no canto inferior direito. Desktop preserva o ritmo py-20.
   return (
     <section
       ref={sectionRef}
@@ -323,7 +325,7 @@ export default function ImmersiveExperience() {
           </div>
         </div>
 
-        <p className="relative z-10 mx-auto mt-12 max-w-xl text-[clamp(1rem,1.4vw,1.25rem)] text-white/60 [@media(max-height:560px)]:mt-5">
+        <p className="relative z-10 mx-auto mt-12 max-w-xl text-[clamp(1rem,1.4vw,1.25rem)] text-white/60 [@media(max-width:359px)]:mt-6 [@media(max-height:560px)]:mt-5">
           Role a página e veja a tinta ganhar vida. A mesma paixão que o tatuador coloca no estúdio, traduzida para a sua tela.
         </p>
       </div>

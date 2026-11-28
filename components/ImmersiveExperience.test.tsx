@@ -60,4 +60,15 @@ describe("ImmersiveExperience", () => {
     // Conteúdo textual continua centralizado e legível.
     expect(screen.getByText(/Role a página e veja a tinta ganhar vida/i)).toBeInTheDocument();
   });
+
+  it("sobe o parágrafo em telas estreitas (<360px) para não encostar no menu", () => {
+    render(<ImmersiveExperience />);
+    const paragraph = screen.getByText(/Role a página e veja a tinta ganhar vida/i);
+
+    // Ritmo padrão preservado em >=360px.
+    expect(paragraph.className).toContain("mt-12");
+    // Em 320px a coluna de texto ocupa quase toda a largura e o gatilho do
+    // TattooMenu fica no canto inferior direito: o parágrafo sobe.
+    expect(paragraph.className).toContain("[@media(max-width:359px)]:mt-6");
+  });
 });

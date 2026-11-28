@@ -65,10 +65,14 @@ export default function TattooMenu() {
     };
   }, [isOpen, closeMenu]);
 
+  // O gatilho ancora na base da viewport (mesma linha do controle de áudio,
+  // via token com safe-area). O leque é uma coluna alinhada à direita que
+  // cresce para cima a partir do gatilho: abre de baixo para cima, sem
+  // invadir a borda inferior nem sair da tela em 320px.
   return (
     <div
       ref={menuRef}
-      className="fixed bottom-24 sm:bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+      className="fixed right-6 bottom-[var(--tattoo-float-control-offset)] z-50 flex flex-col items-end gap-3 sm:bottom-6"
     >
       <AnimatePresence>
         {isOpen && (

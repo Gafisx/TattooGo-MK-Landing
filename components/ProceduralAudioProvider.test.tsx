@@ -147,6 +147,24 @@ describe("ProceduralAudioProvider", () => {
       .toHaveAttribute("aria-pressed", "false");
   });
 
+  it("ancora o controle de áudio na mesma linha inferior do TattooMenu", () => {
+    installFakeAudioContext();
+
+    renderWithProviders(
+      <ProceduralAudioProvider>
+        <AudioProbe />
+      </ProceduralAudioProvider>,
+    );
+
+    const button = screen.getByRole("button", { name: "Ativar áudio" });
+    // Token compartilhado (1.25rem + safe-area): os dois controles flutuantes
+    // ficam alinhados na base em qualquer viewport.
+    expect(button.className).toContain(
+      "bottom-[var(--tattoo-float-control-offset)]",
+    );
+    expect(button.className).toContain("left-5");
+  });
+
   it("fecha o contexto no unmount", () => {
     installFakeAudioContext();
     vi.spyOn(document, "hidden", "get").mockReturnValue(false);

@@ -255,11 +255,24 @@ html.lenis body {
 }
 
 /* ============================================================
+   CONTROLES FLUTUANTES — linha de base compartilhada
+   O áudio (48px) e o `TattooMenu` (64px) ancoram na MESMA linha
+   inferior: 1.25rem + safe-area. Um único token evita que os
+   dois controles “flutuem” em alturas diferentes no mobile e
+   mantém ambos acima do home indicator do iOS.
+   ============================================================ */
+:root {
+  --tattoo-float-control-offset: calc(
+    env(safe-area-inset-bottom, 0px) + 1.25rem
+  );
+}
+
+/* ============================================================
    ZONA SEGURA DOS CONTROLES FLUTUANTES
-   O controle de áudio fica em `bottom-5 left-5` (48px) e o
-   `TattooMenu` em `bottom-24 right-6` (64px) no mobile: juntos
-   alcançam 160px a partir da borda inferior. Este token garante
-   que rodapés e blocos de texto terminem acima dessa faixa em
+   Os controles ancoram na base (token acima) e o maior deles
+   (gatilho do menu, 64px) termina a 84px da borda inferior; o
+   leque aberto sobe a partir daí. Este token garante que
+   rodapés e blocos de texto terminem acima dessa faixa em
    qualquer viewport, sem sobreposição.
    ============================================================ */
 :root {
