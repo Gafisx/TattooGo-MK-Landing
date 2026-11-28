@@ -16,7 +16,7 @@ export default function DownloadPage() {
       <SubpageShell>
         <section
           id="download-top"
-          className="flex min-h-[calc(100vh-140px)] scroll-mt-24 items-center justify-center bg-[#121212] py-16"
+          className="flex min-h-[calc(100vh-140px)] scroll-mt-24 items-center justify-center bg-[#121212] pt-16 pb-[calc(env(safe-area-inset-bottom,0px)+6rem)] sm:pb-16"
         >
           <div className="group relative flex flex-col items-center gap-6 rounded-2xl bg-slate-800/45 backdrop-blur-2xl border border-slate-300/30 px-10 py-14 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-center max-w-sm w-full mx-4 transition-colors duration-300 hover:border-[#FF6600]/40 hover:shadow-[0_0_32px_rgba(255,102,0,0.15)]">
             {/* Aura sutil de marca no card */}

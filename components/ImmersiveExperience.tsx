@@ -240,10 +240,13 @@ export default function ImmersiveExperience() {
     setImmersiveVisible,
   ]);
 
+  // Mobile: o respiro inferior reserva a zona segura dos controles
+  // flutuantes (áudio e TattooMenu), mantendo a frase e o parágrafo acima
+  // deles. Desktop preserva o ritmo py-20.
   return (
     <section
       ref={sectionRef}
-      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-transparent py-16 sm:py-20 [@media(max-height:560px)]:py-4"
+      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-transparent pt-16 pb-[calc(env(safe-area-inset-bottom,0px)+var(--tattoo-float-safe-bottom))] sm:pt-20 sm:pb-20 [@media(max-height:560px)]:pt-4 [@media(max-height:560px)]:pb-6"
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,102,0,0.05),transparent_60%)]" />
 

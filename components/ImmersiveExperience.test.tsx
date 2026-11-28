@@ -46,4 +46,18 @@ describe("ImmersiveExperience", () => {
     expect(screen.getByTestId("three-view")).toBeInTheDocument();
     expect(screen.getByTestId("tattoo-machine")).toBeInTheDocument();
   });
+
+  it("reserva a zona segura dos controles flutuantes no mobile", () => {
+    const { container } = render(<ImmersiveExperience />);
+    const section = container.querySelector("section");
+
+    expect(section).not.toBeNull();
+    // Respiro inferior: controle de áudio (esquerda) e TattooMenu (direita).
+    expect(section?.className).toContain("var(--tattoo-float-safe-bottom)");
+    expect(section?.className).toContain("env(safe-area-inset-bottom");
+    // Desktop preservado: o respiro volta ao ritmo original a partir de sm.
+    expect(section?.className).toContain("sm:pb-20");
+    // Conteúdo textual continua centralizado e legível.
+    expect(screen.getByText(/Role a página e veja a tinta ganhar vida/i)).toBeInTheDocument();
+  });
 });

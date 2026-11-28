@@ -30,7 +30,12 @@ export default function SubpageShell({ children }: SubpageShellProps) {
       </main>
 
       <footer className="border-t border-white/10 bg-[#121212] shadow-[0_-4px_24px_rgba(0,0,0,0.5)]">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-8 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-16">
+        {/*
+          Mobile: o respiro inferior usa a zona segura dos controles
+          flutuantes (áudio à esquerda, TattooMenu à direita), então o link
+          "Voltar para a Home" nunca fica sob eles. Desktop permanece py-8.
+        */}
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 pt-8 pb-[calc(env(safe-area-inset-bottom,0px)+var(--tattoo-float-safe-bottom))] text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pt-8 sm:pb-[calc(env(safe-area-inset-bottom,0px)+7rem)] lg:px-16 lg:py-8 lg:pr-24">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <TattooGoBrand size="sm" />
             <p>© {new Date().getFullYear()} Gafisx Labs.</p>

@@ -254,6 +254,18 @@ html.lenis body {
   --tattoo-topbar-height: 3.5rem;
 }
 
+/* ============================================================
+   ZONA SEGURA DOS CONTROLES FLUTUANTES
+   O controle de áudio fica em `bottom-5 left-5` (48px) e o
+   `TattooMenu` em `bottom-24 right-6` (64px) no mobile: juntos
+   alcançam 160px a partir da borda inferior. Este token garante
+   que rodapés e blocos de texto terminem acima dessa faixa em
+   qualquer viewport, sem sobreposição.
+   ============================================================ */
+:root {
+  --tattoo-float-safe-bottom: 11rem;
+}
+
 .tattoo-topbar {
   padding-top: env(safe-area-inset-top, 0px);
   transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
