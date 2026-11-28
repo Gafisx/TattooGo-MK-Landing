@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type KeyboardEvent,
@@ -19,7 +20,12 @@ import {
   type TopBarContextKey,
   type TopBarItem,
 } from "@/lib/topBarConfig";
-import { TOP_BAR_SCROLL_OFFSET, scrollToSection } from "@/lib/contextualScroll";
+import { TOP_BAR_SCROLL_OFFSET, isContextualScrollActive, scrollToSection } from "@/lib/contextualScroll";
+import {
+  TOP_BAR_SCROLL_ENGINE,
+  decideTopBarVisibility,
+  type TopBarScrollLocks,
+} from "@/lib/topBarScrollEngine";
 import { useTopBarActionState } from "@/lib/topBarActionStore";
 import { TOP_BAR_PANEL_ID } from "@/lib/topBarActions";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
@@ -76,6 +82,72 @@ export default function AppleTopBar() {
   }>({ pathname, sectionId: null });
   const activeSectionId =
     activeSection.pathname === pathname ? activeSection.sectionId : null;
+
+  // Motor de recolhimento/retorno da barra no scroll (estilo Instagram).
+  const headerRef = useRef<HTMLElement | null>(null);
+  const visibleRef = useRef(true);
+  const prevScrollYRef = useRef(0);
+  const accumulatedDeltaRef = useRef(0);
+  const lastTimeRef = useRef(0);
+
+  const applyVisibility = useCallback((visible: boolean) => {
+    visibleRef.current = visible;
+    const header = headerRef.current;
+    if (!header) return;
+    header.style.transform = visible
+      ? "translate3d(0, 0, 0)"
+      : "translate3d(0, -100%, 0)";
+    header.dataset.topbarVisible = visible ? "true" : "false";
+    header.classList.toggle("tattoo-topbar--hidden", !visible);
+  }, []);
+
+  const isMenuOpen = useCallback(() => {
+    if (typeof document === "undefined") return false;
+    const trigger = document.querySelector(
+      '[aria-controls="tattoo-quick-menu"][aria-expanded="true"]',
+    );
+    return trigger !== null || document.getElementById("tattoo-quick-menu") !== null;
+  }, []);
+
+  const computeLocks = useCallback((): TopBarScrollLocks => {
+    const header = headerRef.current;
+    const scrollY =
+      typeof window !== "undefined" ? window.scrollY : 0;
+    return {
+      nearTop: scrollY <= TOP_BAR_SCROLL_ENGINE.topThreshold,
+      actionSheetOpen: openAction !== null,
+      menuOpen: isMenuOpen(),
+      focusWithin: header !== null && header.contains(document.activeElement),
+      programmaticScroll: isContextualScrollActive(),
+    };
+  }, [openAction, isMenuOpen]);
+
+  const recompute = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const now =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+    const currentScrollY = window.scrollY;
+    const decision = decideTopBarVisibility({
+      currentVisible: visibleRef.current,
+      prevScrollY: prevScrollYRef.current,
+      currentScrollY,
+      accumulatedDelta: accumulatedDeltaRef.current,
+      lastTime: lastTimeRef.current || now,
+      now,
+      locks: computeLocks(),
+    });
+    prevScrollYRef.current = currentScrollY;
+    accumulatedDeltaRef.current = decision.accumulatedDelta;
+    lastTimeRef.current = decision.lastTime;
+    applyVisibility(decision.visible);
+  }, [applyVisibility, computeLocks]);
+
+  const handleScroll = useCallback(() => {
+    // Aplicação síncrona e leve: apenas leitura de scrollY + escrita de
+    // transform (GPU), sem layout thrashing. O rAF é usado para coalescer
+    // recomputações disparadas por foco/clique.
+    recompute();
+  }, [recompute]);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") {
@@ -173,10 +245,50 @@ export default function AppleTopBar() {
     if (event.key === " " || event.key === "Enter") event.stopPropagation();
   }, []);
 
+  // Reset do estado de visibilidade a cada mudança de rota/layout.
+  useEffect(() => {
+    visibleRef.current = true;
+    accumulatedDeltaRef.current = 0;
+    prevScrollYRef.current = typeof window !== "undefined" ? window.scrollY : 0;
+    lastTimeRef.current = typeof performance !== "undefined" ? performance.now() : Date.now();
+    applyVisibility(true);
+  }, [pathname, applyVisibility]);
+
+  // Listeners globais: scroll, foco e cliques (para detectar abertura do TattooMenu).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onScroll = () => handleScroll();
+    const onFocusIn = () => recompute();
+    const onClick = () => {
+      // Deixa o TattooMenu atualizar aria-expanded antes de recomputar.
+      window.requestAnimationFrame(() => recompute());
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("click", onClick, true);
+
+    // Estado inicial.
+    recompute();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("click", onClick, true);
+    };
+  }, [handleScroll, recompute]);
+
+  // Reage à abertura/fechamento do TopBarActionSheet (store) e reduced-motion.
+  useEffect(() => {
+    recompute();
+  }, [openAction, reducedMotion, recompute]);
+
   const style: AccentStyle = { "--tb-accent": TOP_BAR_ACCENTS[config.accent] };
 
   return (
     <header
+      ref={headerRef}
       className="tattoo-topbar fixed inset-x-0 top-0 z-[60] w-full"
       style={style}
       data-topbar-context={config.context}
