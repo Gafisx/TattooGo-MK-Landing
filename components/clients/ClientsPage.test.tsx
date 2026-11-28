@@ -128,9 +128,13 @@ describe("ClientesPage", () => {
 
   test("ClientStyles renders all 5 tattoo style labels and animates on hover", () => {
     render(<ClientStyles />);
+    const gallery = screen.getByRole("list");
+    expect(gallery).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(5);
+
     const styles = ["Realismo", "Old School", "Blackwork", "Aquarela", "Fine Line"];
     for (const style of styles) {
-      expect(screen.getByText(style)).toBeInTheDocument();
+      expect(screen.getByText(style)).toBeVisible();
     }
 
     const oldSchoolImg = screen.getByAltText("Old School");

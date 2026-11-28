@@ -44,10 +44,11 @@ export default function AccordionGallery({ items }: { items: Item[] }) {
   }, [applyLayout]);
 
   return (
-    <div ref={rootRef} className="flex flex-row gap-2 w-full max-w-[1440px] mx-auto h-[460px] [perspective:1400px]">
+    <div ref={rootRef} role="list" aria-label="Galeria de estilos de tatuagem" className="flex flex-row gap-2 w-full max-w-[1440px] mx-auto h-[460px] [perspective:1400px]">
       {items.map((item, i) => (
         <div
           key={item.label}
+          role="listitem"
           ref={(el) => { panelRefs.current[i] = el; }}
           onMouseEnter={() => setActive(i)}
           className={`relative flex-1 min-w-0 overflow-hidden rounded-2xl cursor-pointer transition-colors duration-300 ${
